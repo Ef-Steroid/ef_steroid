@@ -28,8 +28,15 @@ class AppDotnetEfService extends DotnetEfService {
   Future<String> updateDatabaseAsync({
     required Uri projectUri,
   }) async {
-    final shell = Shell();
-
+    const stdin = Stream<List<int>>.empty();
+    final shell = Shell(
+      stdin: stdin,
+      commandVerbose: true,
+      commentVerbose: true,
+    );
+    stdin.listen((event) {
+      print(event);
+    });
     final args = <String>[];
 
     // Add database command.

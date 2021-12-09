@@ -17,6 +17,10 @@ dependencies:
   cupertino_icons: ^1.0.2
   file_picker: ^4.2.7
   logging: ^1.0.2
+  sqflite: ^2.0.1
+  sqflite_common_ffi: ^2.1.0
+  sqflite_migration: ^0.3.0
+  path_provider: ^2.0.8
 
 dev_dependencies:
   flutter_test:

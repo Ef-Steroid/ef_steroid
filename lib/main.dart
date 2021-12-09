@@ -1,15 +1,23 @@
 import 'package:fast_dotnet_ef/services/service_locator.dart';
+import 'package:fast_dotnet_ef/services/sqlite/sqlite_service.dart';
 import 'package:fast_dotnet_ef/views/ef_panel/ef_panel_tab_data.dart';
 import 'package:fast_dotnet_ef/views/ef_panel/tab_data_value.dart';
 import 'package:fast_dotnet_ef/views/root_tab_view.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:logging/logging.dart';
 import 'package:tabbed_view/tabbed_view.dart';
 
 Future<void> main() async {
   Logger.root.level = Level.ALL;
+  WidgetsFlutterBinding.ensureInitialized();
   await configure();
+  await _setupSqliteService();
   runApp(const MyApp());
+}
+
+Future<void> _setupSqliteService() async {
+  await GetIt.I<SqliteService>().setupAsync();
 }
 
 class MyApp extends StatelessWidget {

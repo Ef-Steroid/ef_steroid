@@ -47,3 +47,5 @@ app.*.map.json
 
 # Flutter generated files
 /lib/services/service_locator.config.dart
+/tools/FastDotnetEfSqlite/bin/
+/tools/FastDotnetEfSqlite/obj/
