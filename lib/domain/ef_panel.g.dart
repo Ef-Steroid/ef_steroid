@@ -7,11 +7,11 @@ part of 'ef_panel.dart';
 // **************************************************************************
 
 EfPanel _$EfPanelFromJson(Map<String, dynamic> json) => EfPanel(
-      id: json['id'] as int?,
-      directoryUrl: Uri.parse(json['directoryUrl'] as String),
+      id: json['Id'] as int?,
+      directoryUrl: Uri.parse(json['DirectoryUrl'] as String),
     );
 
 Map<String, dynamic> _$EfPanelToJson(EfPanel instance) => <String, dynamic>{
-      'id': instance.id,
-      'directoryUrl': instance.directoryUrl.toString(),
+      'Id': instance.id,
+      'DirectoryUrl': instance.directoryUrl.toString(),
     };

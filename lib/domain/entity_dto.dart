@@ -1,8 +1,9 @@
-import 'package:fast_dotnet_ef/data/default_values.dart';
-
 abstract class EntityDto {
   final int? id;
 
+  String get tableName;
+
+  /// Check if this entity is transient (it's [id] is null).
   bool get isTransient => id == null;
 
   EntityDto({

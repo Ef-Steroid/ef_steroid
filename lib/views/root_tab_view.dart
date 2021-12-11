@@ -26,6 +26,18 @@ class _RootTabViewState extends State<RootTabView> {
   final Repository<EfPanel> _efPanelRepository = GetIt.I<Repository<EfPanel>>();
 
   @override
+  void initState() {
+    super.initState();
+    _loadPreviousTabsAsync();
+  }
+
+  @override
+  void reassemble() {
+    _loadPreviousTabsAsync();
+    super.reassemble();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return TabbedView(
       controller: widget.tabbedViewController,
@@ -39,7 +51,7 @@ class _RootTabViewState extends State<RootTabView> {
 
         if (tabDataValue is EfPanelTabDataValue) {
           return EfPanelView(
-            fileUri: tabDataValue.uri,
+            fileUri: tabDataValue.efPanel.directoryUrl,
           );
         }
 
@@ -65,17 +77,31 @@ class _RootTabViewState extends State<RootTabView> {
       return;
     }
 
-    final value = await _efPanelRepository.insertOrUpdateAsync(EfPanel(
+    final efPanel = EfPanel(
       directoryUrl: Uri.parse(filePath),
-    ));
-    print(value);
+    );
+    final id = await _efPanelRepository.insertOrUpdateAsync(efPanel);
 
+    _addProjectTab(efPanel.copyWith(id: id));
+  }
+
+  void _addProjectTab(EfPanel efPanel) {
     widget.tabbedViewController.insertTab(
       widget.tabbedViewController.tabs.length - 1,
       EfPanelTabData(
-        value: EfPanelTabDataValue(uri: fileUri),
-        text: path.basenameWithoutExtension(fileUri.toString()),
+        value: EfPanelTabDataValue(efPanel: efPanel),
+        text: path.basenameWithoutExtension(efPanel.directoryUrl.toString()),
       ),
     );
+  }
+
+  Future<void> _loadPreviousTabsAsync() async {
+    final results = await _efPanelRepository.getAllAsync();
+    final efPanelInTabs = widget.tabbedViewController.tabs
+        .where((x) => x.value is! AddEfPanelTabDataValue)
+        .map((e) => e.value as EfPanelTabDataValue);
+    results
+        .where((x) => efPanelInTabs.every((y) => y.efPanel.id != x.id))
+        .forEach(_addProjectTab);
   }
 }

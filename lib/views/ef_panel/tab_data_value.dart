@@ -1,3 +1,5 @@
+import 'package:fast_dotnet_ef/domain/ef_panel.dart';
+
 abstract class TabDataValue {
   /// The display text for the current tab.
   final String displayText;
@@ -19,12 +21,12 @@ class EfPanelTabDataValue extends TabDataValue {
   /// The uri for the current tab.
   ///
   /// Typically a file uri that targets the EF project.
-  final Uri uri;
+  final EfPanel efPanel;
 
   EfPanelTabDataValue({
-    required this.uri,
+    required this.efPanel,
   }) : super(
-          displayText: uri.toString(),
+          displayText: efPanel.directoryUrl.toString(),
           closable: true,
           keepAlive: true,
         );

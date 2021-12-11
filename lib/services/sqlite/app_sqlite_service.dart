@@ -7,6 +7,7 @@ import 'package:fast_dotnet_ef/services/sqlite/initialization_script.dart';
 import 'package:fast_dotnet_ef/services/sqlite/migration_scripts.dart';
 import 'package:fast_dotnet_ef/services/sqlite/sqlite_service.dart';
 import 'package:fast_dotnet_ef/services/sqlite/unit_of_work.dart';
+import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart' as path_provider;
@@ -49,7 +50,9 @@ class AppSqliteService extends SqliteService {
 
     _dbPath = fastDotnetEfDbPath;
 
-    print(fastDotnetEfDbPath);
+    if (kDebugMode) {
+      print(fastDotnetEfDbPath);
+    }
     if (Platform.isWindows || Platform.isLinux) {
       databaseFactory = databaseFactoryFfi;
       sqfliteFfiInit();

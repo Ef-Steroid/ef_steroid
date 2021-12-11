@@ -1,5 +1,7 @@
+import 'package:fast_dotnet_ef/localization/localizations.dart';
 import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef_service.dart';
 import 'package:fast_dotnet_ef/services/log/log_service.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -23,6 +25,7 @@ class _EfPanelViewState extends State<EfPanelView> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AL.of(context).text;
     return Column(
       children: [
         if (_isBusy)
@@ -30,11 +33,11 @@ class _EfPanelViewState extends State<EfPanelView> {
         else
           OutlinedButton(
             onPressed: _updateDatabaseAsync,
-            child: Text('Update database'),
+            child: Text(l('UpdateDatabase')),
           ),
         OutlinedButton(
           onPressed: _collectLogAsync,
-          child: Text('Collect log'),
+          child: Text(l('CollectLog')),
         ),
       ],
     );
@@ -52,8 +55,10 @@ class _EfPanelViewState extends State<EfPanelView> {
 
   Future<void> _collectLogAsync() async {
     final log = _logService.getLog();
-    for (final e in log) {
-      print('[${e.level}] ${e.loggerName}: ${e.message}\n ${e.error}');
+    if (kDebugMode) {
+      for (final e in log) {
+        print('[${e.level}] ${e.loggerName}: ${e.message}\n ${e.error}');
+      }
     }
   }
 }

@@ -49,3 +49,7 @@ app.*.map.json
 /lib/services/service_locator.config.dart
 /tools/FastDotnetEfSqlite/bin/
 /tools/FastDotnetEfSqlite/obj/
+/lib/main.reflectable.dart
+/test/widget_test.reflectable.dart
+/tools/ResourceUtil/ResourceUtil/bin/
+/tools/ResourceUtil/ResourceUtil/obj/

@@ -1,6 +1,5 @@
-import 'dart:io';
-
 import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef_service.dart';
+import 'package:fast_dotnet_ef/services/file/file_service.dart';
 import 'package:fast_dotnet_ef/services/log/log_service.dart';
 import 'package:injectable/injectable.dart';
 import 'package:process_run/shell.dart';
@@ -8,11 +7,13 @@ import 'package:process_run/shell.dart';
 @Injectable(as: DotnetEfService)
 class AppDotnetEfService extends DotnetEfService {
   final LogService _logService;
+  final FileService _fileService;
 
   static const String dotnetEfCommandName = 'dotnet-ef';
 
   AppDotnetEfService(
     this._logService,
+    this._fileService,
   );
 
   String get dotnetEfExecutable {
@@ -34,9 +35,7 @@ class AppDotnetEfService extends DotnetEfService {
       commandVerbose: true,
       commentVerbose: true,
     );
-    stdin.listen((event) {
-      print(event);
-    });
+
     final args = <String>[];
 
     // Add database command.
@@ -49,13 +48,7 @@ class AppDotnetEfService extends DotnetEfService {
     args.add('-p');
     var projectPath = Uri.decodeFull(projectUri.toString());
 
-    if (Platform.isMacOS) {
-      final homeSegment = Platform.environment['HOME']!;
-      final matches = homeSegment.allMatches(projectPath);
-      if (matches.isNotEmpty) {
-        projectPath = projectPath.substring(matches.first.start);
-      }
-    }
+    projectPath = _fileService.stripMacDiscFromPath(path: projectPath);
 
     args.add(projectPath);
     String? result;

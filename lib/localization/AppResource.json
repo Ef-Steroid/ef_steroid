@@ -1,0 +1,18 @@
+{
+  "texts": [
+    {
+      "name": "UpdateDatabase",
+      "values": {
+        "en": "Update database",
+        "zh_Hans": "更新数据库"
+      }
+    },
+    {
+      "name": "CollectLog",
+      "values": {
+        "en": "Collect log",
+        "zh_Hans": "收集日志"
+      }
+    }
+  ]
+}
