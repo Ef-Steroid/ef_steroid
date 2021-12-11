@@ -1,4 +1,5 @@
 import 'package:fast_dotnet_ef/domain/ef_panel.dart';
+import 'package:fast_dotnet_ef/helpers/uri_helper.dart';
 import 'package:path/path.dart' as path;
 
 abstract class TabDataValue {
@@ -34,7 +35,7 @@ class EfPanelTabDataValue extends TabDataValue {
 
   static String _generateTabDisplayTextFromUri(EfPanel efPanel) {
     final name = path.basenameWithoutExtension(
-        Uri.decodeFull(efPanel.directoryUrl.toString()));
+        Uri.decodeFull(efPanel.directoryUrl.toDecodedString()));
     return name;
   }
 }

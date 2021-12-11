@@ -1,3 +1,4 @@
+import 'package:fast_dotnet_ef/helpers/uri_helper.dart';
 import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef_service.dart';
 import 'package:fast_dotnet_ef/services/file/file_service.dart';
 import 'package:fast_dotnet_ef/services/log/log_service.dart';
@@ -46,7 +47,7 @@ class AppDotnetEfService extends DotnetEfService {
 
     // Add project option.
     args.add('-p');
-    var projectPath = Uri.decodeFull(projectUri.toString());
+    var projectPath = projectUri.toDecodedString();
 
     projectPath = _fileService.stripMacDiscFromPath(path: projectPath);
 

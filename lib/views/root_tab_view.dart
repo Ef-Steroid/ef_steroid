@@ -92,7 +92,6 @@ class _RootTabViewState extends State<RootTabView> {
   }
 
   void _addProjectTab(EfPanel efPanel) {
-
     final efPanelTabDataValue = EfPanelTabDataValue(efPanel: efPanel);
     widget.tabbedViewController.insertTab(
       widget.tabbedViewController.tabs.length - 1,
