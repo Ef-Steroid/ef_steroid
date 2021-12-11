@@ -1,9 +1,12 @@
+import 'package:fast_dotnet_ef/domain/ef_panel.dart';
+import 'package:fast_dotnet_ef/repository/repository.dart';
 import 'package:fast_dotnet_ef/views/ef_panel/ef_add_panel.dart';
 import 'package:fast_dotnet_ef/views/ef_panel/ef_panel.dart';
 import 'package:fast_dotnet_ef/views/ef_panel/ef_panel_tab_data.dart';
 import 'package:fast_dotnet_ef/views/ef_panel/tab_data_value.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:path/path.dart' as path;
 import 'package:tabbed_view/tabbed_view.dart';
 
@@ -20,6 +23,8 @@ class RootTabView extends StatefulWidget {
 }
 
 class _RootTabViewState extends State<RootTabView> {
+  final Repository<EfPanel> _efPanelRepository = GetIt.I<Repository<EfPanel>>();
+
   @override
   Widget build(BuildContext context) {
     return TabbedView(
@@ -59,6 +64,11 @@ class _RootTabViewState extends State<RootTabView> {
       //TODO: Pop an error dialog here.
       return;
     }
+
+    final value = await _efPanelRepository.insertOrUpdateAsync(EfPanel(
+      directoryUrl: Uri.parse(filePath),
+    ));
+    print(value);
 
     widget.tabbedViewController.insertTab(
       widget.tabbedViewController.tabs.length - 1,

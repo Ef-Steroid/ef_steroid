@@ -2,7 +2,7 @@ using FastDotnetEfSqlite.Entity.EntityBase;
 
 namespace FastDotnetEfSqlite.Entity;
 
-public class EfPanel : EntityDto<Guid>
+public class EfPanel : EntityDto<int>
 {
     public string DirectoryUrl { get; set; }
 
@@ -10,7 +10,7 @@ public class EfPanel : EntityDto<Guid>
     {
     }
 
-    protected EfPanel(Guid id) : base(id)
+    protected EfPanel(int id) : base(id)
     {
     }
 }

@@ -53,7 +53,7 @@ class _EfPanelViewState extends State<EfPanelView> {
   Future<void> _collectLogAsync() async {
     final log = _logService.getLog();
     for (final e in log) {
-      print(e);
+      print('[${e.level}] ${e.loggerName}: ${e.message}\n ${e.error}');
     }
   }
 }

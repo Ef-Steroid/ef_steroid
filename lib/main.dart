@@ -1,4 +1,4 @@
-import 'package:fast_dotnet_ef/services/service_locator.dart';
+import 'package:fast_dotnet_ef/services/service_locator.dart' as sl;
 import 'package:fast_dotnet_ef/services/sqlite/sqlite_service.dart';
 import 'package:fast_dotnet_ef/views/ef_panel/ef_panel_tab_data.dart';
 import 'package:fast_dotnet_ef/views/ef_panel/tab_data_value.dart';
@@ -11,7 +11,7 @@ import 'package:tabbed_view/tabbed_view.dart';
 Future<void> main() async {
   Logger.root.level = Level.ALL;
   WidgetsFlutterBinding.ensureInitialized();
-  await configure();
+  await sl.configure();
   await _setupSqliteService();
   runApp(const MyApp());
 }
@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Fast Dotnet Ef',
       themeMode: ThemeMode.system,
       theme: ThemeData(
         primarySwatch: Colors.blue,
