@@ -41,6 +41,7 @@ class _RootTabViewState extends State<RootTabView> {
   Widget build(BuildContext context) {
     return TabbedView(
       controller: widget.tabbedViewController,
+      onTabClose: _onTabClosedAsync,
       contentBuilder: (context, index) {
         final tabDataValue = widget.tabbedViewController.tabs[index].value;
         if (tabDataValue is AddEfPanelTabDataValue) {
@@ -58,6 +59,12 @@ class _RootTabViewState extends State<RootTabView> {
         return const SizedBox.shrink();
       },
     );
+  }
+
+  Future<void> _onTabClosedAsync(int index, TabData tabData) {
+    final tabValue = tabData.value;
+    if (tabValue is! EfPanelTabDataValue) return Future.value();
+    return _removeFromStorageAsync(efPanel: tabValue.efPanel);
   }
 
   Future<void> _addEfProjectAsync() async {
@@ -103,5 +110,11 @@ class _RootTabViewState extends State<RootTabView> {
     results
         .where((x) => efPanelInTabs.every((y) => y.efPanel.id != x.id))
         .forEach(_addProjectTab);
+  }
+
+  Future<void> _removeFromStorageAsync({
+    required EfPanel efPanel,
+  }) {
+    return _efPanelRepository.deleteAsync(efPanel);
   }
 }

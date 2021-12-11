@@ -24,4 +24,6 @@ abstract class Repository<TEntity extends EntityDto> {
   Future<List<TEntity>> getAllAsync();
 
   Future<TEntity?> getAsync(int id);
+
+  Future<void> deleteAsync(TEntity entity);
 }

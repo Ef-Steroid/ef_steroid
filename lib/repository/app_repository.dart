@@ -41,6 +41,18 @@ class AppRepository<TEntity extends EntityDto> extends Repository<TEntity> {
     return getAllAsync()
         .then((value) => value.firstWhereOrNull((element) => element.id == id));
   }
+
+  @override
+  Future<void> deleteAsync(TEntity entity) {
+    return _sqliteService.useDatabaseAsync<void>(
+      uow: (db) => db.delete(
+        getTableName(),
+        where: 'Id=?',
+        whereArgs: [entity.id],
+      ),
+      orDefault: () {},
+    );
+  }
 }
 
 extension TypeExt on Type {
