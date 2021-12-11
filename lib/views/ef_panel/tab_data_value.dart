@@ -1,4 +1,5 @@
 import 'package:fast_dotnet_ef/domain/ef_panel.dart';
+import 'package:path/path.dart' as path;
 
 abstract class TabDataValue {
   /// The display text for the current tab.
@@ -26,10 +27,16 @@ class EfPanelTabDataValue extends TabDataValue {
   EfPanelTabDataValue({
     required this.efPanel,
   }) : super(
-          displayText: efPanel.directoryUrl.toString(),
+          displayText: _generateTabDisplayTextFromUri(efPanel),
           closable: true,
           keepAlive: true,
         );
+
+  static String _generateTabDisplayTextFromUri(EfPanel efPanel) {
+    final name = path.basenameWithoutExtension(
+        Uri.decodeFull(efPanel.directoryUrl.toString()));
+    return name;
+  }
 }
 
 class AddEfPanelTabDataValue extends TabDataValue {

@@ -7,7 +7,6 @@ import 'package:fast_dotnet_ef/views/ef_panel/tab_data_value.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:path/path.dart' as path;
 import 'package:tabbed_view/tabbed_view.dart';
 
 class RootTabView extends StatefulWidget {
@@ -85,7 +84,7 @@ class _RootTabViewState extends State<RootTabView> {
     }
 
     final efPanel = EfPanel(
-      directoryUrl: Uri.parse(filePath),
+      directoryUrl: fileUri,
     );
     final id = await _efPanelRepository.insertOrUpdateAsync(efPanel);
 
@@ -93,11 +92,13 @@ class _RootTabViewState extends State<RootTabView> {
   }
 
   void _addProjectTab(EfPanel efPanel) {
+
+    final efPanelTabDataValue = EfPanelTabDataValue(efPanel: efPanel);
     widget.tabbedViewController.insertTab(
       widget.tabbedViewController.tabs.length - 1,
       EfPanelTabData(
-        value: EfPanelTabDataValue(efPanel: efPanel),
-        text: path.basenameWithoutExtension(efPanel.directoryUrl.toString()),
+        value: efPanelTabDataValue,
+        text: efPanelTabDataValue.displayText,
       ),
     );
   }
