@@ -47,7 +47,8 @@ class _RootTabViewState extends State<RootTabView> {
 
             if (tabDataValue is EfPanelTabDataValue) {
               return EfPanelView(
-                fileUri: tabDataValue.efPanel.directoryUrl,
+                key: ValueKey(tabDataValue.efPanel.directoryUrl),
+                efPanel: tabDataValue.efPanel,
               );
             }
 

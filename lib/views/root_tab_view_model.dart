@@ -73,6 +73,8 @@ class RootTabViewModel extends ViewModelBase with ReassembleHandler {
       EfPanelTabData(
         value: efPanelTabDataValue,
         text: efPanelTabDataValue.displayText,
+        keepAlive: efPanelTabDataValue.keepAlive,
+        closable: efPanelTabDataValue.closable,
       ),
     );
   }

@@ -29,7 +29,8 @@ dependencies:
   reflectable: ^3.0.4
   intl: ^0.17.0
   shared_preferences: ^2.0.11
-
+  provider: ^6.0.1
+  darq: ^1.1.1
 
 dev_dependencies:
   flutter_test:

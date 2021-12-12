@@ -1,4 +1,7 @@
 {
   "UpdateDatabase": "更新数据库",
-  "CollectLog": "收集日志"
+  "CollectLog": "收集日志",
+  "Database": "数据库",
+  "Migrations": "迁移",
+  "Script": "脚本"
 }

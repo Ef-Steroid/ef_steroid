@@ -20,7 +20,9 @@ class AppRepository<TEntity extends EntityDto> extends Repository<TEntity> {
             )
           : db.update(
               getTableName(),
-              entity.toJson(),
+              entity.toUpdateJson(),
+              where: 'Id=?',
+              whereArgs: [entity.id],
             ),
       orDefault: () => DefaultValues.intDefaultValue,
     );

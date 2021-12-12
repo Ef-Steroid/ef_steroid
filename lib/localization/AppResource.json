@@ -5,13 +5,36 @@
       "values": {
         "en": "Update database",
         "zh_Hans": "更新数据库"
-      }
+      },
+      "isReferenced": false
     },
     {
       "name": "CollectLog",
       "values": {
         "en": "Collect log",
         "zh_Hans": "收集日志"
+      },
+      "isReferenced": false
+    },
+    {
+      "name": "Database",
+      "values": {
+        "en": "Database",
+        "zh_Hans": "数据库"
+      }
+    },
+    {
+      "name": "Migrations",
+      "values": {
+        "en": "Migrations",
+        "zh_Hans": "迁移"
+      }
+    },
+    {
+      "name": "Script",
+      "values": {
+        "en": "Script",
+        "zh_Hans": "脚本"
       }
     }
   ]

@@ -3,11 +3,13 @@ import 'package:fast_dotnet_ef/helpers/context_helper.dart';
 import 'package:fast_dotnet_ef/helpers/intl/language_helper.dart';
 import 'package:fast_dotnet_ef/localization/localizations.dart';
 import 'package:fast_dotnet_ef/main.reflectable.dart';
+import 'package:fast_dotnet_ef/services/log/log_service.dart';
 import 'package:fast_dotnet_ef/services/service_locator.dart' as sl;
 import 'package:fast_dotnet_ef/services/sqlite/sqlite_service.dart';
 import 'package:fast_dotnet_ef/views/ef_panel/ef_panel_tab_data.dart';
 import 'package:fast_dotnet_ef/views/ef_panel/tab_data_value.dart';
 import 'package:fast_dotnet_ef/views/root_tab_view.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get_it/get_it.dart';
@@ -21,12 +23,21 @@ Future<void> main() async {
   await sl.configure();
   final setupSqliteService = _setupSqliteService();
   final setupAppSettings = AppSettings.instance.setup();
-
+  _debugPrintLog();
   await Future.wait([
     setupSqliteService,
     setupAppSettings,
   ]);
   runApp(const MyApp());
+}
+
+void _debugPrintLog() {
+  GetIt.I<LogService>().onRecord.listen((event) {
+    if (kDebugMode) {
+      print(
+          '[${event.level}] ${event.loggerName}: ${event.message}\n ${event.error}');
+    }
+  });
 }
 
 Future<void> _setupSqliteService() async {

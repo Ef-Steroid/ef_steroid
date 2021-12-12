@@ -11,4 +11,9 @@ abstract class EntityDto {
   });
 
   Map<String, dynamic> toJson();
+
+  Map<String, dynamic> toUpdateJson() => toJson()
+    ..removeWhere(
+      (key, value) => key == 'Id',
+    );
 }

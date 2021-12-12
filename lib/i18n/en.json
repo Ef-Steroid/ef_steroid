@@ -1,4 +1,7 @@
 {
   "UpdateDatabase": "Update database",
-  "CollectLog": "Collect log"
+  "CollectLog": "Collect log",
+  "Database": "Database",
+  "Migrations": "Migrations",
+  "Script": "Script"
 }
