@@ -5,14 +5,14 @@ import 'package:intl/intl.dart';
 
 class LanguageHelper {
   static const String en = 'en';
-  static const String zh_Hans = 'zh_Hans';
+  static const String zhHans = 'zh_Hans';
 
   static const Map<String, _LocaleDetail> languages = {
     en: _LocaleDetail(
       name: 'English',
       locale: Locale('en'),
     ),
-    zh_Hans: _LocaleDetail(
+    zhHans: _LocaleDetail(
       name: '简体中文',
       locale: Locale.fromSubtags(
         languageCode: 'zh',
@@ -29,7 +29,7 @@ class LanguageHelper {
     switch (AppSettings.prefLocale) {
       case en:
         return Intl.defaultLocale ?? en;
-      case zh_Hans:
+      case zhHans:
         return 'zh';
     }
     throw UnsupportedError('Unsupported locale: ${AppSettings.prefLocale}');
@@ -49,7 +49,7 @@ class LanguageHelper {
       case LanguageHelper.en:
         return LanguageHelper.en;
       case 'zh':
-        return LanguageHelper.zh_Hans;
+        return LanguageHelper.zhHans;
       default:
         return LanguageHelper.en;
     }

@@ -78,6 +78,10 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+    _setupTabs();
+  }
+
+  void _setupTabs() {
     tabbedViewController.addTabs([
       AddEfPanelTabDataValue(displayText: '+'),
     ].map((e) => EfPanelTabData(

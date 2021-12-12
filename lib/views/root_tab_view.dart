@@ -1,4 +1,5 @@
 import 'package:fast_dotnet_ef/domain/ef_panel.dart';
+import 'package:fast_dotnet_ef/helpers/list_helpers.dart';
 import 'package:fast_dotnet_ef/repository/repository.dart';
 import 'package:fast_dotnet_ef/views/ef_panel/ef_add_panel.dart';
 import 'package:fast_dotnet_ef/views/ef_panel/ef_panel.dart';
@@ -83,6 +84,15 @@ class _RootTabViewState extends State<RootTabView> {
       return;
     }
 
+    final output = widget.tabbedViewController.tabs.anyWithResult((x) =>
+        x.value is! AddEfPanelTabDataValue &&
+        (x.value as EfPanelTabDataValue).efPanel.directoryUrl == fileUri);
+    if (output.passed) {
+      widget.tabbedViewController.selectedIndex =
+          widget.tabbedViewController.tabs.indexOf(output.output);
+      return;
+    }
+
     final efPanel = EfPanel(
       directoryUrl: fileUri,
     );
@@ -108,7 +118,8 @@ class _RootTabViewState extends State<RootTabView> {
         .where((x) => x.value is! AddEfPanelTabDataValue)
         .map((e) => e.value as EfPanelTabDataValue);
     results
-        .where((x) => efPanelInTabs.every((y) => y.efPanel.id != x.id))
+        .where((x) => efPanelInTabs
+            .every((y) => y.efPanel.directoryUrl != x.directoryUrl))
         .forEach(_addProjectTab);
   }
 
