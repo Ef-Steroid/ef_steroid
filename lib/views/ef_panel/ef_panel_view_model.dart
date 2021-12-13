@@ -29,12 +29,21 @@ class EfPanelViewModel extends ViewModelBase {
   Future<void> updateDatabaseAsync() async {
     if (isBusy) return;
     isBusy = true;
-    await _dotnetEfService.updateDatabaseAsync(
-      projectUri: context
-          .findAncestorWidgetOfExactType<EfPanelView>()!
-          .efPanel
-          .directoryUrl,
-    );
+    try {
+      await _dotnetEfService.updateDatabaseAsync(
+        projectUri: context
+            .findAncestorWidgetOfExactType<EfPanelView>()!
+            .efPanel
+            .directoryUrl,
+      );
+    } catch (ex, stackTrace) {
+      //TODO: Pop a dialog.
+      logService.severe(
+        'Unable to update database',
+        ex,
+        stackTrace,
+      );
+    }
 
     isBusy = false;
   }

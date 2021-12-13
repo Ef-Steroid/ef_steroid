@@ -36,6 +36,27 @@
         "en": "Script",
         "zh_Hans": "脚本"
       }
+    },
+    {
+      "name": "Migration",
+      "values": {
+        "en": "Migration",
+        "zh_Hans": "迁移"
+      }
+    },
+    {
+      "name": "Applied",
+      "values": {
+        "en": "Applied",
+        "zh_Hans": "已应用"
+      }
+    },
+    {
+      "name": "Refresh",
+      "values": {
+        "en": "Refresh",
+        "zh_Hans": "刷新"
+      }
     }
   ]
 }
