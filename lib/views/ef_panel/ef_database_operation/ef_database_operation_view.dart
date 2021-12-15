@@ -27,7 +27,7 @@ class _EfDatabaseOperationViewState extends State<EfDatabaseOperationView> {
   void initState() {
     super.initState();
     vm.efPanel = widget.efPanel;
-    vm.initViewModel();
+    vm.initViewModelAsync();
   }
 
   @override

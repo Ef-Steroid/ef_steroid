@@ -1,11 +1,14 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:fast_dotnet_ef/domain/ef_panel.dart';
+import 'package:fast_dotnet_ef/helpers/tabbed_view_controller_helper.dart';
 import 'package:fast_dotnet_ef/helpers/uri_helper.dart';
 import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef_service.dart';
 import 'package:fast_dotnet_ef/services/dotnet_ef/ef_model/migration_history.dart';
+import 'package:fast_dotnet_ef/views/ef_panel/tab_data_value.dart';
+import 'package:fast_dotnet_ef/views/root_tab_view.dart';
 import 'package:fast_dotnet_ef/views/view_model_base.dart';
+import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
 
 class EfDatabaseOperationViewModel extends ViewModelBase {
@@ -13,87 +16,44 @@ class EfDatabaseOperationViewModel extends ViewModelBase {
 
   late EfPanel efPanel;
 
-  final List<MigrationFile> _migrationFiles = [];
-
-  List<MigrationFile> get migrationFiles => _migrationFiles;
-
-  final List<MigrationFile> _migratedFiles = [];
-
-  List<MigrationFile> get migratedFiles => _migratedFiles;
-
   List<MigrationHistory> _migrationHistories = [];
 
   /// The migration histories.
   List<MigrationHistory> get migrationHistories => _migrationHistories;
 
-  StreamSubscription<FileSystemEvent>? _migrationFileSubscription;
+  late RootTabView _rootTabView;
 
   EfDatabaseOperationViewModel(
     this._dotnetEfService,
   );
 
-  void initViewModel() {
-    _setupMigrationFilesWatchers();
-    listMigrationsAsync();
+  @override
+  Future<void> initViewModelAsync() async {
+    WidgetsBinding.instance!.addPostFrameCallback((_) async {
+      _rootTabView = context.findAncestorWidgetOfExactType<RootTabView>()!;
+      final selectedTab = _rootTabView.tabbedViewController.selectedTab;
+      // Run migration listing when this is the selected tab.
+      if (selectedTab == null ||
+          (selectedTab.value as EfPanelTabDataValue).efPanel.id == efPanel.id) {
+        await listMigrationsAsync();
+      }
+      // Schedule the migration listing until user selects the tab.
+      else {
+        _rootTabView.tabbedViewController.addListener(_onTabChangedAsync);
+      }
+    });
+    return super.initViewModelAsync();
   }
 
-  void _setupMigrationFiles() {
-    this.migrationFiles.clear();
-    final migrationFiles = _getMigrationsDirectory()
-        .listSync()
-        .where(_filterMigrationFile)
-        .map((event) => MigrationFile(
-              fileUri: Uri.parse(event.path),
-            ))
-        .toList();
-
-    this.migrationFiles.addAll(migrationFiles);
-    notifyListeners();
-  }
-
-  Directory _getMigrationsDirectory() {
-    final directoryUri = efPanel.directoryUrl;
-
-    final migrationsDirectoryPath = p.joinAll([
-      directoryUri.toDecodedString(),
-      // TODO: Support user-defined migrations directory.
-      // Default Migrations directory.
-      'Migrations',
-    ]);
-    return Directory(migrationsDirectoryPath);
-  }
-
-  bool _filterMigrationFile(FileSystemEntity event) {
-    final file = File(event.path);
-    final fileSystemInfo = file.statSync();
-    return fileSystemInfo.type == FileSystemEntityType.file &&
-        // Contains 2 logic here:
-        //
-        // 1. The Migrations directory contains extra files (varies for different EF project)
-        // that we don't need.
-        // 2. The only unique pattern that we can find is the *.designer.cs file.
-        // The migration which we are interested in is the one excluding the designer.cs extension.
-
-        p.extension(event.path, 2).toLowerCase() == '.designer.cs';
-  }
-
-  /// If the directory changes, there is a possible migration changes. Load the
-  /// latest toi figure it out.
-  void _setupMigrationFilesWatchers() {
-    if (_migrationFileSubscription != null) {
-      throw StateError('_setupMigrationFilesWatchers can only be called once.');
+  Future<void> _onTabChangedAsync() async {
+    final selectedTab = _rootTabView.tabbedViewController.selectedTab;
+    if (selectedTab == null ||
+        (selectedTab.value as EfPanelTabDataValue).efPanel.id != efPanel.id) {
+      return;
     }
 
-    _migrationFileSubscription =
-        _getMigrationsDirectory().watch().listen((event) {
-      listMigrationsAsync();
-    });
-  }
-
-  @override
-  void dispose() {
-    _migrationFileSubscription?.cancel();
-    super.dispose();
+    _rootTabView.tabbedViewController.removeListener(_onTabChangedAsync);
+    await listMigrationsAsync();
   }
 
   Future<void> listMigrationsAsync() async {

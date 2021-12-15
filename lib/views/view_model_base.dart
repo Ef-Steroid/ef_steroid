@@ -22,4 +22,8 @@ class ViewModelBase extends ChangeNotifier {
     _isBusy = isBusy;
     notifyListeners();
   }
+
+  Future<void> initViewModelAsync(){
+    return Future.value();
+  }
 }

@@ -20,7 +20,13 @@ class RootTabViewModel extends ViewModelBase with ReassembleHandler {
     this._logService,
   );
 
-  Future<void> loadPreviousTabsAsync() async {
+  @override
+  Future<void> initViewModelAsync() async {
+    await _loadPreviousTabsAsync();
+    return super.initViewModelAsync();
+  }
+
+  Future<void> _loadPreviousTabsAsync() async {
     final results = await _efPanelRepository.getAllAsync();
     final efPanelInTabs = tabbedViewController.tabs
         .where((x) => x.value is! AddEfPanelTabDataValue)
@@ -87,6 +93,6 @@ class RootTabViewModel extends ViewModelBase with ReassembleHandler {
 
   @override
   void reassemble() {
-    loadPreviousTabsAsync();
+    _loadPreviousTabsAsync();
   }
 }
