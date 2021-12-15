@@ -5,4 +5,7 @@ targets:
         options:
           auto_register: true
           class_name_pattern:
-            'Service$'
+            'Service$|Manager$|ViewModel$'
+      json_serializable:
+        options:
+          explicit_to_json: true

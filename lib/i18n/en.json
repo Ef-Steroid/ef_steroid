@@ -1,0 +1,10 @@
+{
+  "UpdateDatabase": "Update database",
+  "CollectLog": "Collect log",
+  "Database": "Database",
+  "Migrations": "Migrations",
+  "Script": "Script",
+  "Migration": "Migration",
+  "Applied": "Applied",
+  "Refresh": "Refresh"
+}

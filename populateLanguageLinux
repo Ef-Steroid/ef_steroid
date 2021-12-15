@@ -1,0 +1,5 @@
+#!/bin/bash
+
+cd lib/
+dotnet ../tools/ResourceUtil/ResourceUtil/bin/Debug/net6.0/ResourceUtil.dll $@
+cd ..

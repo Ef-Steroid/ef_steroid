@@ -1,0 +1,10 @@
+import 'package:fast_dotnet_ef/app_settings.dart';
+
+class AppConsts {
+  /// This is used to record the current version of [AppSettings]. If
+  /// breaking changes to [AppSettings] structure is introduced, update this
+  /// version to force clearing all [AppSettings] upon first app launch.
+  ///
+  /// - See [AppSettings.setup] for clearing implementation.
+  static const int appSettingsVersion = 1;
+}
