@@ -85,15 +85,18 @@ class _EfDatabaseOperationViewState extends State<EfDatabaseOperationView> {
                     DataColumn(
                       label: Text(l('Applied')),
                     ),
+                    DataColumn(
+                      label: Text(l('Operations')),
+                    ),
                   ],
                   rows: vm.migrationHistories
-                      .map((e) => DataRow(
+                      .map((migrationHistory) => DataRow(
                             cells: <DataCell>[
                               DataCell(
-                                SelectableText(e.id),
+                                SelectableText(migrationHistory.id),
                               ),
                               DataCell(
-                                e.applied
+                                migrationHistory.applied
                                     ? const SizedBox.square(
                                         dimension: boxDiameter,
                                         child: DecoratedBox(
@@ -106,6 +109,24 @@ class _EfDatabaseOperationViewState extends State<EfDatabaseOperationView> {
                                     : const SizedBox.square(
                                         dimension: boxDiameter,
                                       ),
+                              ),
+                              DataCell(
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    IconButton(
+                                      onPressed: () {
+                                        vm.updateDatabaseToTargetedMigrationAsync(
+                                          migrationHistory: migrationHistory,
+                                        );
+                                      },
+                                      icon: const Icon(
+                                        Icons.menu_open,
+                                      ),
+                                      tooltip: l('UpdateDatabaseToHere'),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ))

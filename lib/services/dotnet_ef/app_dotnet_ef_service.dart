@@ -21,7 +21,6 @@ class AppDotnetEfService extends DotnetEfService {
 
   static const String _dotnetEfJsonKey = '--json';
   static const String _dotnetEfPrefixOutputKey = '--prefix-output';
-  static const String _dotnetEfNoBuildKey = '--no-build';
 
   static const String _dotnetEfDataPrefix = 'data:';
   static final RegExp _dotnetDataRegex = RegExp(
@@ -41,6 +40,7 @@ class AppDotnetEfService extends DotnetEfService {
   @override
   Future<String> updateDatabaseAsync({
     required Uri projectUri,
+    MigrationHistory? migrationHistory,
   }) async {
     final args = <String>[];
 
@@ -49,6 +49,10 @@ class AppDotnetEfService extends DotnetEfService {
 
     // Add update command.
     args.add('update');
+
+    if (migrationHistory != null) {
+      args.add(migrationHistory.id);
+    }
 
     // Add project option.
     args.add(_dotnetEfProjectKey);

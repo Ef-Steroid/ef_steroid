@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:bot_toast/bot_toast.dart';
 import 'package:fast_dotnet_ef/domain/ef_panel.dart';
 import 'package:fast_dotnet_ef/helpers/tabbed_view_controller_helper.dart';
 import 'package:fast_dotnet_ef/helpers/uri_helper.dart';
+import 'package:fast_dotnet_ef/localization/localizations.dart';
 import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef_service.dart';
 import 'package:fast_dotnet_ef/services/dotnet_ef/ef_model/migration_history.dart';
 import 'package:fast_dotnet_ef/views/ef_panel/tab_data_value.dart';
@@ -123,6 +125,39 @@ class EfDatabaseOperationViewModel extends ViewModelBase {
   void hideListMigrationBanner() {
     _showListMigrationBanner = false;
     notifyListeners();
+  }
+
+  Future<void> updateDatabaseToTargetedMigrationAsync({
+    required MigrationHistory migrationHistory,
+  }) async {
+    try {
+      if (isBusy) return;
+
+      isBusy = true;
+      notifyListeners();
+      await _dotnetEfService.updateDatabaseAsync(
+        projectUri: efPanel.directoryUrl,
+        migrationHistory: migrationHistory,
+      );
+
+      isBusy = false;
+      notifyListeners();
+
+      BotToast.showText(
+        text: AL.of(context).text('DoneUpdatingDatabase'),
+      );
+
+      return listMigrationsAsync();
+    } catch (ex, stackTrace) {
+      //TODO: Pop a dialog.
+      logService.severe(
+        'Unable to update database to targeted migration.',
+        ex,
+        stackTrace,
+      );
+      isBusy = false;
+      notifyListeners();
+    }
   }
 }
 
