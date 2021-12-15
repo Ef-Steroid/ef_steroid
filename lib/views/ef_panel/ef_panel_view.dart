@@ -33,26 +33,30 @@ class _EfPanelViewState extends State<EfPanelView> {
     return MVVMBindingWidget<EfPanelViewModel>(
       viewModel: vm,
       builder: (context, vm, child) {
-        return SingleChildScrollView(
-          child: ExpansionPanelList(
-            expansionCallback: (index, isExpanded) {
-              vm.setIsExpanded(
-                index: index,
-                isExpanded: !isExpanded,
-              );
-              setState(() {});
-            },
-            children: vm.efOperations.values
-                .map((e) => ExpansionPanel(
-                      isExpanded: e.isExpanded,
-                      headerBuilder: (context, isExpanded) =>
-                          Text(e.efOperation.toLocalizedString(context)),
-                      body: _EfOperationPanel(
-                        efOperation: e.efOperation,
-                        efPanel: widget.efPanel,
-                      ),
-                    ))
-                .toList(growable: false),
+        return Scaffold(
+          body: Row(
+            children: [
+              NavigationRail(
+                onDestinationSelected: (value) =>
+                    vm.selectedEfOperation = EfOperation.values[value],
+                labelType: NavigationRailLabelType.all,
+                destinations: vm.efOperations.values
+                    .map((x) => NavigationRailDestination(
+                          icon: x.efOperation.toIconConfig().toIcon(),
+                          label: Text(
+                            x.efOperation.toLocalizedString(context),
+                          ),
+                        ))
+                    .toList(growable: false),
+                selectedIndex: vm.selectedEfOperation.index,
+              ),
+              Expanded(
+                child: _EfOperationPanel(
+                  efOperation: vm.selectedEfOperation,
+                  efPanel: widget.efPanel,
+                ),
+              ),
+            ],
           ),
         );
       },

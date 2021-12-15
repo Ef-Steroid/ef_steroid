@@ -21,6 +21,16 @@ class EfPanelViewModel extends ViewModelBase {
 
   late EfPanel efPanel;
 
+  EfOperation _selectedEfOperation = EfOperation.database;
+
+  EfOperation get selectedEfOperation => _selectedEfOperation;
+
+  set selectedEfOperation(EfOperation efOperation) {
+    if(efOperation == _selectedEfOperation) return;
+    _selectedEfOperation = efOperation;
+    notifyListeners();
+  }
+
   EfPanelViewModel(
     this._dotnetEfService,
     this._logService,
