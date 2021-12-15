@@ -6,5 +6,6 @@
   "Script": "Script",
   "Migration": "Migration",
   "Applied": "Applied",
-  "Refresh": "Refresh"
+  "Refresh": "Refresh",
+  "RefreshMigrationIndicator": "Migration update detected. You might want refresh."
 }

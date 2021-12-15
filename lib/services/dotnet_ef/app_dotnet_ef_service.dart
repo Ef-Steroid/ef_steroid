@@ -4,7 +4,6 @@ import 'package:fast_dotnet_ef/helpers/uri_helper.dart';
 import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef_service.dart';
 import 'package:fast_dotnet_ef/services/dotnet_ef/ef_model/migration_history.dart';
 import 'package:fast_dotnet_ef/services/file/file_service.dart';
-import 'package:fast_dotnet_ef/services/log/log_service.dart';
 import 'package:fast_dotnet_ef/services/process_runner/model/process_runner_result.dart';
 import 'package:fast_dotnet_ef/services/process_runner/process_runner_service.dart';
 import 'package:flutter/foundation.dart';
@@ -13,7 +12,6 @@ import 'package:quiver/strings.dart';
 
 @Injectable(as: DotnetEfService)
 class AppDotnetEfService extends DotnetEfService {
-  final LogService _logService;
   final FileService _fileService;
   final ProcessRunnerService _processRunnerService;
 
@@ -32,7 +30,6 @@ class AppDotnetEfService extends DotnetEfService {
   );
 
   AppDotnetEfService(
-    this._logService,
     this._fileService,
     this._processRunnerService,
   );
@@ -71,8 +68,7 @@ class AppDotnetEfService extends DotnetEfService {
     switch (processRunnerResult.type) {
       case ProcessRunnerResultType.successful:
         result =
-            (processRunnerResult as SuccessfulProcessRunnerResult).stdout ??
-                '';
+            (processRunnerResult as SuccessfulProcessRunnerResult).stdout ?? '';
         break;
       case ProcessRunnerResultType.failure:
         break;
@@ -114,9 +110,8 @@ class AppDotnetEfService extends DotnetEfService {
       case ProcessRunnerResultType.successful:
         final extractedJsonOutput = _extractJsonOutput(
             (processRunnerResult as SuccessfulProcessRunnerResult).stdout);
-        final decodedJson = isBlank(extractedJsonOutput)
-            ? []
-            : jsonDecode(extractedJsonOutput);
+        final decodedJson =
+            isBlank(extractedJsonOutput) ? [] : jsonDecode(extractedJsonOutput);
         migrations = (decodedJson as List)
             .map((x) => MigrationHistory.fromJson(x))
             .toList(growable: false);

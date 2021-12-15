@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:fast_dotnet_ef/domain/ef_panel.dart';
 import 'package:fast_dotnet_ef/helpers/tabbed_view_controller_helper.dart';
@@ -16,12 +17,19 @@ class EfDatabaseOperationViewModel extends ViewModelBase {
 
   late EfPanel efPanel;
 
+  bool _showListMigrationBanner = false;
+
+  /// Indicate if we should show the list migration banner to inform the user
+  /// that we might need to run [listMigrationsAsync].
+  bool get showListMigrationBanner => _showListMigrationBanner;
+
   List<MigrationHistory> _migrationHistories = [];
 
   /// The migration histories.
   List<MigrationHistory> get migrationHistories => _migrationHistories;
 
   late RootTabView _rootTabView;
+  StreamSubscription<FileSystemEvent>? _migrationFileSubscription;
 
   EfDatabaseOperationViewModel(
     this._dotnetEfService,
@@ -29,12 +37,11 @@ class EfDatabaseOperationViewModel extends ViewModelBase {
 
   @override
   Future<void> initViewModelAsync() async {
+    _setupMigrationFilesWatchers();
     WidgetsBinding.instance!.addPostFrameCallback((_) async {
       _rootTabView = context.findAncestorWidgetOfExactType<RootTabView>()!;
-      final selectedTab = _rootTabView.tabbedViewController.selectedTab;
       // Run migration listing when this is the selected tab.
-      if (selectedTab == null ||
-          (selectedTab.value as EfPanelTabDataValue).efPanel.id == efPanel.id) {
+      if (isSelectedTab()) {
         await listMigrationsAsync();
       }
       // Schedule the migration listing until user selects the tab.
@@ -45,15 +52,49 @@ class EfDatabaseOperationViewModel extends ViewModelBase {
     return super.initViewModelAsync();
   }
 
-  Future<void> _onTabChangedAsync() async {
+  /// Check if [this] is the selected tab.
+  bool isSelectedTab() {
     final selectedTab = _rootTabView.tabbedViewController.selectedTab;
-    if (selectedTab == null ||
-        (selectedTab.value as EfPanelTabDataValue).efPanel.id != efPanel.id) {
+    return selectedTab != null &&
+        (selectedTab.value as EfPanelTabDataValue).efPanel.id == efPanel.id;
+  }
+
+  Future<void> _onTabChangedAsync() async {
+    if (!isSelectedTab()) {
       return;
     }
 
     _rootTabView.tabbedViewController.removeListener(_onTabChangedAsync);
     await listMigrationsAsync();
+  }
+
+  Directory _getMigrationsDirectory() {
+    final directoryUri = efPanel.directoryUrl;
+
+    final migrationsDirectoryPath = p.joinAll([
+      directoryUri.toDecodedString(),
+      // TODO: Support user-defined migrations directory.
+      // Default Migrations directory.
+      'Migrations',
+    ]);
+    return Directory(migrationsDirectoryPath);
+  }
+
+  /// If the directory changes, there is a possible migration changes.
+  void _setupMigrationFilesWatchers() {
+    if (_migrationFileSubscription != null) {
+      throw StateError('You can only call _setupMigrationFilesWatchers once.');
+    }
+
+    _migrationFileSubscription =
+        _getMigrationsDirectory().watch().listen((event) {
+      if (!isSelectedTab()) return;
+
+      if (_showListMigrationBanner) return;
+
+      _showListMigrationBanner = true;
+      notifyListeners();
+    });
   }
 
   Future<void> listMigrationsAsync() async {
@@ -64,6 +105,9 @@ class EfDatabaseOperationViewModel extends ViewModelBase {
       _migrationHistories = await _dotnetEfService.listMigrationAsync(
         projectUri: efPanel.directoryUrl,
       );
+
+      _showListMigrationBanner = false;
+      notifyListeners();
     } catch (ex, stackTrace) {
       //TODO: Pop a dialog.
       logService.severe(
@@ -74,6 +118,11 @@ class EfDatabaseOperationViewModel extends ViewModelBase {
     }
 
     isBusy = false;
+  }
+
+  void hideListMigrationBanner() {
+    _showListMigrationBanner = false;
+    notifyListeners();
   }
 }
 

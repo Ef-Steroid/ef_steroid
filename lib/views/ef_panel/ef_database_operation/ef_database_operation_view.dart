@@ -39,6 +39,29 @@ class _EfDatabaseOperationViewState extends State<EfDatabaseOperationView> {
       builder: (context, vm, child) {
         return Column(
           children: [
+            if (vm.showListMigrationBanner)
+              Container(
+                padding: const EdgeInsets.all(8.0),
+                decoration: const BoxDecoration(
+                  color: Colors.amberAccent,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      l('RefreshMigrationIndicator'),
+                      maxLines: 2,
+                    ),
+                    TextButton(
+                      onPressed: vm.hideListMigrationBanner,
+                      child: Text(
+                        l('Ignore'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            const SizedBox(height: 8.0),
             Align(
               alignment: Alignment.centerRight,
               child: Padding(
@@ -67,7 +90,7 @@ class _EfDatabaseOperationViewState extends State<EfDatabaseOperationView> {
                       .map((e) => DataRow(
                             cells: <DataCell>[
                               DataCell(
-                                Text(e.id),
+                                SelectableText(e.id),
                               ),
                               DataCell(
                                 e.applied

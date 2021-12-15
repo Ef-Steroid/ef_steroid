@@ -31,7 +31,7 @@ namespace FastDotnetEfSqlite.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("EfPanels");
+                    b.ToTable("EfPanels", (string)null);
                 });
 #pragma warning restore 612, 618
         }
