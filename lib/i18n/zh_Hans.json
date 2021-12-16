@@ -6,5 +6,10 @@
   "Script": "脚本",
   "Migration": "迁移",
   "Applied": "已应用",
-  "Refresh": "刷新"
+  "Refresh": "刷新",
+  "RefreshMigrationIndicator": "已侦测到迁移更新。您可能需要刷新。",
+  "Operations": "操作",
+  "UpdateDatabaseToHere": "更新数据库自此",
+  "DoneUpdatingDatabase": "更新数据库已完成",
+  "RevertAllMigrations": "撤销所有迁移"
 }

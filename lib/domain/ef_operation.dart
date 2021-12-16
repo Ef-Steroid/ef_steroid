@@ -1,10 +1,20 @@
 import 'package:fast_dotnet_ef/helpers/icon_config.dart';
 import 'package:fast_dotnet_ef/localization/localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:json_annotation/json_annotation.dart';
+
+class _EfOperationValue {
+  static const int database = 0;
+  static const int migrations = 1;
+  static const int script = 2;
+}
 
 enum EfOperation {
+  @JsonValue(_EfOperationValue.database)
   database,
+  @JsonValue(_EfOperationValue.migrations)
   migrations,
+  @JsonValue(_EfOperationValue.script)
   script,
 }
 
@@ -17,7 +27,7 @@ extension EfOperationExt on EfOperation {
         );
       case EfOperation.migrations:
         return const IconConfig(
-           iconData: Icons.account_tree,
+          iconData: Icons.account_tree,
         );
       case EfOperation.script:
         return const IconConfig(

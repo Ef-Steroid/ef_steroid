@@ -1,6 +1,6 @@
 import 'package:fast_dotnet_ef/domain/ef_panel.dart';
 import 'package:fast_dotnet_ef/views/ef_panel/ef_database_operation/ef_database_operation_view.dart';
-import 'package:fast_dotnet_ef/views/ef_panel/ef_operation.dart';
+import 'package:fast_dotnet_ef/domain/ef_operation.dart';
 import 'package:fast_dotnet_ef/views/ef_panel/ef_panel_view_model.dart';
 import 'package:fast_dotnet_ef/views/widgets/mvvm_binding_widget.dart';
 import 'package:flutter/material.dart';

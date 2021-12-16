@@ -26,7 +26,7 @@ class _RootTabViewState extends State<RootTabView> {
   void initState() {
     super.initState();
     vm.tabbedViewController = widget.tabbedViewController;
-    vm.loadPreviousTabsAsync();
+    vm.initViewModelAsync();
   }
 
   @override

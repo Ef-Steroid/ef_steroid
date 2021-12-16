@@ -1,5 +1,5 @@
+import 'package:fast_dotnet_ef/domain/ef_operation.dart';
 import 'package:fast_dotnet_ef/domain/entity_dto.dart';
-import 'package:fast_dotnet_ef/json_converters/sqlite_converters/boolean_converter.dart';
 import 'package:fast_dotnet_ef/util/reflector.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -10,20 +10,19 @@ part 'ef_panel.g.dart';
 )
 @reflector
 class EfPanel extends EntityDto {
-  @override
-  String get tableName => 'EfPanels';
-
   /// The directory url of the EF Panel.
   final Uri directoryUrl;
 
-  /// Indicate if the data
-  @BooleanConverter()
-  final bool isUpdateDatabaseSectionExpanded;
+  /// The selected ef operation.
+  @JsonKey(
+    unknownEnumValue: EfOperation.database,
+  )
+  final EfOperation selectedEfOperation;
 
   EfPanel({
     int? id,
     required this.directoryUrl,
-    this.isUpdateDatabaseSectionExpanded = false,
+    this.selectedEfOperation = EfOperation.database,
   }) : super(id: id);
 
   factory EfPanel.fromJson(Map<String, dynamic> json) =>
@@ -35,13 +34,12 @@ class EfPanel extends EntityDto {
   EfPanel copyWith({
     int? id,
     Uri? directoryUrl,
-    bool? isUpdateDatabaseSectionExpanded,
+    EfOperation? selectedEfOperation,
   }) {
     return EfPanel(
       id: id ?? this.id,
       directoryUrl: directoryUrl ?? this.directoryUrl,
-      isUpdateDatabaseSectionExpanded: isUpdateDatabaseSectionExpanded ??
-          this.isUpdateDatabaseSectionExpanded,
+      selectedEfOperation: selectedEfOperation ?? this.selectedEfOperation,
     );
   }
 }

@@ -1,6 +1,8 @@
+import 'package:bot_toast/bot_toast.dart';
 import 'package:fast_dotnet_ef/app_settings.dart';
 import 'package:fast_dotnet_ef/helpers/context_helper.dart';
 import 'package:fast_dotnet_ef/helpers/intl/language_helper.dart';
+import 'package:fast_dotnet_ef/helpers/theme_helper.dart';
 import 'package:fast_dotnet_ef/localization/localizations.dart';
 import 'package:fast_dotnet_ef/main.reflectable.dart';
 import 'package:fast_dotnet_ef/services/log/log_service.dart';
@@ -52,11 +54,6 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Fast Dotnet Ef',
-      themeMode: ThemeMode.system,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      darkTheme: ThemeData.dark(),
       locale: LanguageHelper.getSystemLocale(),
       localizationsDelegates: [
         AL.delegate,
@@ -68,8 +65,13 @@ class MyApp extends StatelessWidget {
       home: const MyHomePage(),
       builder: (context, child) {
         ContextHelper.fallbackContext = context;
-        return child ?? const SizedBox.shrink();
+        return BotToastInit()(
+          context,
+          child ?? const SizedBox.shrink(),
+        );
       },
+      theme: ThemeHelper.instance.themes[ThemeKey.light],
+      darkTheme: ThemeHelper.instance.themes[ThemeKey.dark],
     );
   }
 }

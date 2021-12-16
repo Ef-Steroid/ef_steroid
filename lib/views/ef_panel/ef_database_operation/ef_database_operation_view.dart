@@ -27,7 +27,7 @@ class _EfDatabaseOperationViewState extends State<EfDatabaseOperationView> {
   void initState() {
     super.initState();
     vm.efPanel = widget.efPanel;
-    vm.initViewModel();
+    vm.initViewModelAsync();
   }
 
   @override
@@ -39,14 +39,49 @@ class _EfDatabaseOperationViewState extends State<EfDatabaseOperationView> {
       builder: (context, vm, child) {
         return Column(
           children: [
+            if (vm.showListMigrationBanner)
+              Container(
+                padding: const EdgeInsets.all(8.0),
+                decoration: const BoxDecoration(
+                  color: Colors.amberAccent,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text(
+                      l('RefreshMigrationIndicator'),
+                      maxLines: 2,
+                    ),
+                    const SizedBox(width: 8),
+                    TextButton(
+                      onPressed: vm.hideListMigrationBanner,
+                      child: Text(
+                        l('Ignore'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            const SizedBox(height: 8.0),
             Align(
               alignment: Alignment.centerRight,
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: OutlinedButton.icon(
-                  icon: const Icon(Icons.refresh),
-                  label: Text(l('Refresh')),
-                  onPressed: vm.listMigrationsAsync,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    OutlinedButton.icon(
+                      icon: const Icon(Icons.refresh),
+                      label: Text(l('RevertAllMigrations')),
+                      onPressed: vm.revertAllMigrationsAsync,
+                    ),
+                    const SizedBox(width: 8.0),
+                    OutlinedButton.icon(
+                      icon: const Icon(Icons.refresh),
+                      label: Text(l('Refresh')),
+                      onPressed: vm.listMigrationsAsync,
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -55,22 +90,30 @@ class _EfDatabaseOperationViewState extends State<EfDatabaseOperationView> {
               child: SizedBox(
                 width: double.infinity,
                 child: DataTable(
+                  sortAscending: vm.sortMigrationAscending,
+                  sortColumnIndex: 0,
                   columns: <DataColumn>[
                     DataColumn(
                       label: Text(l('Migration')),
+                      onSort: (value, ascending) {
+                        vm.sortMigrationAscending = ascending;
+                      },
                     ),
                     DataColumn(
                       label: Text(l('Applied')),
                     ),
+                    DataColumn(
+                      label: Text(l('Operations')),
+                    ),
                   ],
                   rows: vm.migrationHistories
-                      .map((e) => DataRow(
+                      .map((migrationHistory) => DataRow(
                             cells: <DataCell>[
                               DataCell(
-                                Text(e.id),
+                                SelectableText(migrationHistory.id),
                               ),
                               DataCell(
-                                e.applied
+                                migrationHistory.applied
                                     ? const SizedBox.square(
                                         dimension: boxDiameter,
                                         child: DecoratedBox(
@@ -83,6 +126,24 @@ class _EfDatabaseOperationViewState extends State<EfDatabaseOperationView> {
                                     : const SizedBox.square(
                                         dimension: boxDiameter,
                                       ),
+                              ),
+                              DataCell(
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    IconButton(
+                                      onPressed: () {
+                                        vm.updateDatabaseToTargetedMigrationAsync(
+                                          migrationHistory: migrationHistory,
+                                        );
+                                      },
+                                      icon: const Icon(
+                                        Icons.menu_open,
+                                      ),
+                                      tooltip: l('UpdateDatabaseToHere'),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ],
                           ))

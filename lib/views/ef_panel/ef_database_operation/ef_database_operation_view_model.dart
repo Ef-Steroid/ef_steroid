@@ -1,11 +1,18 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:bot_toast/bot_toast.dart';
+import 'package:darq/darq.dart';
 import 'package:fast_dotnet_ef/domain/ef_panel.dart';
+import 'package:fast_dotnet_ef/helpers/tabbed_view_controller_helper.dart';
 import 'package:fast_dotnet_ef/helpers/uri_helper.dart';
+import 'package:fast_dotnet_ef/localization/localizations.dart';
 import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef_service.dart';
 import 'package:fast_dotnet_ef/services/dotnet_ef/ef_model/migration_history.dart';
+import 'package:fast_dotnet_ef/views/ef_panel/tab_data_value.dart';
+import 'package:fast_dotnet_ef/views/root_tab_view.dart';
 import 'package:fast_dotnet_ef/views/view_model_base.dart';
+import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
 
 class EfDatabaseOperationViewModel extends ViewModelBase {
@@ -13,18 +20,30 @@ class EfDatabaseOperationViewModel extends ViewModelBase {
 
   late EfPanel efPanel;
 
-  final List<MigrationFile> _migrationFiles = [];
+  bool _showListMigrationBanner = false;
 
-  List<MigrationFile> get migrationFiles => _migrationFiles;
-
-  final List<MigrationFile> _migratedFiles = [];
-
-  List<MigrationFile> get migratedFiles => _migratedFiles;
+  /// Indicate if we should show the list migration banner to inform the user
+  /// that we might need to run [listMigrationsAsync].
+  bool get showListMigrationBanner => _showListMigrationBanner;
 
   List<MigrationHistory> _migrationHistories = [];
 
   /// The migration histories.
   List<MigrationHistory> get migrationHistories => _migrationHistories;
+
+  late RootTabView _rootTabView;
+
+  bool _sortMigrationAscending = true;
+
+  /// Indicate if we should sort the migration column in ascending order.
+  bool get sortMigrationAscending => _sortMigrationAscending;
+
+  set sortMigrationAscending(bool sortMigrationAscending) {
+    if (sortMigrationAscending == _sortMigrationAscending) return;
+    _sortMigrationAscending = sortMigrationAscending;
+    _sortMigrationHistory();
+    notifyListeners();
+  }
 
   StreamSubscription<FileSystemEvent>? _migrationFileSubscription;
 
@@ -32,23 +51,37 @@ class EfDatabaseOperationViewModel extends ViewModelBase {
     this._dotnetEfService,
   );
 
-  void initViewModel() {
+  @override
+  Future<void> initViewModelAsync() async {
     _setupMigrationFilesWatchers();
-    listMigrationsAsync();
+    WidgetsBinding.instance!.addPostFrameCallback((_) async {
+      _rootTabView = context.findAncestorWidgetOfExactType<RootTabView>()!;
+      // Run migration listing when this is the selected tab.
+      if (isSelectedTab()) {
+        await listMigrationsAsync();
+      }
+      // Schedule the migration listing until user selects the tab.
+      else {
+        _rootTabView.tabbedViewController.addListener(_onTabChangedAsync);
+      }
+    });
+    return super.initViewModelAsync();
   }
 
-  void _setupMigrationFiles() {
-    this.migrationFiles.clear();
-    final migrationFiles = _getMigrationsDirectory()
-        .listSync()
-        .where(_filterMigrationFile)
-        .map((event) => MigrationFile(
-              fileUri: Uri.parse(event.path),
-            ))
-        .toList();
+  /// Check if [this] is the selected tab.
+  bool isSelectedTab() {
+    final selectedTab = _rootTabView.tabbedViewController.selectedTab;
+    return selectedTab != null &&
+        (selectedTab.value as EfPanelTabDataValue).efPanel.id == efPanel.id;
+  }
 
-    this.migrationFiles.addAll(migrationFiles);
-    notifyListeners();
+  Future<void> _onTabChangedAsync() async {
+    if (!isSelectedTab()) {
+      return;
+    }
+
+    _rootTabView.tabbedViewController.removeListener(_onTabChangedAsync);
+    await listMigrationsAsync();
   }
 
   Directory _getMigrationsDirectory() {
@@ -63,37 +96,21 @@ class EfDatabaseOperationViewModel extends ViewModelBase {
     return Directory(migrationsDirectoryPath);
   }
 
-  bool _filterMigrationFile(FileSystemEntity event) {
-    final file = File(event.path);
-    final fileSystemInfo = file.statSync();
-    return fileSystemInfo.type == FileSystemEntityType.file &&
-        // Contains 2 logic here:
-        //
-        // 1. The Migrations directory contains extra files (varies for different EF project)
-        // that we don't need.
-        // 2. The only unique pattern that we can find is the *.designer.cs file.
-        // The migration which we are interested in is the one excluding the designer.cs extension.
-
-        p.extension(event.path, 2).toLowerCase() == '.designer.cs';
-  }
-
-  /// If the directory changes, there is a possible migration changes. Load the
-  /// latest toi figure it out.
+  /// If the directory changes, there is a possible migration changes.
   void _setupMigrationFilesWatchers() {
     if (_migrationFileSubscription != null) {
-      throw StateError('_setupMigrationFilesWatchers can only be called once.');
+      throw StateError('You can only call _setupMigrationFilesWatchers once.');
     }
 
     _migrationFileSubscription =
         _getMigrationsDirectory().watch().listen((event) {
-      listMigrationsAsync();
-    });
-  }
+      if (!isSelectedTab()) return;
 
-  @override
-  void dispose() {
-    _migrationFileSubscription?.cancel();
-    super.dispose();
+      if (_showListMigrationBanner) return;
+
+      _showListMigrationBanner = true;
+      notifyListeners();
+    });
   }
 
   Future<void> listMigrationsAsync() async {
@@ -104,6 +121,9 @@ class EfDatabaseOperationViewModel extends ViewModelBase {
       _migrationHistories = await _dotnetEfService.listMigrationAsync(
         projectUri: efPanel.directoryUrl,
       );
+
+      _showListMigrationBanner = false;
+      notifyListeners();
     } catch (ex, stackTrace) {
       //TODO: Pop a dialog.
       logService.severe(
@@ -114,6 +134,57 @@ class EfDatabaseOperationViewModel extends ViewModelBase {
     }
 
     isBusy = false;
+  }
+
+  void hideListMigrationBanner() {
+    _showListMigrationBanner = false;
+    notifyListeners();
+  }
+
+  Future<void> revertAllMigrationsAsync() =>
+      updateDatabaseToTargetedMigrationAsync(
+        migrationHistory: const MigrationHistory.ancient(),
+      );
+
+  Future<void> updateDatabaseToTargetedMigrationAsync({
+    required MigrationHistory migrationHistory,
+  }) async {
+    try {
+      if (isBusy) return;
+
+      isBusy = true;
+      notifyListeners();
+      await _dotnetEfService.updateDatabaseAsync(
+        projectUri: efPanel.directoryUrl,
+        migrationHistory: migrationHistory,
+      );
+
+      isBusy = false;
+      notifyListeners();
+
+      BotToast.showText(
+        text: AL.of(context).text('DoneUpdatingDatabase'),
+      );
+
+      return listMigrationsAsync();
+    } catch (ex, stackTrace) {
+      //TODO: Pop a dialog.
+      logService.severe(
+        'Unable to update database to targeted migration.',
+        ex,
+        stackTrace,
+      );
+      isBusy = false;
+      notifyListeners();
+    }
+  }
+
+  void _sortMigrationHistory() {
+    _migrationHistories = sortMigrationAscending
+        ? migrationHistories.orderBy((x) => x.id).toList(growable: false)
+        : migrationHistories
+            .orderByDescending((x) => x.id)
+            .toList(growable: false);
   }
 }
 

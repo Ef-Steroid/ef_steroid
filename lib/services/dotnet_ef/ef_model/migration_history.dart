@@ -23,12 +23,23 @@ class MigrationHistory {
 
   final bool applied;
 
-  MigrationHistory({
+  /// Compute if this migration history is ancient, for reverting all migration
+  /// purpose.
+  bool get isAncient => id == '0';
+
+  const MigrationHistory({
     required this.id,
     required this.name,
     required this.safeName,
     required this.applied,
   });
+
+  /// Migration history for reverting all migrations.
+  const MigrationHistory.ancient()
+      : id = '0',
+        name = '',
+        safeName = '',
+        applied = true;
 
   factory MigrationHistory.fromJson(Map<String, dynamic> json) =>
       _$MigrationHistoryFromJson(json);

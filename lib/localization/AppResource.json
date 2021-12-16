@@ -57,6 +57,41 @@
         "en": "Refresh",
         "zh_Hans": "刷新"
       }
+    },
+    {
+      "name": "RefreshMigrationIndicator",
+      "values": {
+        "en": "Migration update detected. You might want refresh.",
+        "zh_Hans": "已侦测到迁移更新。您可能需要刷新。"
+      }
+    },
+    {
+      "name": "Operations",
+      "values": {
+        "en": "Operations",
+        "zh_Hans": "操作"
+      }
+    },
+    {
+      "name": "UpdateDatabaseToHere",
+      "values": {
+        "en": "Update database to here",
+        "zh_Hans": "更新数据库自此"
+      }
+    },
+    {
+      "name": "DoneUpdatingDatabase",
+      "values": {
+        "en": "Done updating database.",
+        "zh_Hans": "更新数据库已完成"
+      }
+    },
+    {
+      "name": "RevertAllMigrations",
+      "values": {
+        "en": "Revert all migrations",
+        "zh_Hans": "撤销所有迁移"
+      }
     }
   ]
 }
