@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:bot_toast/bot_toast.dart';
+import 'package:darq/darq.dart';
 import 'package:fast_dotnet_ef/domain/ef_panel.dart';
 import 'package:fast_dotnet_ef/helpers/tabbed_view_controller_helper.dart';
 import 'package:fast_dotnet_ef/helpers/uri_helper.dart';
@@ -31,6 +32,19 @@ class EfDatabaseOperationViewModel extends ViewModelBase {
   List<MigrationHistory> get migrationHistories => _migrationHistories;
 
   late RootTabView _rootTabView;
+
+  bool _sortMigrationAscending = true;
+
+  /// Indicate if we should sort the migration column in ascending order.
+  bool get sortMigrationAscending => _sortMigrationAscending;
+
+  set sortMigrationAscending(bool sortMigrationAscending) {
+    if (sortMigrationAscending == _sortMigrationAscending) return;
+    _sortMigrationAscending = sortMigrationAscending;
+    _sortMigrationHistory();
+    notifyListeners();
+  }
+
   StreamSubscription<FileSystemEvent>? _migrationFileSubscription;
 
   EfDatabaseOperationViewModel(
@@ -163,6 +177,14 @@ class EfDatabaseOperationViewModel extends ViewModelBase {
       isBusy = false;
       notifyListeners();
     }
+  }
+
+  void _sortMigrationHistory() {
+    _migrationHistories = sortMigrationAscending
+        ? migrationHistories.orderBy((x) => x.id).toList(growable: false)
+        : migrationHistories
+            .orderByDescending((x) => x.id)
+            .toList(growable: false);
   }
 }
 

@@ -90,9 +90,14 @@ class _EfDatabaseOperationViewState extends State<EfDatabaseOperationView> {
               child: SizedBox(
                 width: double.infinity,
                 child: DataTable(
+                  sortAscending: vm.sortMigrationAscending,
+                  sortColumnIndex: 0,
                   columns: <DataColumn>[
                     DataColumn(
                       label: Text(l('Migration')),
+                      onSort: (value, ascending) {
+                        vm.sortMigrationAscending = ascending;
+                      },
                     ),
                     DataColumn(
                       label: Text(l('Applied')),
