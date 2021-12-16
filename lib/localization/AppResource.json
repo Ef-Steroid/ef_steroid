@@ -85,6 +85,13 @@
         "en": "Done updating database.",
         "zh_Hans": "更新数据库已完成"
       }
+    },
+    {
+      "name": "RevertAllMigrations",
+      "values": {
+        "en": "Revert all migrations",
+        "zh_Hans": "撤销所有迁移"
+      }
     }
   ]
 }

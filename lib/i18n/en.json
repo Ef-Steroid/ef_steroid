@@ -10,5 +10,6 @@
   "RefreshMigrationIndicator": "Migration update detected. You might want refresh.",
   "Operations": "Operations",
   "UpdateDatabaseToHere": "Update database to here",
-  "DoneUpdatingDatabase": "Done updating database."
+  "DoneUpdatingDatabase": "Done updating database.",
+  "RevertAllMigrations": "Revert all migrations"
 }

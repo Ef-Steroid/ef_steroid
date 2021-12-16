@@ -127,6 +127,11 @@ class EfDatabaseOperationViewModel extends ViewModelBase {
     notifyListeners();
   }
 
+  Future<void> revertAllMigrationsAsync() =>
+      updateDatabaseToTargetedMigrationAsync(
+        migrationHistory: const MigrationHistory.ancient(),
+      );
+
   Future<void> updateDatabaseToTargetedMigrationAsync({
     required MigrationHistory migrationHistory,
   }) async {

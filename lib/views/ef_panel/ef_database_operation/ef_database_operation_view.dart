@@ -46,12 +46,13 @@ class _EfDatabaseOperationViewState extends State<EfDatabaseOperationView> {
                   color: Colors.amberAccent,
                 ),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Text(
                       l('RefreshMigrationIndicator'),
                       maxLines: 2,
                     ),
+                    const SizedBox(width: 8),
                     TextButton(
                       onPressed: vm.hideListMigrationBanner,
                       child: Text(
@@ -66,10 +67,21 @@ class _EfDatabaseOperationViewState extends State<EfDatabaseOperationView> {
               alignment: Alignment.centerRight,
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: OutlinedButton.icon(
-                  icon: const Icon(Icons.refresh),
-                  label: Text(l('Refresh')),
-                  onPressed: vm.listMigrationsAsync,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    OutlinedButton.icon(
+                      icon: const Icon(Icons.refresh),
+                      label: Text(l('RevertAllMigrations')),
+                      onPressed: vm.revertAllMigrationsAsync,
+                    ),
+                    const SizedBox(width: 8.0),
+                    OutlinedButton.icon(
+                      icon: const Icon(Icons.refresh),
+                      label: Text(l('Refresh')),
+                      onPressed: vm.listMigrationsAsync,
+                    ),
+                  ],
                 ),
               ),
             ),
