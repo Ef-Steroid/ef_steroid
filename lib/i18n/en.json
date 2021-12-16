@@ -11,5 +11,9 @@
   "Operations": "Operations",
   "UpdateDatabaseToHere": "Update database to here",
   "DoneUpdatingDatabase": "Done updating database.",
-  "RevertAllMigrations": "Revert all migrations"
+  "RevertAllMigrations": "Revert all migrations",
+  "AddMigration": "Add migration",
+  "MigrationName": "Migration name",
+  "EnterMigrationName": "Enter migration name",
+  "PleaseFillAllRequiredField": "Please fill all required fields."
 }

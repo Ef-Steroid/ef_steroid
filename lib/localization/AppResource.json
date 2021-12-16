@@ -92,6 +92,34 @@
         "en": "Revert all migrations",
         "zh_Hans": "撤销所有迁移"
       }
+    },
+    {
+      "name": "AddMigration",
+      "values": {
+        "en": "Add migration",
+        "zh_Hans": "添加迁移"
+      }
+    },
+    {
+      "name": "MigrationName",
+      "values": {
+        "en": "Migration name",
+        "zh_Hans": "迁移名称"
+      }
+    },
+    {
+      "name": "EnterMigrationName",
+      "values": {
+        "en": "Enter migration name",
+        "zh_Hans": "输入迁移名称"
+      }
+    },
+    {
+      "name": "PleaseFillAllRequiredField",
+      "values": {
+        "en": "Please fill all required fields.",
+        "zh_Hans": "请填写所有必填字段 (*)"
+      }
     }
   ]
 }

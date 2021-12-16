@@ -7,6 +7,9 @@ import 'package:fast_dotnet_ef/domain/ef_panel.dart';
 import 'package:fast_dotnet_ef/helpers/tabbed_view_controller_helper.dart';
 import 'package:fast_dotnet_ef/helpers/uri_helper.dart';
 import 'package:fast_dotnet_ef/localization/localizations.dart';
+import 'package:fast_dotnet_ef/models/form/form_model.dart';
+import 'package:fast_dotnet_ef/models/form/form_view_model_mixin.dart';
+import 'package:fast_dotnet_ef/models/form/text_editing_form_field_model.dart';
 import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef_service.dart';
 import 'package:fast_dotnet_ef/services/dotnet_ef/ef_model/migration_history.dart';
 import 'package:fast_dotnet_ef/views/ef_panel/tab_data_value.dart';
@@ -15,7 +18,7 @@ import 'package:fast_dotnet_ef/views/view_model_base.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
 
-class EfDatabaseOperationViewModel extends ViewModelBase {
+class EfDatabaseOperationViewModel extends ViewModelBase with FormViewModelMixin<_AddMigrationFormModel> {
   final DotnetEfService _dotnetEfService;
 
   late EfPanel efPanel;
@@ -46,6 +49,9 @@ class EfDatabaseOperationViewModel extends ViewModelBase {
   }
 
   StreamSubscription<FileSystemEvent>? _migrationFileSubscription;
+
+  @override
+  final _AddMigrationFormModel form = _AddMigrationFormModel();
 
   EfDatabaseOperationViewModel(
     this._dotnetEfService,
@@ -186,6 +192,8 @@ class EfDatabaseOperationViewModel extends ViewModelBase {
             .orderByDescending((x) => x.id)
             .toList(growable: false);
   }
+
+  void addMigrationAsync() {}
 }
 
 class MigrationFile {
@@ -201,5 +209,16 @@ class MigrationFile {
           '.cs',
         )) {
     fileName = p.basenameWithoutExtension(this.fileUri.toDecodedString());
+  }
+}
+
+class _AddMigrationFormModel extends FormModel {
+  final TextEditingFormFieldModel migrationFormField;
+
+  _AddMigrationFormModel() : migrationFormField = TextEditingFormFieldModel();
+
+  @override
+  void dispose() {
+    migrationFormField.dispose();
   }
 }

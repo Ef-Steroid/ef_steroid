@@ -6,7 +6,6 @@ import 'package:fast_dotnet_ef/services/dotnet_ef/ef_model/migration_history.dar
 import 'package:fast_dotnet_ef/services/file/file_service.dart';
 import 'package:fast_dotnet_ef/services/process_runner/model/process_runner_result.dart';
 import 'package:fast_dotnet_ef/services/process_runner/process_runner_service.dart';
-import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:quiver/strings.dart';
 
@@ -15,7 +14,9 @@ class AppDotnetEfService extends DotnetEfService {
   final FileService _fileService;
   final ProcessRunnerService _processRunnerService;
 
-  static const String dotnetEfCommandName = 'dotnet-ef';
+  static const String _dotnetEfCommandName = 'dotnet-ef';
+  static const String _migrationsCommandName = 'migrations';
+  static const String _databaseCommandName = 'database';
 
   static const String _dotnetEfProjectKey = '-p';
 
@@ -34,7 +35,7 @@ class AppDotnetEfService extends DotnetEfService {
   );
 
   String get dotnetEfExecutable {
-    return dotnetEfCommandName;
+    return _dotnetEfCommandName;
   }
 
   @override
@@ -45,7 +46,7 @@ class AppDotnetEfService extends DotnetEfService {
     final args = <String>[];
 
     // Add database command.
-    args.add('database');
+    args.add(_databaseCommandName);
 
     // Add update command.
     args.add('update');
@@ -55,12 +56,11 @@ class AppDotnetEfService extends DotnetEfService {
     }
 
     // Add project option.
-    args.add(_dotnetEfProjectKey);
-    var projectPath = projectUri.toDecodedString();
+    _addProjectOption(
+      args: args,
+      projectUri: projectUri,
+    );
 
-    projectPath = _fileService.stripMacDiscFromPath(path: projectPath);
-
-    args.add(projectPath);
     String result = '';
 
     final processRunnerResult = await _processRunnerService.runAsync(
@@ -88,18 +88,16 @@ class AppDotnetEfService extends DotnetEfService {
     final args = <String>[];
 
     // Add migrations command.
-    args.add('migrations');
+    args.add(_migrationsCommandName);
 
     // Add list command.
     args.add('list');
 
     // Add project option.
-    args.add(_dotnetEfProjectKey);
-    var projectPath = projectUri.toDecodedString();
-
-    projectPath = _fileService.stripMacDiscFromPath(path: projectPath);
-
-    args.add(projectPath);
+    _addProjectOption(
+      args: args,
+      projectUri: projectUri,
+    );
 
     args.add(_dotnetEfJsonKey);
     args.add(_dotnetEfPrefixOutputKey);
@@ -124,11 +122,48 @@ class AppDotnetEfService extends DotnetEfService {
         break;
     }
 
-    if (kDebugMode) {
-      print(processRunnerResult.type);
-    }
-
     return migrations;
+  }
+
+  @override
+  Future<void> addMigrationAsync({
+    required Uri projectUri,
+    required String migrationName,
+  }) async {
+    final args = <String>[];
+
+    // Add migrations command.
+    args.add(_migrationsCommandName);
+
+    // Add add command.
+    args.add('add');
+
+    // Add migration id.
+    args.add(migrationName);
+
+    // Add project option.
+    _addProjectOption(
+      args: args,
+      projectUri: projectUri,
+    );
+
+    final processRunnerResult = await _processRunnerService.runAsync(
+      dotnetEfExecutable,
+      args,
+    );
+    processRunnerResult.logResult();
+  }
+
+  void _addProjectOption({
+    required List<String> args,
+    required Uri projectUri,
+  }) {
+    args.add(_dotnetEfProjectKey);
+    var projectPath = projectUri.toDecodedString();
+
+    projectPath = _fileService.stripMacDiscFromPath(path: projectPath);
+
+    args.add(projectPath);
   }
 
   String _extractJsonOutput(String? stdOut) {

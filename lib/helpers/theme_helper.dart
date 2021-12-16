@@ -9,7 +9,10 @@ enum ThemeKey {
 abstract class ColorConst {
   //#region: App Colors
 
-  static const Color primaryColor = Color(0xff059bb6);
+  static const Color primaryColor = Colors.teal;
+  static const Color accentColor = Colors.tealAccent;
+
+  static const Color  dangerColor = Colors.redAccent;
 
 //#endregion
 }
@@ -28,11 +31,19 @@ class ThemeHelper {
       ThemeKey.dark: ThemeData.dark().copyWith(
         brightness: Brightness.dark,
         primaryColor: ColorConst.primaryColor,
+        buttonTheme: _buttonTheme,
+        outlinedButtonTheme: _outlinedButtonTheme,
+        floatingActionButtonTheme: _floatingActionButtonTheme,
+        elevatedButtonTheme: _elevatedButtonThemeData,
         tooltipTheme: _tooltipTheme,
       ),
       ThemeKey.light: ThemeData.light().copyWith(
         brightness: Brightness.light,
         primaryColor: ColorConst.primaryColor,
+        buttonTheme: _buttonTheme,
+        outlinedButtonTheme: _outlinedButtonTheme,
+        floatingActionButtonTheme: _floatingActionButtonTheme,
+        elevatedButtonTheme: _elevatedButtonThemeData,
         tooltipTheme: _tooltipTheme,
       ),
     };
@@ -40,6 +51,34 @@ class ThemeHelper {
 
   static const TooltipThemeData _tooltipTheme = TooltipThemeData(
     waitDuration: Duration(milliseconds: 300),
+  );
+  static const ButtonThemeData _buttonTheme = ButtonThemeData(
+    buttonColor: ColorConst.primaryColor,
+  );
+
+  static const FloatingActionButtonThemeData _floatingActionButtonTheme =
+  FloatingActionButtonThemeData(
+    backgroundColor: ColorConst.primaryColor,
+    foregroundColor: Colors.white,
+  );
+
+  static final ElevatedButtonThemeData _elevatedButtonThemeData =
+  ElevatedButtonThemeData(
+    style: ElevatedButton.styleFrom(
+      shape: const StadiumBorder(),
+      shadowColor: Colors.transparent,
+    ),
+  );
+
+  static final OutlinedButtonThemeData _outlinedButtonTheme =
+      OutlinedButtonThemeData(
+    style: OutlinedButton.styleFrom(
+      shape: const StadiumBorder(),
+      side: const BorderSide(
+        color: ColorConst.primaryColor,
+      ),
+      primary: ColorConst.primaryColor,
+    ),
   );
   static const circularProgressIndicatorColor =
       AlwaysStoppedAnimation<Color>(ColorConst.primaryColor);

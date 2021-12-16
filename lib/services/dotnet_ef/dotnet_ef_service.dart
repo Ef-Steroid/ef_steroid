@@ -16,4 +16,10 @@ abstract class DotnetEfService {
   Future<List<MigrationHistory>> listMigrationAsync({
     required Uri projectUri,
   });
+
+  /// Add new migration.
+  Future<void> addMigrationAsync({
+    required Uri projectUri,
+    required String migrationName,
+  });
 }

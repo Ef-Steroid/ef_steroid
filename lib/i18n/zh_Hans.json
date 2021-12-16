@@ -11,5 +11,9 @@
   "Operations": "操作",
   "UpdateDatabaseToHere": "更新数据库自此",
   "DoneUpdatingDatabase": "更新数据库已完成",
-  "RevertAllMigrations": "撤销所有迁移"
+  "RevertAllMigrations": "撤销所有迁移",
+  "AddMigration": "添加迁移",
+  "MigrationName": "迁移名称",
+  "EnterMigrationName": "输入迁移名称",
+  "PleaseFillAllRequiredField": "请填写所有必填字段 (*)"
 }
