@@ -33,7 +33,6 @@ class _EfDatabaseOperationViewState extends State<EfDatabaseOperationView> {
   @override
   Widget build(BuildContext context) {
     final l = AL.of(context).text;
-    const boxDiameter = 24.0;
     return MVVMBindingWidget<EfDatabaseOperationViewModel>(
       viewModel: vm,
       builder: (context, vm, child) {
@@ -85,75 +84,109 @@ class _EfDatabaseOperationViewState extends State<EfDatabaseOperationView> {
                 ),
               ),
             ),
-            LoadingWidget(
-              isBusy: vm.isBusy,
-              child: SizedBox(
-                width: double.infinity,
-                child: DataTable(
-                  sortAscending: vm.sortMigrationAscending,
-                  sortColumnIndex: 0,
-                  columns: <DataColumn>[
-                    DataColumn(
-                      label: Text(l('Migration')),
-                      onSort: (value, ascending) {
-                        vm.sortMigrationAscending = ascending;
-                      },
-                    ),
-                    DataColumn(
-                      label: Text(l('Applied')),
-                    ),
-                    DataColumn(
-                      label: Text(l('Operations')),
-                    ),
-                  ],
-                  rows: vm.migrationHistories
-                      .map((migrationHistory) => DataRow(
-                            cells: <DataCell>[
-                              DataCell(
-                                SelectableText(migrationHistory.id),
-                              ),
-                              DataCell(
-                                migrationHistory.applied
-                                    ? const SizedBox.square(
-                                        dimension: boxDiameter,
-                                        child: DecoratedBox(
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.circle,
-                                            color: Colors.green,
-                                          ),
-                                        ),
-                                      )
-                                    : const SizedBox.square(
-                                        dimension: boxDiameter,
-                                      ),
-                              ),
-                              DataCell(
-                                Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    IconButton(
-                                      onPressed: () {
-                                        vm.updateDatabaseToTargetedMigrationAsync(
-                                          migrationHistory: migrationHistory,
-                                        );
-                                      },
-                                      icon: const Icon(
-                                        Icons.menu_open,
-                                      ),
-                                      tooltip: l('UpdateDatabaseToHere'),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ))
-                      .toList(growable: false),
-                ),
-              ),
+            Expanded(
+              child: _MigrationsTable(vm: vm),
             ),
           ],
         );
       },
     );
+  }
+}
+
+class _MigrationsTable extends StatefulWidget {
+  final EfDatabaseOperationViewModel vm;
+
+  const _MigrationsTable({
+    Key? key,
+    required this.vm,
+  }) : super(key: key);
+
+  @override
+  State<_MigrationsTable> createState() => _MigrationsTableState();
+}
+
+class _MigrationsTableState extends State<_MigrationsTable> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  Widget build(BuildContext context) {
+    const boxDiameter = 24.0;
+    final l = AL.of(context).text;
+    return LoadingWidget(
+      isBusy: widget.vm.isBusy,
+      child: SingleChildScrollView(
+        controller: _scrollController,
+        child: SizedBox(
+          width: double.infinity,
+          child: DataTable(
+            sortAscending: widget.vm.sortMigrationAscending,
+            sortColumnIndex: 0,
+            columns: <DataColumn>[
+              DataColumn(
+                label: Text(l('Migration')),
+                onSort: (value, ascending) {
+                  widget.vm.sortMigrationAscending = ascending;
+                },
+              ),
+              DataColumn(
+                label: Text(l('Applied')),
+              ),
+              DataColumn(
+                label: Text(l('Operations')),
+              ),
+            ],
+            rows: widget.vm.migrationHistories
+                .map((migrationHistory) => DataRow(
+                      cells: <DataCell>[
+                        DataCell(
+                          SelectableText(migrationHistory.id),
+                        ),
+                        DataCell(
+                          migrationHistory.applied
+                              ? const SizedBox.square(
+                                  dimension: boxDiameter,
+                                  child: DecoratedBox(
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Colors.green,
+                                    ),
+                                  ),
+                                )
+                              : const SizedBox.square(
+                                  dimension: boxDiameter,
+                                ),
+                        ),
+                        DataCell(
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                onPressed: () {
+                                  widget.vm.updateDatabaseToTargetedMigrationAsync(
+                                    migrationHistory: migrationHistory,
+                                  );
+                                },
+                                icon: const Icon(
+                                  Icons.menu_open,
+                                ),
+                                tooltip: l('UpdateDatabaseToHere'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ))
+                .toList(growable: false),
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
   }
 }
