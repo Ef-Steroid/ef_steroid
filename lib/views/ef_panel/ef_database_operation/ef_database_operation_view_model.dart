@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:bot_toast/bot_toast.dart';
 import 'package:darq/darq.dart';
 import 'package:fast_dotnet_ef/domain/ef_panel.dart';
+import 'package:fast_dotnet_ef/exceptions/dotnet_ef_exception.dart';
 import 'package:fast_dotnet_ef/helpers/tabbed_view_controller_helper.dart';
 import 'package:fast_dotnet_ef/helpers/uri_helper.dart';
 import 'package:fast_dotnet_ef/localization/localizations.dart';
@@ -123,7 +124,7 @@ class EfDatabaseOperationViewModel extends ViewModelBase
   Future<void> listMigrationsAsync() async {
     if (isBusy) return;
 
-    isBusy = true;
+    notifyListeners(isBusy: true);
     try {
       _migrationHistories = await _dotnetEfService.listMigrationAsync(
         projectUri: efPanel.directoryUrl,
@@ -132,15 +133,14 @@ class EfDatabaseOperationViewModel extends ViewModelBase
       _showListMigrationBanner = false;
       notifyListeners();
     } catch (ex, stackTrace) {
-      //TODO: Pop a dialog.
-      logService.severe(
-        'Unable to list migrations.',
+      await dialogService.showErrorDialog(
+        context,
         ex,
         stackTrace,
       );
     }
 
-    isBusy = false;
+    notifyListeners(isBusy: false);
   }
 
   void hideListMigrationBanner() {
@@ -159,15 +159,13 @@ class EfDatabaseOperationViewModel extends ViewModelBase
     try {
       if (isBusy) return;
 
-      isBusy = true;
-      notifyListeners();
+      notifyListeners(isBusy: true);
       await _dotnetEfService.updateDatabaseAsync(
         projectUri: efPanel.directoryUrl,
         migrationHistory: migrationHistory,
       );
 
-      isBusy = false;
-      notifyListeners();
+      notifyListeners(isBusy: false);
 
       BotToast.showText(
         text: AL.of(context).text('DoneUpdatingDatabase'),
@@ -175,14 +173,12 @@ class EfDatabaseOperationViewModel extends ViewModelBase
 
       return listMigrationsAsync();
     } catch (ex, stackTrace) {
-      //TODO: Pop a dialog.
-      logService.severe(
-        'Unable to update database to targeted migration.',
+      await dialogService.showErrorDialog(
+        context,
         ex,
         stackTrace,
       );
-      isBusy = false;
-      notifyListeners();
+      notifyListeners(isBusy: false);
     }
   }
 
@@ -205,19 +201,60 @@ class EfDatabaseOperationViewModel extends ViewModelBase
 
       Navigator.pop(context);
     } catch (ex, stackTrace) {
-      //TODO: Pop a dialog.
-      logService.severe(ex, stackTrace);
+      await dialogService.showErrorDialog(
+        context,
+        ex,
+        stackTrace,
+      );
     }
   }
 
-  Future<void> removeMigrationAsync() async {
+  Future<void> removeMigrationAsync({
+    required bool force,
+  }) async {
     try {
+      if (isBusy) return;
+      notifyListeners(isBusy: true);
+
       await _dotnetEfService.removeMigrationAsync(
         projectUri: efPanel.directoryUrl,
+        force: force,
       );
+
+      notifyListeners(isBusy: false);
+
+      BotToast.showText(
+        text: AL.of(context).text('DoneRemovingMigration'),
+      );
+
+      return listMigrationsAsync();
     } catch (ex, stackTrace) {
-      //TODO: Pop a dialog.
-      logService.severe(ex, stackTrace);
+      if (ex is RemoveMigrationDotnetEfException &&
+          ex.isMigrationAppliedError) {
+        notifyListeners(isBusy: false);
+        return _promptRerunRemoveMigrationWithForceAsync(ex.errorMessage);
+      }
+      await dialogService.showErrorDialog(
+        context,
+        ex,
+        stackTrace,
+      );
+      notifyListeners(isBusy: false);
+    }
+  }
+
+  Future<void> _promptRerunRemoveMigrationWithForceAsync(String? errorMessage) async {
+    final l = AL.of(context).text;
+    final response = await dialogService.promptConfirmationDialog(
+      context,
+      title: l('DoYouWantToRerunWithForce'),
+      subtitle: errorMessage,
+      okText: l('Yes'),
+      cancelText: l('No'),
+    );
+
+    if (response == true) {
+      return removeMigrationAsync(force: true);
     }
   }
 }

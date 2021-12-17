@@ -1,5 +1,6 @@
 import 'package:fast_dotnet_ef/domain/ef_panel.dart';
 import 'package:fast_dotnet_ef/helpers/list_helpers.dart';
+import 'package:fast_dotnet_ef/localization/localizations.dart';
 import 'package:fast_dotnet_ef/repository/repository.dart';
 import 'package:fast_dotnet_ef/services/log/log_service.dart';
 import 'package:fast_dotnet_ef/views/ef_panel/ef_panel_tab_data.dart';
@@ -50,8 +51,13 @@ class RootTabViewModel extends ViewModelBase with ReassembleHandler {
     final fileUri = Uri.tryParse(filePath);
 
     if (fileUri == null) {
-      //TODO: Pop an error dialog here.
-      _logService.severe('Unable to parse file path: $filePath to Uri.');
+      final message = 'Unable to parse file path: $filePath to Uri.';
+      _logService.severe(message);
+      await dialogService.showDefaultDialog(
+        context,
+        title: AL.of(context).text('SomethingWentWrong'),
+        msg: message,
+      );
       return;
     }
 

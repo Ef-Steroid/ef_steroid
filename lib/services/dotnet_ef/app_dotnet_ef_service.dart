@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:fast_dotnet_ef/exceptions/dotnet_ef_exception.dart';
 import 'package:fast_dotnet_ef/helpers/uri_helper.dart';
 import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef_service.dart';
 import 'package:fast_dotnet_ef/services/dotnet_ef/ef_model/migration_history.dart';
@@ -26,6 +27,11 @@ class AppDotnetEfService extends DotnetEfService {
   static const String _dotnetEfDataPrefix = 'data:';
   static final RegExp _dotnetDataRegex = RegExp(
     '^$_dotnetEfDataPrefix.*',
+    multiLine: true,
+  );
+  static const String _dotnetEfErrorPrefix = 'error:';
+  static final RegExp _dotnetErrorRegex = RegExp(
+    '^$_dotnetEfErrorPrefix.*',
     multiLine: true,
   );
 
@@ -157,6 +163,7 @@ class AppDotnetEfService extends DotnetEfService {
   @override
   Future<void> removeMigrationAsync({
     required Uri projectUri,
+    required bool force,
   }) async {
     final args = <String>[];
 
@@ -172,11 +179,33 @@ class AppDotnetEfService extends DotnetEfService {
       projectUri: projectUri,
     );
 
+    if (force) {
+      args.add('--force');
+    }
+
+    args.add(_dotnetEfJsonKey);
+    args.add(_dotnetEfPrefixOutputKey);
+
     final processRunnerResult = await _processRunnerService.runAsync(
       dotnetEfExecutable,
       args,
     );
     processRunnerResult.logResult();
+
+    final successfulProcessRunnerResult =
+        (processRunnerResult as SuccessfulProcessRunnerResult);
+    final stdout = successfulProcessRunnerResult.stdout;
+    switch (processRunnerResult.type) {
+      case ProcessRunnerResultType.successful:
+        if (stdout != null && _dotnetErrorRegex.hasMatch(stdout)) {
+          throw RemoveMigrationDotnetEfException(
+            errorMessage: _extractErrorFromStdout(stdout),
+          );
+        }
+        break;
+      case ProcessRunnerResultType.failure:
+        break;
+    }
   }
 
   void _addProjectOption({
@@ -191,15 +220,29 @@ class AppDotnetEfService extends DotnetEfService {
     args.add(projectPath);
   }
 
-  String _extractJsonOutput(String? stdOut) {
-    if (stdOut == null) return '';
+  String _extractJsonOutput(String? stdout) {
+    if (stdout == null) return '';
 
     return _dotnetDataRegex
-        .allMatches(stdOut)
+        .allMatches(stdout)
         .map((e) => e.input
             .substring(e.start, e.end)
             .replaceAll(_dotnetEfDataPrefix, ''))
         .join()
         .replaceAll(RegExp(r'\s'), '');
+  }
+
+  /// EFCore returns the error part of the [stdout]. We can filter it by looking
+  /// for 'error:' in the [stdout].
+  String _extractErrorFromStdout(String? stdout) {
+    if (stdout == null) return '';
+
+    return _dotnetErrorRegex
+        .allMatches(stdout)
+        .map((e) => e.input
+            .substring(e.start, e.end)
+            .replaceAll(_dotnetEfErrorPrefix, ''))
+        .join()
+        .trim();
   }
 }

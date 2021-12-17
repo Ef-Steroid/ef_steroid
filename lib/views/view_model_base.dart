@@ -1,4 +1,5 @@
 import 'package:fast_dotnet_ef/helpers/context_helper.dart';
+import 'package:fast_dotnet_ef/services/dialog/dialog_service.dart';
 import 'package:fast_dotnet_ef/services/log/log_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -6,6 +7,11 @@ import 'package:get_it/get_it.dart';
 class ViewModelBase extends ChangeNotifier {
   @protected
   final LogService logService = GetIt.I<LogService>();
+  @protected
+  final DialogService dialogService = GetIt.I<DialogService>();
+  bool _hasDispose = false;
+
+  bool get hasDispose => _hasDispose;
 
   BuildContext? _context;
 
@@ -23,7 +29,20 @@ class ViewModelBase extends ChangeNotifier {
     notifyListeners();
   }
 
+  @override
+  @protected
+  void notifyListeners({bool? isBusy}) {
+    if (isBusy != null) _isBusy = isBusy;
+    if (!hasDispose) super.notifyListeners();
+  }
+
   Future<void> initViewModelAsync(){
     return Future.value();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _hasDispose = true;
   }
 }

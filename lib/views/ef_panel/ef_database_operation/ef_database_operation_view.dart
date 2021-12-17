@@ -198,8 +198,14 @@ class _MigrationsTableState extends State<_MigrationsTable> {
                                 : vm.migrationHistories.first.id) ==
                             migrationHistory.id)
                           IconButton(
-                            onPressed: vm.removeMigrationAsync,
-                            icon: const Icon(Icons.remove),
+                            onPressed: () {
+                              vm.removeMigrationAsync(force: false);
+                            },
+                            icon: const Icon(
+                              Icons.remove,
+                              color: ColorConst.dangerColor,
+                            ),
+                            tooltip: l('RemoveMigration'),
                           ),
                       ],
                     ),

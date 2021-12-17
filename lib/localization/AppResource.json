@@ -127,6 +127,62 @@
         "en": "Ignore",
         "zh_Hans": "忽略"
       }
+    },
+    {
+      "name": "RemoveMigration",
+      "values": {
+        "en": "Remove migration",
+        "zh_Hans": "移除迁移"
+      }
+    },
+    {
+      "name": "DoneRemovingMigration",
+      "values": {
+        "en": "Done removing migration",
+        "zh_Hans": "移除迁移已完成"
+      }
+    },
+    {
+      "name": "SomethingWentWrong",
+      "values": {
+        "en": "Something went wrong",
+        "zh_Hans": "发生错误"
+      }
+    },
+    {
+      "name": "DoYouWantToRerunWithForce",
+      "values": {
+        "en": "Do you want to rerun with force?",
+        "zh_Hans": "是否要强制运行？"
+      }
+    },
+    {
+      "name": "OK",
+      "values": {
+        "en": "OK",
+        "zh_Hans": "好的"
+      }
+    },
+    {
+      "name": "Cancel",
+      "values": {
+        "en": "Cancel",
+        "zh_Hans": "取消"
+      }
+    },
+    {
+      "name": "Yes",
+      "values": {
+        "en": "Yes",
+        "zh_Hans": "是的"
+      }
+    },
+    {
+      "name": "No",
+      "values": {
+        "en": "No",
+        "zh_Hans": "否"
+      }
     }
   ]
 }
