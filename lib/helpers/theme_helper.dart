@@ -12,7 +12,8 @@ abstract class ColorConst {
   static const Color primaryColor = Colors.teal;
   static const Color accentColor = Colors.tealAccent;
 
-  static const Color  dangerColor = Colors.redAccent;
+  static const Color dangerColor = Colors.redAccent;
+  static const Color warningColor = Colors.amber;
 
 //#endregion
 }
@@ -57,13 +58,13 @@ class ThemeHelper {
   );
 
   static const FloatingActionButtonThemeData _floatingActionButtonTheme =
-  FloatingActionButtonThemeData(
+      FloatingActionButtonThemeData(
     backgroundColor: ColorConst.primaryColor,
     foregroundColor: Colors.white,
   );
 
   static final ElevatedButtonThemeData _elevatedButtonThemeData =
-  ElevatedButtonThemeData(
+      ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
       shape: const StadiumBorder(),
       shadowColor: Colors.transparent,
