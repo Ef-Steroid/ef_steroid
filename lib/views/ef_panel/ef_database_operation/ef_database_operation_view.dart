@@ -51,10 +51,10 @@ class _EfDatabaseOperationViewState extends State<EfDatabaseOperationView> {
                 Container(
                   padding: const EdgeInsets.all(8.0),
                   decoration: const BoxDecoration(
-                    color: Colors.amberAccent,
+                    color: ColorConst.warningColor,
                   ),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
                         l('RefreshMigrationIndicator'),
@@ -133,20 +133,21 @@ class _MigrationsTableState extends State<_MigrationsTable> {
   Widget build(BuildContext context) {
     const boxDiameter = 24.0;
     final l = AL.of(context).text;
+    final vm = widget.vm;
     return LoadingWidget(
-      isBusy: widget.vm.isBusy,
+      isBusy: vm.isBusy,
       child: SingleChildScrollView(
         controller: _scrollController,
         child: SizedBox(
           width: double.infinity,
           child: DataTable(
-            sortAscending: widget.vm.sortMigrationAscending,
+            sortAscending: vm.sortMigrationAscending,
             sortColumnIndex: 0,
             columns: <DataColumn>[
               DataColumn(
                 label: Text(l('Migration')),
                 onSort: (value, ascending) {
-                  widget.vm.sortMigrationAscending = ascending;
+                  vm.sortMigrationAscending = ascending;
                 },
               ),
               DataColumn(
@@ -156,49 +157,56 @@ class _MigrationsTableState extends State<_MigrationsTable> {
                 label: Text(l('Operations')),
               ),
             ],
-            rows: widget.vm.migrationHistories
-                .map((migrationHistory) => DataRow(
-                      cells: <DataCell>[
-                        DataCell(
-                          SelectableText(migrationHistory.id),
-                        ),
-                        DataCell(
-                          migrationHistory.applied
-                              ? const SizedBox.square(
-                                  dimension: boxDiameter,
-                                  child: DecoratedBox(
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: Colors.green,
-                                    ),
-                                  ),
-                                )
-                              : const SizedBox.square(
-                                  dimension: boxDiameter,
-                                ),
-                        ),
-                        DataCell(
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                onPressed: () {
-                                  widget.vm
-                                      .updateDatabaseToTargetedMigrationAsync(
-                                    migrationHistory: migrationHistory,
-                                  );
-                                },
-                                icon: const Icon(
-                                  Icons.menu_open,
-                                ),
-                                tooltip: l('UpdateDatabaseToHere'),
+            rows: vm.migrationHistories.map((migrationHistory) {
+              return DataRow(
+                cells: <DataCell>[
+                  DataCell(
+                    SelectableText(migrationHistory.id),
+                  ),
+                  DataCell(
+                    migrationHistory.applied
+                        ? const SizedBox.square(
+                            dimension: boxDiameter,
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.green,
                               ),
-                            ],
+                            ),
+                          )
+                        : const SizedBox.square(
+                            dimension: boxDiameter,
                           ),
+                  ),
+                  DataCell(
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            vm.updateDatabaseToTargetedMigrationAsync(
+                              migrationHistory: migrationHistory,
+                            );
+                          },
+                          icon: const Icon(
+                            Icons.menu_open,
+                          ),
+                          tooltip: l('UpdateDatabaseToHere'),
                         ),
+                        if ((vm.sortMigrationAscending
+                                ? vm.migrationHistories.last.id
+                                : vm.migrationHistories.first.id) ==
+                            migrationHistory.id)
+                          IconButton(
+                            onPressed: vm.removeMigrationAsync,
+                            icon: const Icon(Icons.remove),
+                          ),
                       ],
-                    ))
-                .toList(growable: false),
+                    ),
+                  ),
+                ],
+              );
+            }).toList(growable: false),
           ),
         ),
       ),
@@ -225,43 +233,70 @@ class _AddMigrationForm extends StatefulWidget {
 }
 
 class _AddMigrationFormState extends State<_AddMigrationForm> {
+  bool _isBusy = false;
+
   @override
   Widget build(BuildContext context) {
-    final form = widget.vm.form;
+    final vm = widget.vm;
+    final form = vm.form;
     final l = AL.of(context).text;
-    return Dialog(
-      insetPadding: const EdgeInsets.all(40.0),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(8.0)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(32.0),
-        child: Form(
-          key: form.formKey,
-          child: CustomTextFormField(
-            formField: form.migrationFormField,
-            inputDecoration: InputDecoration(
-              label: Text.rich(
-                TextSpan(
-                  text: l('MigrationName'),
-                  children: const [
-                    TextSpan(
-                      text: '*',
-                      style: TextStyle(color: ColorConst.dangerColor),
-                    )
-                  ],
+    return LoadingWidget(
+      isBusy: _isBusy,
+      child: Dialog(
+        insetPadding: const EdgeInsets.all(40.0),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(Radius.circular(8.0)),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(32.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Form(
+                key: form.formKey,
+                child: CustomTextFormField(
+                  formField: form.migrationFormField,
+                  inputDecoration: InputDecoration(
+                    label: Text.rich(
+                      TextSpan(
+                        text: l('MigrationName'),
+                        children: const [
+                          TextSpan(
+                            text: '*',
+                            style: TextStyle(color: ColorConst.dangerColor),
+                          )
+                        ],
+                      ),
+                    ),
+                    hintText: l('EnterMigrationName'),
+                  ),
+                  validator: (value) {
+                    if (isBlank(value)) {
+                      return vm.getDefaultFormExceptionMessage();
+                    }
+                  },
                 ),
               ),
-              hintText: l('EnterMigrationName'),
-            ),
-            validator: (value) {
-              if (isBlank(value)) {
-                return widget.vm.getDefaultFormExceptionMessage();
-              }
-            },
+              const SizedBox(height: 16),
+              Align(
+                alignment: Alignment.centerRight,
+                child: OutlinedButton(
+                  onPressed: _onAddMigrationPressedAsync,
+                  child: Text(l('AddMigration')),
+                ),
+              ),
+            ],
           ),
         ),
       ),
     );
+  }
+
+  Future<void> _onAddMigrationPressedAsync() async {
+    _isBusy = true;
+    setState(() {});
+    await widget.vm.addMigrationAsync();
+    _isBusy = false;
+    setState(() {});
   }
 }

@@ -120,6 +120,13 @@
         "en": "Please fill all required fields.",
         "zh_Hans": "请填写所有必填字段 (*)"
       }
+    },
+    {
+      "name": "Ignore",
+      "values": {
+        "en": "Ignore",
+        "zh_Hans": "忽略"
+      }
     }
   ]
 }

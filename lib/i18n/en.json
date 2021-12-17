@@ -15,5 +15,6 @@
   "AddMigration": "Add migration",
   "MigrationName": "Migration name",
   "EnterMigrationName": "Enter migration name",
-  "PleaseFillAllRequiredField": "Please fill all required fields."
+  "PleaseFillAllRequiredField": "Please fill all required fields.",
+  "Ignore": "Ignore"
 }

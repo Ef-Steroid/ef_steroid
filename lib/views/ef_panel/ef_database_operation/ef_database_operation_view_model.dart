@@ -18,7 +18,8 @@ import 'package:fast_dotnet_ef/views/view_model_base.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
 
-class EfDatabaseOperationViewModel extends ViewModelBase with FormViewModelMixin<_AddMigrationFormModel> {
+class EfDatabaseOperationViewModel extends ViewModelBase
+    with FormViewModelMixin<_AddMigrationFormModel> {
   final DotnetEfService _dotnetEfService;
 
   late EfPanel efPanel;
@@ -193,22 +194,31 @@ class EfDatabaseOperationViewModel extends ViewModelBase with FormViewModelMixin
             .toList(growable: false);
   }
 
-  void addMigrationAsync() {}
-}
+  Future<void> addMigrationAsync() async {
+    try {
+      checkInput();
 
-class MigrationFile {
-  final Uri fileUri;
+      await _dotnetEfService.addMigrationAsync(
+        projectUri: efPanel.directoryUrl,
+        migrationName: form.migrationFormField.toText(),
+      );
 
-  /// The migration file name.
-  late final String fileName;
+      Navigator.pop(context);
+    } catch (ex, stackTrace) {
+      //TODO: Pop a dialog.
+      logService.severe(ex, stackTrace);
+    }
+  }
 
-  MigrationFile({
-    required Uri fileUri,
-  }) : fileUri = Uri.parse(p.setExtension(
-          p.withoutExtension(fileUri.toDecodedString()),
-          '.cs',
-        )) {
-    fileName = p.basenameWithoutExtension(this.fileUri.toDecodedString());
+  Future<void> removeMigrationAsync() async {
+    try {
+      await _dotnetEfService.removeMigrationAsync(
+        projectUri: efPanel.directoryUrl,
+      );
+    } catch (ex, stackTrace) {
+      //TODO: Pop a dialog.
+      logService.severe(ex, stackTrace);
+    }
   }
 }
 

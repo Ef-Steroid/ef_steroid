@@ -154,6 +154,31 @@ class AppDotnetEfService extends DotnetEfService {
     processRunnerResult.logResult();
   }
 
+  @override
+  Future<void> removeMigrationAsync({
+    required Uri projectUri,
+  }) async {
+    final args = <String>[];
+
+    // Add migrations command.
+    args.add(_migrationsCommandName);
+
+    // Add remove command.
+    args.add('remove');
+
+    // Add project option.
+    _addProjectOption(
+      args: args,
+      projectUri: projectUri,
+    );
+
+    final processRunnerResult = await _processRunnerService.runAsync(
+      dotnetEfExecutable,
+      args,
+    );
+    processRunnerResult.logResult();
+  }
+
   void _addProjectOption({
     required List<String> args,
     required Uri projectUri,

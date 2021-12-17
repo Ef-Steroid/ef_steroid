@@ -15,5 +15,6 @@
   "AddMigration": "添加迁移",
   "MigrationName": "迁移名称",
   "EnterMigrationName": "输入迁移名称",
-  "PleaseFillAllRequiredField": "请填写所有必填字段 (*)"
+  "PleaseFillAllRequiredField": "请填写所有必填字段 (*)",
+  "Ignore": "忽略"
 }

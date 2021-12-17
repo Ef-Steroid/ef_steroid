@@ -22,4 +22,11 @@ abstract class DotnetEfService {
     required Uri projectUri,
     required String migrationName,
   });
+
+  /// Remove the last migration.
+  ///
+  /// Note that Dotnet EF supports only removing the last migration.
+  Future<void> removeMigrationAsync({
+    required Uri projectUri,
+  });
 }
