@@ -27,7 +27,7 @@ mixin FormStateMixin<T extends StatefulWidget, TFormModel extends FormModel>
 
   @override
   void dispose() {
-    // We allow the form here to be nullable due to we cannot guarantee that
+    // We allow the form here to be nullable since we cannot guarantee that
     // at this point the form is assigned.
 
     form?.dispose();
