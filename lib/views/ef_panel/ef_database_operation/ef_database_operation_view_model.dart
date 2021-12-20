@@ -4,9 +4,13 @@ import 'dart:io';
 import 'package:bot_toast/bot_toast.dart';
 import 'package:darq/darq.dart';
 import 'package:fast_dotnet_ef/domain/ef_panel.dart';
+import 'package:fast_dotnet_ef/exceptions/dotnet_ef_exception.dart';
 import 'package:fast_dotnet_ef/helpers/tabbed_view_controller_helper.dart';
 import 'package:fast_dotnet_ef/helpers/uri_helper.dart';
 import 'package:fast_dotnet_ef/localization/localizations.dart';
+import 'package:fast_dotnet_ef/models/form/form_model.dart';
+import 'package:fast_dotnet_ef/models/form/form_view_model_mixin.dart';
+import 'package:fast_dotnet_ef/models/form/text_editing_form_field_model.dart';
 import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef_service.dart';
 import 'package:fast_dotnet_ef/services/dotnet_ef/ef_model/migration_history.dart';
 import 'package:fast_dotnet_ef/views/ef_panel/tab_data_value.dart';
@@ -15,7 +19,8 @@ import 'package:fast_dotnet_ef/views/view_model_base.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as p;
 
-class EfDatabaseOperationViewModel extends ViewModelBase {
+class EfDatabaseOperationViewModel extends ViewModelBase
+    with FormViewModelMixin<_AddMigrationFormModel> {
   final DotnetEfService _dotnetEfService;
 
   late EfPanel efPanel;
@@ -46,6 +51,9 @@ class EfDatabaseOperationViewModel extends ViewModelBase {
   }
 
   StreamSubscription<FileSystemEvent>? _migrationFileSubscription;
+
+  @override
+  final _AddMigrationFormModel form = _AddMigrationFormModel();
 
   EfDatabaseOperationViewModel(
     this._dotnetEfService,
@@ -116,7 +124,7 @@ class EfDatabaseOperationViewModel extends ViewModelBase {
   Future<void> listMigrationsAsync() async {
     if (isBusy) return;
 
-    isBusy = true;
+    notifyListeners(isBusy: true);
     try {
       _migrationHistories = await _dotnetEfService.listMigrationAsync(
         projectUri: efPanel.directoryUrl,
@@ -125,15 +133,14 @@ class EfDatabaseOperationViewModel extends ViewModelBase {
       _showListMigrationBanner = false;
       notifyListeners();
     } catch (ex, stackTrace) {
-      //TODO: Pop a dialog.
-      logService.severe(
-        'Unable to list migrations.',
+      await dialogService.showErrorDialog(
+        context,
         ex,
         stackTrace,
       );
     }
 
-    isBusy = false;
+    notifyListeners(isBusy: false);
   }
 
   void hideListMigrationBanner() {
@@ -152,15 +159,13 @@ class EfDatabaseOperationViewModel extends ViewModelBase {
     try {
       if (isBusy) return;
 
-      isBusy = true;
-      notifyListeners();
+      notifyListeners(isBusy: true);
       await _dotnetEfService.updateDatabaseAsync(
         projectUri: efPanel.directoryUrl,
         migrationHistory: migrationHistory,
       );
 
-      isBusy = false;
-      notifyListeners();
+      notifyListeners(isBusy: false);
 
       BotToast.showText(
         text: AL.of(context).text('DoneUpdatingDatabase'),
@@ -168,14 +173,12 @@ class EfDatabaseOperationViewModel extends ViewModelBase {
 
       return listMigrationsAsync();
     } catch (ex, stackTrace) {
-      //TODO: Pop a dialog.
-      logService.severe(
-        'Unable to update database to targeted migration.',
+      await dialogService.showErrorDialog(
+        context,
         ex,
         stackTrace,
       );
-      isBusy = false;
-      notifyListeners();
+      notifyListeners(isBusy: false);
     }
   }
 
@@ -186,20 +189,83 @@ class EfDatabaseOperationViewModel extends ViewModelBase {
             .orderByDescending((x) => x.id)
             .toList(growable: false);
   }
+
+  Future<void> addMigrationAsync() async {
+    try {
+      checkInput();
+
+      await _dotnetEfService.addMigrationAsync(
+        projectUri: efPanel.directoryUrl,
+        migrationName: form.migrationFormField.toText(),
+      );
+
+      Navigator.pop(context);
+    } catch (ex, stackTrace) {
+      await dialogService.showErrorDialog(
+        context,
+        ex,
+        stackTrace,
+      );
+    }
+  }
+
+  Future<void> removeMigrationAsync({
+    required bool force,
+  }) async {
+    try {
+      if (isBusy) return;
+      notifyListeners(isBusy: true);
+
+      await _dotnetEfService.removeMigrationAsync(
+        projectUri: efPanel.directoryUrl,
+        force: force,
+      );
+
+      notifyListeners(isBusy: false);
+
+      BotToast.showText(
+        text: AL.of(context).text('DoneRemovingMigration'),
+      );
+
+      return listMigrationsAsync();
+    } catch (ex, stackTrace) {
+      if (ex is RemoveMigrationDotnetEfException &&
+          ex.isMigrationAppliedError) {
+        notifyListeners(isBusy: false);
+        return _promptRerunRemoveMigrationWithForceAsync(ex.errorMessage);
+      }
+      await dialogService.showErrorDialog(
+        context,
+        ex,
+        stackTrace,
+      );
+      notifyListeners(isBusy: false);
+    }
+  }
+
+  Future<void> _promptRerunRemoveMigrationWithForceAsync(String? errorMessage) async {
+    final l = AL.of(context).text;
+    final response = await dialogService.promptConfirmationDialog(
+      context,
+      title: l('DoYouWantToRerunWithForce'),
+      subtitle: errorMessage,
+      okText: l('Yes'),
+      cancelText: l('No'),
+    );
+
+    if (response == true) {
+      return removeMigrationAsync(force: true);
+    }
+  }
 }
 
-class MigrationFile {
-  final Uri fileUri;
+class _AddMigrationFormModel extends FormModel {
+  final TextEditingFormFieldModel migrationFormField;
 
-  /// The migration file name.
-  late final String fileName;
+  _AddMigrationFormModel() : migrationFormField = TextEditingFormFieldModel();
 
-  MigrationFile({
-    required Uri fileUri,
-  }) : fileUri = Uri.parse(p.setExtension(
-          p.withoutExtension(fileUri.toDecodedString()),
-          '.cs',
-        )) {
-    fileName = p.basenameWithoutExtension(this.fileUri.toDecodedString());
+  @override
+  void dispose() {
+    migrationFormField.dispose();
   }
 }

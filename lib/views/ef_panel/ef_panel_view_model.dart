@@ -3,13 +3,10 @@ import 'package:fast_dotnet_ef/domain/ef_operation.dart';
 import 'package:fast_dotnet_ef/domain/ef_panel.dart';
 import 'package:fast_dotnet_ef/mixins/selection_mode_mixin.dart';
 import 'package:fast_dotnet_ef/repository/repository.dart';
-import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef_service.dart';
-import 'package:fast_dotnet_ef/views/ef_panel/ef_panel_view.dart';
 import 'package:fast_dotnet_ef/views/view_model_base.dart';
 import 'package:get_it/get_it.dart';
 
 class EfPanelViewModel extends ViewModelBase {
-  final DotnetEfService _dotnetEfService;
   final Repository<EfPanel> _efPanelRepository = GetIt.I<Repository<EfPanel>>();
 
   final Map<EfOperation, EfOperationModel> efOperations = EfOperation.values
@@ -29,31 +26,7 @@ class EfPanelViewModel extends ViewModelBase {
     notifyListeners();
   }
 
-  EfPanelViewModel(
-    this._dotnetEfService,
-  );
-
-  Future<void> updateDatabaseAsync() async {
-    if (isBusy) return;
-    isBusy = true;
-    try {
-      await _dotnetEfService.updateDatabaseAsync(
-        projectUri: context
-            .findAncestorWidgetOfExactType<EfPanelView>()!
-            .efPanel
-            .directoryUrl,
-      );
-    } catch (ex, stackTrace) {
-      //TODO: Pop a dialog.
-      logService.severe(
-        'Unable to update database',
-        ex,
-        stackTrace,
-      );
-    }
-
-    isBusy = false;
-  }
+  EfPanelViewModel();
 
   @override
   Future<void> initViewModelAsync() {

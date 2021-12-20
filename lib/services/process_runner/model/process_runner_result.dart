@@ -11,6 +11,11 @@ enum ProcessRunnerResultType {
   failure,
 }
 
+/// The base type for process runner results.
+///
+/// Check the following subclasses:
+/// - [SuccessfulProcessRunnerResult]
+/// - [FailureProcessRunnerResult]
 @JsonSerializable()
 class ProcessRunnerResult {
   final ProcessRunnerResultType type;
@@ -50,7 +55,7 @@ class ProcessRunnerResult {
 class SuccessfulProcessRunnerResult extends ProcessRunnerResult {
   /// Exit code for the process.
   ///
-  /// See [Process.exitCode] for more information in the exit code
+  /// See [Process. `exitCode] for more information in the exit code
   /// value.
   final int exitCode;
 

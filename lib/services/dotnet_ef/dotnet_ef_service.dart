@@ -16,4 +16,22 @@ abstract class DotnetEfService {
   Future<List<MigrationHistory>> listMigrationAsync({
     required Uri projectUri,
   });
+
+  /// Add new migration.
+  Future<void> addMigrationAsync({
+    required Uri projectUri,
+    required String migrationName,
+  });
+
+  /// Remove the last migration.
+  ///
+  /// Note that Dotnet EF supports only removing the last migration.
+  ///
+  /// **Arguments:**
+  /// - [projectUri] -> The project uri.
+  /// - [force] -> Force the migration removal even the migration is applied.
+  Future<void> removeMigrationAsync({
+    required Uri projectUri,
+    required bool force,
+  });
 }
