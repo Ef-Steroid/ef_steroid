@@ -1,0 +1,6 @@
+msix_config:
+  display_name: 'Fast Dotnet Ef'
+  identity_name: 'com.techcreator.FastDotnetEf'
+  output_path: 'build\msix'
+  output_name: 'Fast Dotnet Ef'
+  assets_directory_path: 'windows\assets'
