@@ -64,11 +64,12 @@ Future<void> main() async {
 
 Future<void> _handlerLogAsync() async {
   final applicationSupportDirectory = await path_provider.getApplicationSupportDirectory();
-  final file = File(p.joinAll([
+  final file = File(p.canonicalize(p.joinAll([
     applicationSupportDirectory.path,
     ResourceGroupKey.logs,
-    '${DateTime.now()}_logs.txt',
-  ]));
+    // Windows path does not accept ':'.
+    '${DateTime.now().toString().replaceAll(':', '')}_logs.txt',
+  ])));
   await file.create(recursive: true);
   final ioSink = file.openWrite(mode: FileMode.append);
   GetIt.I<LogService>().onRecord.listen((event) {
