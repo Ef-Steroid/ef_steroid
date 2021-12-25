@@ -23,12 +23,18 @@ class RootTabViewModel extends ViewModelBase with ReassembleHandler {
 
   @override
   Future<void> initViewModelAsync() async {
+    _logService.info('Init RootTabViewModel');
     await _loadPreviousTabsAsync();
     return super.initViewModelAsync();
   }
 
   Future<void> _loadPreviousTabsAsync() async {
+    _logService.info('Start loading previous tabs');
+
+    _logService.info('Start getting previous tabs from db');
     final results = await _efPanelRepository.getAllAsync();
+    _logService.info('Done getting previous tabs from db');
+
     final efPanelInTabs = tabbedViewController.tabs
         .where((x) => x.value is! AddEfPanelTabDataValue)
         .map((e) => e.value as EfPanelTabDataValue);
@@ -36,6 +42,7 @@ class RootTabViewModel extends ViewModelBase with ReassembleHandler {
         .where((x) => efPanelInTabs
             .every((y) => y.efPanel.directoryUrl != x.directoryUrl))
         .forEach(_addProjectTab);
+    _logService.info('Done loading previous tabs');
   }
 
   Future<void> addEfProjectAsync() async {
@@ -76,6 +83,7 @@ class RootTabViewModel extends ViewModelBase with ReassembleHandler {
     final id = await _efPanelRepository.insertOrUpdateAsync(efPanel);
 
     _addProjectTab(efPanel.copyWith(id: id));
+    _logService.info('Done adding ef project');
   }
 
   void _addProjectTab(EfPanel efPanel) {
@@ -89,6 +97,7 @@ class RootTabViewModel extends ViewModelBase with ReassembleHandler {
         closable: efPanelTabDataValue.closable,
       ),
     );
+    _logService.info('Done adding ef project tab');
   }
 
   Future<void> removeFromStorageAsync({

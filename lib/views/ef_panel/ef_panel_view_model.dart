@@ -3,10 +3,12 @@ import 'package:fast_dotnet_ef/domain/ef_operation.dart';
 import 'package:fast_dotnet_ef/domain/ef_panel.dart';
 import 'package:fast_dotnet_ef/mixins/selection_mode_mixin.dart';
 import 'package:fast_dotnet_ef/repository/repository.dart';
+import 'package:fast_dotnet_ef/services/log/log_service.dart';
 import 'package:fast_dotnet_ef/views/view_model_base.dart';
 import 'package:get_it/get_it.dart';
 
 class EfPanelViewModel extends ViewModelBase {
+  final LogService _logService;
   final Repository<EfPanel> _efPanelRepository = GetIt.I<Repository<EfPanel>>();
 
   final Map<EfOperation, EfOperationModel> efOperations = EfOperation.values
@@ -26,11 +28,15 @@ class EfPanelViewModel extends ViewModelBase {
     notifyListeners();
   }
 
-  EfPanelViewModel();
+  EfPanelViewModel(
+    this._logService,
+  );
 
   @override
-  Future<void> initViewModelAsync() {
-    _loadSelectedOperationAsync();
+  Future<void> initViewModelAsync() async {
+    _logService.info('Start init EfPanelViewModel');
+    await _loadSelectedOperationAsync();
+    _logService.info('Done init EfPanelViewModel');
     return super.initViewModelAsync();
   }
 
