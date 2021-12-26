@@ -24,5 +24,7 @@
   "OK": "OK",
   "Cancel": "Cancel",
   "Yes": "Yes",
-  "No": "No"
+  "No": "No",
+  "AddEfProject": "Add Entity Framework Project",
+  "SelectEfProject": "Select Entity Framework Project"
 }

@@ -46,8 +46,10 @@ class RootTabViewModel extends ViewModelBase with ReassembleHandler {
   }
 
   Future<void> addEfProjectAsync() async {
+    final l = AL.of(context).text;
     final filePath = await FilePicker.platform.getDirectoryPath(
-      dialogTitle: 'Select EF Project',
+      dialogTitle: l('SelectEfProject'),
+      lockParentWindow: true,
     );
 
     if (filePath == null) {
@@ -62,7 +64,7 @@ class RootTabViewModel extends ViewModelBase with ReassembleHandler {
       _logService.severe(message);
       await dialogService.showDefaultDialog(
         context,
-        title: AL.of(context).text('SomethingWentWrong'),
+        title: l('SomethingWentWrong'),
         msg: message,
       );
       return;

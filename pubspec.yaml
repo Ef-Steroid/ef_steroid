@@ -40,7 +40,6 @@ dev_dependencies:
   injectable_generator: ^1.5.2
   flutter_lints: ^1.0.4
   json_serializable: ^6.1.1
-  msix: ^2.6.7
 
 flutter:
   uses-material-design: true

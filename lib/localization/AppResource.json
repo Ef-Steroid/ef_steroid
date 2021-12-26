@@ -183,6 +183,20 @@
         "en": "No",
         "zh_Hans": "否"
       }
+    },
+    {
+      "name": "AddEfProject",
+      "values": {
+        "en": "Add Entity Framework Project",
+        "zh_Hans": "添加实体框架项目"
+      }
+    },
+    {
+      "name": "SelectEfProject",
+      "values": {
+        "en": "Select Entity Framework Project",
+        "zh_Hans": "选择实体框架项目"
+      }
     }
   ]
 }
