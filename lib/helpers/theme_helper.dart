@@ -32,6 +32,7 @@ class ThemeHelper {
       ThemeKey.dark: ThemeData.dark().copyWith(
         brightness: Brightness.dark,
         primaryColor: ColorConst.primaryColor,
+        inputDecorationTheme: _inputDecorationTheme,
         buttonTheme: _buttonTheme,
         outlinedButtonTheme: _outlinedButtonTheme,
         floatingActionButtonTheme: _floatingActionButtonTheme,
@@ -41,6 +42,7 @@ class ThemeHelper {
       ThemeKey.light: ThemeData.light().copyWith(
         brightness: Brightness.light,
         primaryColor: ColorConst.primaryColor,
+        inputDecorationTheme: _inputDecorationTheme,
         buttonTheme: _buttonTheme,
         outlinedButtonTheme: _outlinedButtonTheme,
         floatingActionButtonTheme: _floatingActionButtonTheme,
@@ -49,6 +51,23 @@ class ThemeHelper {
       ),
     };
   }
+
+  static const InputDecorationTheme _inputDecorationTheme =
+      InputDecorationTheme(
+    labelStyle: TextStyle(
+      color: ColorConst.primaryColor,
+    ),
+    border: OutlineInputBorder(
+      borderSide: BorderSide(
+        color: ColorConst.primaryColor,
+      ),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderSide: BorderSide(
+        color: ColorConst.primaryColor,
+      ),
+    ),
+  );
 
   static const TooltipThemeData _tooltipTheme = TooltipThemeData(
     waitDuration: Duration(milliseconds: 300),

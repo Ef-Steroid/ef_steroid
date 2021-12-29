@@ -3,6 +3,7 @@ import 'dart:isolate';
 
 import 'package:async_task/async_task_extension.dart';
 import 'package:bot_toast/bot_toast.dart';
+import 'package:desktop_window/desktop_window.dart';
 import 'package:fast_dotnet_ef/app_settings.dart';
 import 'package:fast_dotnet_ef/helpers/context_helper.dart';
 import 'package:fast_dotnet_ef/helpers/intl/language_helper.dart';
@@ -33,9 +34,11 @@ Future<void> main() async {
   await _handlerLogAsync();
   final setupSqliteService = _setupSqliteService();
   final setupAppSettings = AppSettings.instance.setup();
+  final setupWindowMetrics = _setupWindowMetrics();
   await Future.wait([
     setupSqliteService,
     setupAppSettings,
+    setupWindowMetrics,
   ]);
 
   Isolate.current.addErrorListener(RawReceivePort((pair) async {
@@ -62,8 +65,13 @@ Future<void> main() async {
   );
 }
 
+Future<void> _setupWindowMetrics() {
+  return DesktopWindow.setMinWindowSize(const Size(400, 400));
+}
+
 Future<void> _handlerLogAsync() async {
-  final applicationSupportDirectory = await path_provider.getApplicationSupportDirectory();
+  final applicationSupportDirectory =
+      await path_provider.getApplicationSupportDirectory();
   final file = File(p.canonicalize(p.joinAll([
     applicationSupportDirectory.path,
     ResourceGroupKey.logs,
@@ -91,7 +99,6 @@ Future<void> _setupSqliteService() async {
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

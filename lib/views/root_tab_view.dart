@@ -1,5 +1,5 @@
 import 'package:fast_dotnet_ef/views/ef_panel/ef_add_panel.dart';
-import 'package:fast_dotnet_ef/views/ef_panel/ef_panel_view.dart';
+import 'package:fast_dotnet_ef/views/ef_panel/ef_database_operation/ef_database_operation_view.dart';
 import 'package:fast_dotnet_ef/views/ef_panel/tab_data_value.dart';
 import 'package:fast_dotnet_ef/views/root_tab_view_model.dart';
 import 'package:fast_dotnet_ef/views/widgets/mvvm_binding_widget.dart';
@@ -46,10 +46,7 @@ class _RootTabViewState extends State<RootTabView> {
             }
 
             if (tabDataValue is EfPanelTabDataValue) {
-              return EfPanelView(
-                key: ValueKey(tabDataValue.efPanel.directoryUrl),
-                efPanel: tabDataValue.efPanel,
-              );
+              return EfDatabaseOperationView(efPanel: tabDataValue.efPanel);
             }
 
             return const SizedBox.shrink();

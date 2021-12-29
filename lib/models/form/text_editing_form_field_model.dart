@@ -1,4 +1,3 @@
-
 import 'package:fast_dotnet_ef/views/widgets/shake_widget.dart';
 import 'package:flutter/widgets.dart';
 import 'package:fast_dotnet_ef/models/form/form_field_model.dart';

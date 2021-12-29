@@ -40,8 +40,7 @@ class AppDialogService extends DialogService {
       pageBuilder: (context, _, __) {
         return AlertDialog(
           shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(8))
-          ),
+              borderRadius: BorderRadius.all(Radius.circular(8))),
           title: Text(title ?? ''),
           content: Text(msg ?? ''),
           actions: [
