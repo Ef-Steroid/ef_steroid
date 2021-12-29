@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tabbed_view/tabbed_view.dart';
 
 enum ThemeKey {
   dark,
@@ -100,6 +101,39 @@ class ThemeHelper {
       primary: ColorConst.primaryColor,
     ),
   );
+
   static const circularProgressIndicatorColor =
       AlwaysStoppedAnimation<Color>(ColorConst.primaryColor);
+
+  static bool isDarkMode(BuildContext context) {
+    return MediaQuery.of(context).platformBrightness == Brightness.dark;
+  }
+
+  static TabbedViewThemeData tabbedViewThemeData(BuildContext context) {
+    final tabbedViewThemeData = ThemeHelper.isDarkMode(context)
+        ? TabbedViewThemeData.dark(fontSize: 14)
+        : TabbedViewThemeData.classic(fontSize: 14);
+
+    const radius = Radius.circular(10.0);
+    const borderRadius = BorderRadius.only(topLeft: radius, topRight: radius);
+
+    tabbedViewThemeData.tab
+      ..decoration = const BoxDecoration(
+        shape: BoxShape.rectangle,
+        borderRadius: borderRadius,
+      )
+      ..padding = const EdgeInsets.all(8)
+      ..margin = EdgeInsets.zero
+      ..selectedStatus.decoration = BoxDecoration(
+        color: Colors.grey[800],
+        borderRadius: borderRadius,
+      )
+      ..highlightedStatus.decoration = const BoxDecoration(
+        borderRadius: borderRadius,
+      );
+
+    tabbedViewThemeData.contentArea.padding = EdgeInsets.zero;
+    tabbedViewThemeData.tabsArea.middleGap = 0;
+    return tabbedViewThemeData;
+  }
 }

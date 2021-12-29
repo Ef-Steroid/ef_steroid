@@ -1,3 +1,4 @@
+import 'package:fast_dotnet_ef/helpers/theme_helper.dart';
 import 'package:fast_dotnet_ef/views/ef_panel/ef_add_panel.dart';
 import 'package:fast_dotnet_ef/views/ef_panel/ef_database_operation/ef_database_operation_view.dart';
 import 'package:fast_dotnet_ef/views/ef_panel/tab_data_value.dart';
@@ -34,23 +35,27 @@ class _RootTabViewState extends State<RootTabView> {
     return MVVMBindingWidget<RootTabViewModel>(
       viewModel: vm,
       builder: (context, vm, child) {
-        return TabbedView(
-          controller: widget.tabbedViewController,
-          onTabClose: _onTabClosedAsync,
-          contentBuilder: (context, index) {
-            final tabDataValue = widget.tabbedViewController.tabs[index].value;
-            if (tabDataValue is AddEfPanelTabDataValue) {
-              return EfAddPanelView(
-                onAddProjectPressed: vm.addEfProjectAsync,
-              );
-            }
+        return TabbedViewTheme(
+          data: ThemeHelper.tabbedViewThemeData(context),
+          child: TabbedView(
+            controller: widget.tabbedViewController,
+            onTabClose: _onTabClosedAsync,
+            contentBuilder: (context, index) {
+              final tabDataValue =
+                  widget.tabbedViewController.tabs[index].value;
+              if (tabDataValue is AddEfPanelTabDataValue) {
+                return EfAddPanelView(
+                  onAddProjectPressed: vm.addEfProjectAsync,
+                );
+              }
 
-            if (tabDataValue is EfPanelTabDataValue) {
-              return EfDatabaseOperationView(efPanel: tabDataValue.efPanel);
-            }
+              if (tabDataValue is EfPanelTabDataValue) {
+                return EfDatabaseOperationView(efPanel: tabDataValue.efPanel);
+              }
 
-            return const SizedBox.shrink();
-          },
+              return const SizedBox.shrink();
+            },
+          ),
         );
       },
     );
