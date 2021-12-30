@@ -7,6 +7,7 @@ import 'package:desktop_window/desktop_window.dart';
 import 'package:fast_dotnet_ef/app_settings.dart';
 import 'package:fast_dotnet_ef/helpers/context_helper.dart';
 import 'package:fast_dotnet_ef/helpers/intl/language_helper.dart';
+import 'package:fast_dotnet_ef/helpers/tabbed_view_controller_helper.dart';
 import 'package:fast_dotnet_ef/helpers/theme_helper.dart';
 import 'package:fast_dotnet_ef/localization/localizations.dart';
 import 'package:fast_dotnet_ef/main.reflectable.dart';
@@ -137,21 +138,45 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final TabbedViewController tabbedViewController = TabbedViewController([]);
 
+  int? _previousTabIndex;
+
   @override
   void initState() {
     super.initState();
     _setupTabs();
+    _setupTabListener();
   }
 
   void _setupTabs() {
+    final addEfPanelTabDataValue = AddEfPanelTabDataValue(displayText: '+');
     tabbedViewController.addTabs([
-      AddEfPanelTabDataValue(displayText: '+'),
-    ].map((e) => EfPanelTabData(
-          value: e,
-          text: e.displayText,
-          closable: e.closable,
-          keepAlive: e.keepAlive,
-        )));
+      EfPanelTabData(
+        value: addEfPanelTabDataValue,
+        text: addEfPanelTabDataValue.displayText,
+        keepAlive: addEfPanelTabDataValue.keepAlive,
+        closable: false,
+      ),
+    ]);
+  }
+
+  void _setupTabListener() {
+    tabbedViewController.addListener(() {
+      final selectedTabIndex = tabbedViewController.selectedIndex;
+      if (selectedTabIndex == null || selectedTabIndex == _previousTabIndex) {
+        return;
+      }
+
+      _previousTabIndex = selectedTabIndex;
+      tabbedViewController.updateClosableBySelectedIndex(
+        selectedIndex: selectedTabIndex,
+      );
+    });
+  }
+
+  @override
+  void dispose() {
+    tabbedViewController.dispose();
+    super.dispose();
   }
 
   @override

@@ -33,6 +33,8 @@ dependencies:
   async_task: ^1.0.14
   bot_toast: ^4.0.1
   desktop_window: ^0.4.0
+  uuid: ^3.0.5
+  equatable: ^2.0.3
 
 dev_dependencies:
   flutter_test:
