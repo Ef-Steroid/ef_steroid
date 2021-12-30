@@ -27,4 +27,8 @@ class AppDelegate : FlutterAppDelegate {
 	private func ignoreTerminationSignal() {
 		signal(SIGPIPE, SIG_IGN)
 	}
+
+    @IBAction func onMainMenuPreferencePressed(_ sender: NSMenuItem) {
+	    MainMenuAction.onMainMenuPreferencePressed(sender)
+    }
 }

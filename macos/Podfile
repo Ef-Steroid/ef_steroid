@@ -30,6 +30,10 @@ target 'Runner' do
   use_frameworks!
   use_modular_headers!
 
+  # Use custom Pod for macos support.
+  # TODO: Create an issue to NeedleFoundation, see if Uber can support this.
+  pod 'NeedleFoundation', :git => 'https://github.com/TabooSun/needle.git'
+
   flutter_install_all_macos_pods File.dirname(File.realpath(__FILE__))
 end
 

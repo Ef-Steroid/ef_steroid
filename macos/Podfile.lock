@@ -5,6 +5,7 @@ PODS:
   - FMDB (2.7.5):
     - FMDB/standard (= 2.7.5)
   - FMDB/standard (2.7.5)
+  - NeedleFoundation (0.17.2)
   - path_provider_macos (0.0.1):
     - FlutterMacOS
   - shared_preferences_macos (0.0.1):
@@ -16,6 +17,7 @@ PODS:
 DEPENDENCIES:
   - desktop_window (from `Flutter/ephemeral/.symlinks/plugins/desktop_window/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
+  - NeedleFoundation (from `https://github.com/TabooSun/needle.git`)
   - path_provider_macos (from `Flutter/ephemeral/.symlinks/plugins/path_provider_macos/macos`)
   - shared_preferences_macos (from `Flutter/ephemeral/.symlinks/plugins/shared_preferences_macos/macos`)
   - sqflite (from `Flutter/ephemeral/.symlinks/plugins/sqflite/macos`)
@@ -29,6 +31,8 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/desktop_window/macos
   FlutterMacOS:
     :path: Flutter/ephemeral
+  NeedleFoundation:
+    :git: https://github.com/TabooSun/needle.git
   path_provider_macos:
     :path: Flutter/ephemeral/.symlinks/plugins/path_provider_macos/macos
   shared_preferences_macos:
@@ -36,14 +40,20 @@ EXTERNAL SOURCES:
   sqflite:
     :path: Flutter/ephemeral/.symlinks/plugins/sqflite/macos
 
+CHECKOUT OPTIONS:
+  NeedleFoundation:
+    :commit: 579e1a736ede4233cb7ceda3a33bceaf46d7a23d
+    :git: https://github.com/TabooSun/needle.git
+
 SPEC CHECKSUMS:
   desktop_window: fb7c4f12c1129f947ac482296b6f14059d57a3c3
   FlutterMacOS: 57701585bf7de1b3fc2bb61f6378d73bbdea8424
   FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
+  NeedleFoundation: fc3803fb96ce083818af9b477ae5f35acf54c846
   path_provider_macos: 160cab0d5461f0c0e02995469a98f24bdb9a3f1f
   shared_preferences_macos: 480ce071d0666e37cef23fe6c702293a3d21799e
   sqflite: a5789cceda41d54d23f31d6de539d65bb14100ea
 
-PODFILE CHECKSUM: 6eac6b3292e5142cfc23bdeb71848a40ec51c14c
+PODFILE CHECKSUM: 456e41210f40f9be7f267ef0e4796fa519c4158c
 
 COCOAPODS: 1.11.2
