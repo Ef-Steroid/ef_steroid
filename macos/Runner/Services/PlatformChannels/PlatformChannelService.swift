@@ -15,4 +15,11 @@ class PlatformChannelService : IPlatformChannelService {
 	func register(registry: FlutterViewController) {
 		menuBarService.register(registry: registry)
 	}
+
+	static func createFlutterMethodChannel(of: PlatformChannelProtocol, registry: FlutterViewController) -> FlutterMethodChannel {
+		FlutterMethodChannel(
+				name: "\(Bundle.main.bundleIdentifier!)/\(String(describing: type(of: of)))",
+				binaryMessenger: registry.engine.binaryMessenger
+		)
+	}
 }

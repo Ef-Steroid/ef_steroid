@@ -30,12 +30,13 @@
 		CAD0116B69A2798A4756F48C /* PlatformChannelUninitializedError.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAD016CEDD851684BAFB0937 /* PlatformChannelUninitializedError.swift */; };
 		CAD01202E07BD746924F9E98 /* IMenuBarService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAD012B472E1D80EF9F42BAB /* IMenuBarService.swift */; };
 		CAD013837EAC705DB49C9380 /* RootComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAD019434F98AEB9966D34D1 /* RootComponent.swift */; };
-		CAD013D9DBD9D1C7ABB1109E /* MainMenuAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAD01BE3D043D551AE124E85 /* MainMenuAction.swift */; };
 		CAD015D20E0B7953706BBBCD /* PlatformChannelComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAD01F736EB8CE6BBF87952E /* PlatformChannelComponent.swift */; };
+		CAD0184BBE815DFFDBCEC254 /* ServiceLocator.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAD01B57D8546044EC3035F8 /* ServiceLocator.generated.swift */; };
 		CAD018551DDA49078F8FFD3F /* PlatformChannelProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAD01635CE44D1ABD57ADE9F /* PlatformChannelProtocol.swift */; };
 		CAD0192EA23DD7EB8C9F3E58 /* MenuBarService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAD01F67A414521ECAC27478 /* MenuBarService.swift */; };
 		CAD01BD9A82EB9EC9AB32FAB /* ServiceLocator.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAD019B12B1E1D96EBE877F2 /* ServiceLocator.swift */; };
 		CAD01C4DEB19FC1CFA66D660 /* IPlatformChannelService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAD016C29A237E45FC68DAC6 /* IPlatformChannelService.swift */; };
+		CAD01FA97C742FA905471571 /* PlatformChannelKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAD012639D7E43EB06A2AC18 /* PlatformChannelKeys.swift */; };
 		D46417D93BFB2536898F5ABA /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4A680A1F2CB16D979A7D89BC /* Pods_Runner.framework */; };
 /* End PBXBuildFile section */
 
@@ -84,6 +85,7 @@
 		9740EEB21CF90195004384FC /* Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
 		A3A95DC8C77F44FCA1B4283D /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
 		B92CE74B277D728500844DFB /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/MainMenu.strings"; sourceTree = "<group>"; };
+		CAD012639D7E43EB06A2AC18 /* PlatformChannelKeys.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlatformChannelKeys.swift; sourceTree = "<group>"; };
 		CAD012B472E1D80EF9F42BAB /* IMenuBarService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IMenuBarService.swift; sourceTree = "<group>"; };
 		CAD013C2E05FBF37FCCB41C0 /* PlatformChannelService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlatformChannelService.swift; sourceTree = "<group>"; };
 		CAD01635CE44D1ABD57ADE9F /* PlatformChannelProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlatformChannelProtocol.swift; sourceTree = "<group>"; };
@@ -92,7 +94,7 @@
 		CAD017E99CC52A5DF1FA995B /* runNeedle.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = runNeedle.sh; sourceTree = "<group>"; };
 		CAD019434F98AEB9966D34D1 /* RootComponent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RootComponent.swift; sourceTree = "<group>"; };
 		CAD019B12B1E1D96EBE877F2 /* ServiceLocator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServiceLocator.swift; sourceTree = "<group>"; };
-		CAD01BE3D043D551AE124E85 /* MainMenuAction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainMenuAction.swift; sourceTree = "<group>"; };
+		CAD01B57D8546044EC3035F8 /* ServiceLocator.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServiceLocator.generated.swift; sourceTree = "<group>"; };
 		CAD01F67A414521ECAC27478 /* MenuBarService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MenuBarService.swift; sourceTree = "<group>"; };
 		CAD01F736EB8CE6BBF87952E /* PlatformChannelComponent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlatformChannelComponent.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -179,7 +181,6 @@
 				33E51914231749380026EE4D /* Release.entitlements */,
 				33CC11242044D66E0003C045 /* Resources */,
 				33BA886A226E78AF003329D5 /* Configs */,
-				CAD0189DC8B3545069D92E84 /* Actions */,
 				CAD0138D55D516EAAF82744A /* Services */,
 			);
 			path = Runner;
@@ -201,6 +202,7 @@
 				CAD019434F98AEB9966D34D1 /* RootComponent.swift */,
 				CAD019B12B1E1D96EBE877F2 /* ServiceLocator.swift */,
 				CAD018DC8C945FEEB368E4AB /* PlatformChannels */,
+				CAD01B57D8546044EC3035F8 /* ServiceLocator.generated.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -214,14 +216,6 @@
 			path = MenuBarService;
 			sourceTree = "<group>";
 		};
-		CAD0189DC8B3545069D92E84 /* Actions */ = {
-			isa = PBXGroup;
-			children = (
-				CAD01BE3D043D551AE124E85 /* MainMenuAction.swift */,
-			);
-			path = Actions;
-			sourceTree = "<group>";
-		};
 		CAD018DC8C945FEEB368E4AB /* PlatformChannels */ = {
 			isa = PBXGroup;
 			children = (
@@ -231,6 +225,7 @@
 				CAD01793F941C381A8712CCE /* MenuBarService */,
 				CAD01635CE44D1ABD57ADE9F /* PlatformChannelProtocol.swift */,
 				CAD016CEDD851684BAFB0937 /* PlatformChannelUninitializedError.swift */,
+				CAD012639D7E43EB06A2AC18 /* PlatformChannelKeys.swift */,
 			);
 			path = PlatformChannels;
 			sourceTree = "<group>";
@@ -423,7 +418,6 @@
 				33CC11132044BFA00003C045 /* MainFlutterWindow.swift in Sources */,
 				33CC10F12044A3C60003C045 /* AppDelegate.swift in Sources */,
 				335BBD1B22A9A15E00E9071D /* GeneratedPluginRegistrant.swift in Sources */,
-				CAD013D9DBD9D1C7ABB1109E /* MainMenuAction.swift in Sources */,
 				CAD013837EAC705DB49C9380 /* RootComponent.swift in Sources */,
 				CAD01BD9A82EB9EC9AB32FAB /* ServiceLocator.swift in Sources */,
 				CAD01C4DEB19FC1CFA66D660 /* IPlatformChannelService.swift in Sources */,
@@ -433,6 +427,8 @@
 				CAD0192EA23DD7EB8C9F3E58 /* MenuBarService.swift in Sources */,
 				CAD018551DDA49078F8FFD3F /* PlatformChannelProtocol.swift in Sources */,
 				CAD0116B69A2798A4756F48C /* PlatformChannelUninitializedError.swift in Sources */,
+				CAD01FA97C742FA905471571 /* PlatformChannelKeys.swift in Sources */,
+				CAD0184BBE815DFFDBCEC254 /* ServiceLocator.generated.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

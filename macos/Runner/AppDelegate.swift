@@ -28,7 +28,13 @@ class AppDelegate : FlutterAppDelegate {
 		signal(SIGPIPE, SIG_IGN)
 	}
 
-    @IBAction func onMainMenuPreferencePressed(_ sender: NSMenuItem) {
-	    MainMenuAction.onMainMenuPreferencePressed(sender)
-    }
+	//#region: Menu bar menu
+	@IBOutlet var preference: NSMenuItem!
+
+	@IBAction func onPreferencePressed(_ sender: NSMenuItem) {
+		let menuBarService = ServiceLocator.rootComponent.platformChannelComponent.menuBarService
+		try! menuBarService.openPreference()
+	}
+
+	//#endregion
 }

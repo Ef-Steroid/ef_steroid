@@ -17,6 +17,7 @@ import 'package:fast_dotnet_ef/services/service_locator.dart' as sl;
 import 'package:fast_dotnet_ef/services/sqlite/sqlite_service.dart';
 import 'package:fast_dotnet_ef/views/ef_panel/ef_panel_tab_data.dart';
 import 'package:fast_dotnet_ef/views/ef_panel/tab_data_value.dart';
+import 'package:fast_dotnet_ef/views/root/root_view.dart';
 import 'package:fast_dotnet_ef/views/root_tab_view.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -181,9 +182,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: RootTabView(
-        tabbedViewController: tabbedViewController,
+    return RootView(
+      child: Scaffold(
+        body: RootTabView(
+          tabbedViewController: tabbedViewController,
+        ),
       ),
     );
   }

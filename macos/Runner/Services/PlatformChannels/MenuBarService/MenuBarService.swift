@@ -6,20 +6,16 @@ import Foundation
 import FlutterMacOS
 
 class MenuBarService : IMenuBarService {
-	var methodChannel: FlutterMethodChannel?
+	lazy var methodChannel: FlutterMethodChannel? = nil
 
 	func register(registry: FlutterViewController) {
-		print(type(of: self))
-		methodChannel = FlutterMethodChannel(
-				name: "\(Bundle.main.bundleIdentifier!)/menuBar",
-				binaryMessenger: registry.engine.binaryMessenger
-		)
+		methodChannel = PlatformChannelService.createFlutterMethodChannel(of: self, registry: registry)
 	}
 
 	func openPreference() throws {
 		try ensureInitialize()
 
-		methodChannel!.invokeMethod("openPreference", arguments: nil)
+		methodChannel!.invokeMethod(PlatformChannelKeys.openPreferenceMethodKey, arguments: nil)
 	}
 
 	private func ensureInitialize() throws {
