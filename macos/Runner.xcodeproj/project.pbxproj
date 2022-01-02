@@ -237,8 +237,8 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 33CC10FB2044A3C60003C045 /* Build configuration list for PBXNativeTarget "Runner" */;
 			buildPhases = (
-				B92CE74C277DE94400844DFB /* Build Needle */,
 				C945DCF0ABD984B1D43F96E6 /* [CP] Check Pods Manifest.lock */,
+				B92CE74C277DE94400844DFB /* Build Needle */,
 				33CC10E92044A3C60003C045 /* Sources */,
 				33CC10EA2044A3C60003C045 /* Frameworks */,
 				33CC10EB2044A3C60003C045 /* Resources */,

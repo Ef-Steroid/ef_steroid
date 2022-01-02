@@ -1,4 +1,5 @@
 import 'package:fast_dotnet_ef/views/root/root_view_model.dart';
+import 'package:fast_dotnet_ef/views/widgets/mvvm_binding_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -25,6 +26,11 @@ class _RootViewState extends State<RootView> {
 
   @override
   Widget build(BuildContext context) {
-    return widget.child;
+    return MVVMBindingWidget<RootViewModel>(
+      viewModel: vm,
+      builder: (context, vm, child) {
+        return widget.child;
+      }
+    );
   }
 }

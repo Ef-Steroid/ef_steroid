@@ -1,11 +1,6 @@
+import 'package:fast_dotnet_ef/localization/localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:tabbed_view/tabbed_view.dart';
-
-enum ThemeKey {
-  dark,
-  light,
-  followSystem,
-}
 
 abstract class ColorConst {
   //#region: App Colors
@@ -135,5 +130,59 @@ class ThemeHelper {
     tabbedViewThemeData.contentArea.padding = EdgeInsets.zero;
     tabbedViewThemeData.tabsArea.middleGap = 0;
     return tabbedViewThemeData;
+  }
+
+  static String getStringFromThemeKey(ThemeKey? value) {
+    return (value ?? ThemeKey.followSystem).name;
+  }
+}
+
+enum ThemeKey {
+  dark,
+  light,
+  followSystem,
+}
+
+extension ThemeKeyExt on ThemeKey {
+  ThemeMode toThemeMode() {
+    switch (this) {
+      case ThemeKey.dark:
+        return ThemeMode.dark;
+      case ThemeKey.light:
+        return ThemeMode.light;
+      case ThemeKey.followSystem:
+        return ThemeMode.system;
+      default:
+        return ThemeMode.system;
+    }
+  }
+
+  /// This method takes [context] and retrieve the theme mode without
+  /// [ThemeMode.system].
+  ///
+  /// [ThemeMode.system] will be parsed to the correct theme set on user device.
+  ThemeMode toStrictThemeMode(BuildContext context) {
+    final themeMode = toThemeMode();
+
+    if (themeMode == ThemeMode.system) {
+      switch (MediaQuery.of(context).platformBrightness) {
+        case Brightness.dark:
+          return ThemeMode.dark;
+        case Brightness.light:
+          return ThemeMode.light;
+      }
+    }
+    return themeMode;
+  }
+
+  String toLocalizedString(BuildContext context) {
+    switch (this) {
+      case ThemeKey.dark:
+        return AL.of(context).text('DarkTheme');
+      case ThemeKey.light:
+        return AL.of(context).text('LightTheme');
+      case ThemeKey.followSystem:
+        return AL.of(context).text('FollowSystem');
+    }
   }
 }

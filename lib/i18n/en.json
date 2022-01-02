@@ -26,5 +26,11 @@
   "Yes": "Yes",
   "No": "No",
   "AddEfProject": "Add Entity Framework Project",
-  "SelectEfProject": "Select Entity Framework Project"
+  "SelectEfProject": "Select Entity Framework Project",
+  "Theme": "Theme",
+  "FollowSystem": "Follow system",
+  "DarkTheme": "Dark theme",
+  "LightTheme": "Light theme",
+  "Language": "Language",
+  "Close": "Close"
 }
