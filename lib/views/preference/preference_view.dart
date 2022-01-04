@@ -26,7 +26,7 @@ class _PreferenceViewState extends State<PreferenceView> {
   Widget build(BuildContext context) {
     final l = AL.of(context).text;
     return Dialog(
-      insetPadding: const EdgeInsets.all(200),
+      insetPadding: const EdgeInsets.all(80),
       child: Column(
         children: <Widget>[
           _ThemeSetting(
