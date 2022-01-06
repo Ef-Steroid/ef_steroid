@@ -63,7 +63,7 @@
     {
       "name": "RefreshMigrationIndicator",
       "values": {
-        "en": "Migration update detected. You might want refresh.",
+        "en": "Migration update detected. You might want to refresh.",
         "zh_Hans": "已侦测到迁移更新。您可能需要刷新。"
       }
     },

@@ -7,7 +7,7 @@
   "Migration": "Migration",
   "Applied": "Applied",
   "Refresh": "Refresh",
-  "RefreshMigrationIndicator": "Migration update detected. You might want refresh.",
+  "RefreshMigrationIndicator": "Migration update detected. You might want to refresh.",
   "Operations": "Operations",
   "UpdateDatabaseToHere": "Update database to here",
   "DoneUpdatingDatabase": "Done updating database.",
