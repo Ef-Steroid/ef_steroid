@@ -14,5 +14,5 @@ const initializationScript = [
   '''
       INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
       VALUES ('20211229052819_InitialMigration', '6.0.0');
-  '''
+  ''',
 ];

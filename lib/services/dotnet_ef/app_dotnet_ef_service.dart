@@ -43,10 +43,6 @@ class AppDotnetEfService extends DotnetEfService {
     this._logService,
   );
 
-  String get dotnetEfExecutable {
-    return _dotnetEfCommandName;
-  }
-
   @override
   Future<String> updateDatabaseAsync({
     required Uri projectUri,
@@ -70,18 +66,18 @@ class AppDotnetEfService extends DotnetEfService {
       projectUri: projectUri,
     );
 
-    String result = '';
 
     _logService.info(
-      'Start updating database with command: ${_extractStdin(args)}',
+      'Start updating database with command: ${_getFullCommand(args)}',
     );
 
     final processRunnerResult = await _processRunnerService.runAsync(
-      dotnetEfExecutable,
+      _dotnetEfCommandName,
       args,
     );
     processRunnerResult.logResult();
 
+    String result = '';
     switch (processRunnerResult.type) {
       case ProcessRunnerResultType.successful:
         result =
@@ -116,16 +112,16 @@ class AppDotnetEfService extends DotnetEfService {
     args.add(_dotnetEfPrefixOutputKey);
 
     _logService.info(
-      'Start listing migration with command: ${_extractStdin(args)}',
+      'Start listing migration with command: ${_getFullCommand(args)}',
     );
 
-    var migrations = <MigrationHistory>[];
     final processRunnerResult = await _processRunnerService.runAsync(
-      dotnetEfExecutable,
+      _dotnetEfCommandName,
       args,
     );
-
     processRunnerResult.logResult();
+
+    var migrations = <MigrationHistory>[];
     switch (processRunnerResult.type) {
       case ProcessRunnerResultType.successful:
         final extractedJsonOutput = _extractJsonOutput(
@@ -166,11 +162,11 @@ class AppDotnetEfService extends DotnetEfService {
     );
 
     _logService.info(
-      'Start adding migration with command: ${_extractStdin(args)}',
+      'Start adding migration with command: ${_getFullCommand(args)}',
     );
 
     final processRunnerResult = await _processRunnerService.runAsync(
-      dotnetEfExecutable,
+      _dotnetEfCommandName,
       args,
     );
     processRunnerResult.logResult();
@@ -203,11 +199,11 @@ class AppDotnetEfService extends DotnetEfService {
     args.add(_dotnetEfPrefixOutputKey);
 
     _logService.info(
-      'Start removing migration with command: ${_extractStdin(args)}',
+      'Start removing migration with command: ${_getFullCommand(args)}',
     );
 
     final processRunnerResult = await _processRunnerService.runAsync(
-      dotnetEfExecutable,
+      _dotnetEfCommandName,
       args,
     );
     processRunnerResult.logResult();
@@ -266,7 +262,7 @@ class AppDotnetEfService extends DotnetEfService {
         .trim();
   }
 
-  String _extractStdin(List<String> args) {
-    return '$dotnetEfExecutable ${args.join(' ')}';
+  String _getFullCommand(List<String> args) {
+    return '$_dotnetEfCommandName ${args.join(' ')}';
   }
 }
