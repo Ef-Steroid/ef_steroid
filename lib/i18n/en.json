@@ -7,7 +7,7 @@
   "Migration": "Migration",
   "Applied": "Applied",
   "Refresh": "Refresh",
-  "RefreshMigrationIndicator": "Migration update detected. You might want refresh.",
+  "RefreshMigrationIndicator": "Migration update detected. You might want to refresh.",
   "Operations": "Operations",
   "UpdateDatabaseToHere": "Update database to here",
   "DoneUpdatingDatabase": "Done updating database.",
@@ -26,5 +26,11 @@
   "Yes": "Yes",
   "No": "No",
   "AddEfProject": "Add Entity Framework Project",
-  "SelectEfProject": "Select Entity Framework Project"
+  "SelectEfProject": "Select Entity Framework Project",
+  "Theme": "Theme",
+  "FollowSystem": "Follow system",
+  "DarkTheme": "Dark theme",
+  "LightTheme": "Light theme",
+  "Language": "Language",
+  "Close": "Close"
 }

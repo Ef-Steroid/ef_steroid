@@ -7,4 +7,10 @@ class AppConsts {
   ///
   /// - See [AppSettings.setup] for clearing implementation.
   static const int appSettingsVersion = 1;
+
+  /// The package name of this app.
+  ///
+  /// This is typically used in:
+  /// - [MethodChannel]
+  static const String appPackageName = 'com.techcreator.FastDotnetEf';
 }

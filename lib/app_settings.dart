@@ -1,5 +1,6 @@
 import 'package:fast_dotnet_ef/app_consts.dart';
 import 'package:fast_dotnet_ef/helpers/intl/language_helper.dart';
+import 'package:fast_dotnet_ef/helpers/theme_helper.dart';
 import 'package:quiver/strings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -43,6 +44,19 @@ class AppSettings {
 
   static Future<void> setPrefLocale(String value) =>
       sp!.setString(prefLocaleKey, value);
+
+  static const String prefThemeKey = 'User.prefTheme';
+
+  static ThemeKey get prefTheme {
+    final prefThemeName = sp!.getString(prefThemeKey);
+    return (prefThemeName == null
+        ? null
+        : ThemeKey.values.byName(prefThemeName)) ??
+        ThemeKey.followSystem;
+  }
+
+  static Future<void> setPrefTheme(ThemeKey? value) =>
+      sp!.setString(prefThemeKey, ThemeHelper.getStringFromThemeKey(value));
 
   //#endregion
 

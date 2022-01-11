@@ -24,7 +24,7 @@ class ViewModelBase extends ChangeNotifier {
   bool get isBusy => _isBusy;
 
   set isBusy(bool isBusy) {
-    if(_isBusy == isBusy) return;
+    if (_isBusy == isBusy) return;
     _isBusy = isBusy;
     notifyListeners();
   }
@@ -36,7 +36,7 @@ class ViewModelBase extends ChangeNotifier {
     if (!hasDispose) super.notifyListeners();
   }
 
-  Future<void> initViewModelAsync(){
+  Future<void> initViewModelAsync() {
     return Future.value();
   }
 

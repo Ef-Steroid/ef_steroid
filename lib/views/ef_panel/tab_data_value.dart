@@ -1,22 +1,31 @@
+import 'package:equatable/equatable.dart';
 import 'package:fast_dotnet_ef/domain/ef_panel.dart';
 import 'package:fast_dotnet_ef/helpers/uri_helper.dart';
 import 'package:path/path.dart' as path;
+import 'package:uuid/uuid.dart';
 
-abstract class TabDataValue {
+abstract class TabDataValue with EquatableMixin {
+  final UuidValue id;
+
   /// The display text for the current tab.
   final String displayText;
-
-  /// Indicate if the tab is closable.
-  final bool closable;
 
   /// Indicate if the TabView should keep the tab alive.
   final bool keepAlive;
 
+  /// Equality comparer.
+  ///
+  /// We take [id] into consideration only.
+  @override
+  List<Object?> get props => [
+        id,
+      ];
+
   TabDataValue({
     required this.displayText,
-    required this.closable,
     required this.keepAlive,
-  });
+    UuidValue? id,
+  }) : id = id ?? const Uuid().v1obj();
 }
 
 class EfPanelTabDataValue extends TabDataValue {
@@ -29,7 +38,6 @@ class EfPanelTabDataValue extends TabDataValue {
     required this.efPanel,
   }) : super(
           displayText: _generateTabDisplayTextFromUri(efPanel),
-          closable: true,
           keepAlive: true,
         );
 
@@ -45,7 +53,6 @@ class AddEfPanelTabDataValue extends TabDataValue {
     required String displayText,
   }) : super(
           displayText: displayText,
-          closable: false,
           keepAlive: false,
         );
 }

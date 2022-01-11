@@ -35,7 +35,8 @@ class AppRepository<TEntity extends EntityDto> extends Repository<TEntity> {
     _logService.info(
       'Start getting all entities: ${reflector.reflectType(TEntity).simpleName}',
     );
-    final entities = await _sqliteService.useReadonlyDatabaseAsync<List<TEntity>>(
+    final entities =
+        await _sqliteService.useReadonlyDatabaseAsync<List<TEntity>>(
       uow: (db) => db.query(getTableName()).then((value) {
         return value.map((e) => TEntity.fromJson<TEntity>(e)).toList();
       }),

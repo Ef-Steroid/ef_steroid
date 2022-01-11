@@ -6,6 +6,7 @@ import 'package:fast_dotnet_ef/views/widgets/form_fields/custom_text_form_field.
 import 'package:fast_dotnet_ef/views/widgets/loading_widget.dart';
 import 'package:fast_dotnet_ef/views/widgets/mvvm_binding_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:quiver/strings.dart';
 
@@ -241,6 +242,27 @@ class _AddMigrationForm extends StatefulWidget {
 class _AddMigrationFormState extends State<_AddMigrationForm> {
   bool _isBusy = false;
 
+  final FocusScopeNode _focusScopeNode = FocusScopeNode();
+
+  final FocusNode _migrationFieldFocusNode = FocusNode(
+    debugLabel: 'Migration Field',
+  );
+  final FocusNode _addMigrationButtonFocusNode = FocusNode(
+    debugLabel: 'Add Migration Button',
+  );
+  final FocusNode _cancelButtonFocusNode = FocusNode(
+    debugLabel: 'Cancel Button',
+  );
+
+  @override
+  void dispose() {
+    _migrationFieldFocusNode.dispose();
+    _addMigrationButtonFocusNode.dispose();
+    _cancelButtonFocusNode.dispose();
+    _focusScopeNode.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final vm = widget.vm;
@@ -255,43 +277,56 @@ class _AddMigrationFormState extends State<_AddMigrationForm> {
         ),
         child: Padding(
           padding: const EdgeInsets.all(32.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Form(
-                key: form.formKey,
-                child: CustomTextFormField(
-                  formField: form.migrationFormField,
-                  inputDecoration: InputDecoration(
-                    label: Text.rich(
-                      TextSpan(
-                        text: l('MigrationName'),
-                        children: const [
-                          TextSpan(
-                            text: '*',
-                            style: TextStyle(color: ColorConst.dangerColor),
-                          )
-                        ],
+          child: FocusScope(
+            node: _focusScopeNode,
+            onKeyEvent: _onKeyEvent,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Form(
+                  key: form.formKey,
+                  child: CustomTextFormField(
+                    focusNode: _migrationFieldFocusNode,
+                    formField: form.migrationFormField,
+                    autofocus: true,
+                    inputDecoration: InputDecoration(
+                      label: Text.rich(
+                        TextSpan(
+                          text: l('MigrationName'),
+                          children: const [
+                            TextSpan(
+                              text: '*',
+                              style: TextStyle(color: ColorConst.dangerColor),
+                            )
+                          ],
+                        ),
                       ),
+                      hintText: l('EnterMigrationName'),
                     ),
-                    hintText: l('EnterMigrationName'),
+                    validator: (value) {
+                      if (isBlank(value)) {
+                        return vm.getDefaultFormExceptionMessage();
+                      }
+                    },
                   ),
-                  validator: (value) {
-                    if (isBlank(value)) {
-                      return vm.getDefaultFormExceptionMessage();
-                    }
-                  },
                 ),
-              ),
-              const SizedBox(height: 16),
-              Align(
-                alignment: Alignment.centerRight,
-                child: OutlinedButton(
-                  onPressed: _onAddMigrationPressedAsync,
-                  child: Text(l('AddMigration')),
+                const SizedBox(height: 16),
+                ButtonBar(
+                  children: <Widget>[
+                    OutlinedButton(
+                      focusNode: _cancelButtonFocusNode,
+                      onPressed: _onCancelButtonPressed,
+                      child: Text(l('Cancel')),
+                    ),
+                    OutlinedButton(
+                      focusNode: _addMigrationButtonFocusNode,
+                      onPressed: _onAddMigrationPressedAsync,
+                      child: Text(l('AddMigration')),
+                    ),
+                  ],
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -304,5 +339,31 @@ class _AddMigrationFormState extends State<_AddMigrationForm> {
     await widget.vm.addMigrationAsync();
     _isBusy = false;
     setState(() {});
+  }
+
+  void _onCancelButtonPressed() {
+    Navigator.pop(context);
+  }
+
+  KeyEventResult _onKeyEvent(
+    FocusNode node,
+    KeyEvent event,
+  ) {
+    if (event is KeyDownEvent &&
+        event.logicalKey == LogicalKeyboardKey.escape) {
+      _onCancelButtonPressed();
+      return KeyEventResult.handled;
+    }
+
+    if (_focusScopeNode.focusedChild != _migrationFieldFocusNode) {
+      return KeyEventResult.ignored;
+    }
+
+    if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.enter) {
+      _onAddMigrationPressedAsync();
+      return KeyEventResult.handled;
+    }
+
+    return KeyEventResult.ignored;
   }
 }

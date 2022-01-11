@@ -243,7 +243,8 @@ class EfDatabaseOperationViewModel extends ViewModelBase
     }
   }
 
-  Future<void> _promptRerunRemoveMigrationWithForceAsync(String? errorMessage) async {
+  Future<void> _promptRerunRemoveMigrationWithForceAsync(
+      String? errorMessage) async {
     final l = AL.of(context).text;
     final response = await dialogService.promptConfirmationDialog(
       context,

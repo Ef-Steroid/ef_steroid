@@ -1,3 +1,4 @@
+import 'package:fast_dotnet_ef/services/navigation/navigation_service.dart';
 import 'package:flutter/widgets.dart';
 
 abstract class DialogService {
@@ -24,4 +25,9 @@ abstract class DialogService {
     String? cancelText,
     bool useRootNavigator = false,
   });
+
+  /// Show preference dialog.
+  ///
+  /// Do nothing if [NavigationService.navigatorKey] is not ready.
+  Future<T?> showPreferenceDialog<T>();
 }

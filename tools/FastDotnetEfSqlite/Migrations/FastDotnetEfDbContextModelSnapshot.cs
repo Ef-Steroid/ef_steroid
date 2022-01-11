@@ -26,12 +26,9 @@ namespace FastDotnetEfSqlite.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("SelectedEfOperation")
-                        .HasColumnType("INTEGER");
-
                     b.HasKey("Id");
 
-                    b.ToTable("EfPanels", (string)null);
+                    b.ToTable("EfPanels");
                 });
 #pragma warning restore 612, 618
         }

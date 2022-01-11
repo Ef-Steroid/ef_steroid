@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FastDotnetEfSqlite.Migrations
 {
     [DbContext(typeof(FastDotnetEfDbContext))]
-    [Migration("20211215113530_ChangeIsUpdateDatabaseSectionExpandedToSelectedEfOperation")]
-    partial class ChangeIsUpdateDatabaseSectionExpandedToSelectedEfOperation
+    [Migration("20211229052819_InitialMigration")]
+    partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -27,9 +27,6 @@ namespace FastDotnetEfSqlite.Migrations
                     b.Property<string>("DirectoryUrl")
                         .IsRequired()
                         .HasColumnType("TEXT");
-
-                    b.Property<int>("SelectedEfOperation")
-                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 

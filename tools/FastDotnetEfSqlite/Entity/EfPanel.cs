@@ -6,8 +6,6 @@ public class EfPanel : EntityDto<int>
 {
     public string DirectoryUrl { get; set; }
 
-    public EfOperation SelectedEfOperation { get; set; }
-
     protected EfPanel() : base()
     {
     }

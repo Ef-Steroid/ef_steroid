@@ -27,4 +27,14 @@ class AppDelegate : FlutterAppDelegate {
 	private func ignoreTerminationSignal() {
 		signal(SIGPIPE, SIG_IGN)
 	}
+
+	//#region: Menu bar menu
+	@IBOutlet var preference: NSMenuItem!
+
+	@IBAction func onPreferencePressed(_ sender: NSMenuItem) {
+		let menuBarService = ServiceLocator.rootComponent.platformChannelComponent.menuBarService
+		try! menuBarService.openPreference()
+	}
+
+	//#endregion
 }
