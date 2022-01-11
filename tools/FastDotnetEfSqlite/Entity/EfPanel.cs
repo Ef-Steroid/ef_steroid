@@ -4,7 +4,9 @@ namespace FastDotnetEfSqlite.Entity;
 
 public class EfPanel : EntityDto<int>
 {
-    public string DirectoryUrl { get; set; }
+    public string DirectoryUrl { get; set; } = null!;
+
+    public string ConfigFileUrl { get; set; } = null!;
 
     protected EfPanel() : base()
     {

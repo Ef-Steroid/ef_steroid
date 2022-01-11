@@ -5,7 +5,7 @@ namespace FastDotnetEfSqlite.EntityFrameworkCore;
 
 public class FastDotnetEfDbContext : DbContext
 {
-    public DbSet<EfPanel> EfPanels { get; set; }
+    public DbSet<EfPanel> EfPanels { get; set; } = null!;
 
     public string DbPath { get; set; }
 

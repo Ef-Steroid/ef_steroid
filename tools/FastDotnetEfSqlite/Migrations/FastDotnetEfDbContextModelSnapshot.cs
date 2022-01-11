@@ -22,6 +22,10 @@ namespace FastDotnetEfSqlite.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("ConfigFileUrl")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("DirectoryUrl")
                         .IsRequired()
                         .HasColumnType("TEXT");

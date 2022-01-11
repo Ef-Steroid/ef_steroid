@@ -1,3 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
-Console.WriteLine("Hello, World!");
+using FastDotnetEfSqlite.EntityFrameworkCore;
+
+// Helper method to print the db.
+Console.WriteLine(new FastDotnetEfDbContext().DbPath);
