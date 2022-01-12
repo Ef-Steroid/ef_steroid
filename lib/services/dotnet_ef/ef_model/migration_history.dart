@@ -34,6 +34,12 @@ class MigrationHistory {
     required this.applied,
   });
 
+  MigrationHistory.ef6({
+    required this.id,
+    required this.applied,
+  })  : name = '',
+        safeName = '';
+
   /// Migration history for reverting all migrations.
   const MigrationHistory.ancient()
       : id = '0',

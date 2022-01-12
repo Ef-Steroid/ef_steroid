@@ -13,7 +13,7 @@ abstract class DotnetEfService {
   });
 
   /// List all the migrations.
-  Future<List<MigrationHistory>> listMigrationAsync({
+  Future<List<MigrationHistory>> listMigrationsAsync({
     required Uri projectUri,
   });
 

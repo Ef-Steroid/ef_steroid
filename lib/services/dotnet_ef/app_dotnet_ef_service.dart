@@ -91,7 +91,7 @@ class AppDotnetEfService extends DotnetEfService {
   }
 
   @override
-  Future<List<MigrationHistory>> listMigrationAsync({
+  Future<List<MigrationHistory>> listMigrationsAsync({
     required Uri projectUri,
   }) async {
     final args = <String>[];

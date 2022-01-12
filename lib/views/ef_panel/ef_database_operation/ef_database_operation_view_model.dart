@@ -126,7 +126,7 @@ class EfDatabaseOperationViewModel extends ViewModelBase
 
     notifyListeners(isBusy: true);
     try {
-      _migrationHistories = await _dotnetEfService.listMigrationAsync(
+      _migrationHistories = await _dotnetEfService.listMigrationsAsync(
         projectUri: efPanel.directoryUrl,
       );
 

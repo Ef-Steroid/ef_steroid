@@ -1,3 +1,4 @@
+import 'package:fast_dotnet_ef/services/dotnet_ef/ef_model/migration_history.dart';
 import 'package:fast_dotnet_ef/services/dotnet_ef6/dotnet_ef6_service.dart';
 import 'package:fast_dotnet_ef/services/dotnet_ef6/resolvers/dotnet_ef6_command_resolver.dart';
 import 'package:fast_dotnet_ef/services/log/log_service.dart';
@@ -27,7 +28,7 @@ class AppDotnetEf6Service extends DotnetEf6Service {
   );
 
   @override
-  Future<List<String>> listMigrationAsync({
+  Future<List<String>> listMigrationsAsync({
     required Uri csprojUri,
     required Uri configUri,
   }) async {
@@ -88,6 +89,96 @@ class AppDotnetEf6Service extends DotnetEf6Service {
     }
 
     return result;
+  }
+
+  @override
+  Future<String> updateDatabaseAsync({
+    required Uri csprojUri,
+    required Uri configUri,
+    MigrationHistory? migrationHistory,
+  }) async {
+    final args = <String>[];
+
+    // Add database command.
+    args.add(_databaseCommandName);
+
+    args.add('update');
+
+    if (migrationHistory != null) {
+      args.add(migrationHistory.id);
+    }
+
+    final ef6Command = await _dotnetEf6CommandResolver.getDotnetEf6CommandAsync(
+      csprojUri: csprojUri,
+      configUri: configUri,
+    );
+
+    _logService.info(
+      'Start updating database with command: ${_getFullCommand(
+        ef6Command: ef6Command,
+        args: args,
+      )}',
+    );
+
+    final processRunnerResult = await _processRunnerService.runAsync(
+      ef6Command.commandName,
+      _combineDotnetEf6CommandArgs(
+        ef6Command: ef6Command,
+        args: args,
+      ),
+    );
+    processRunnerResult.logResult();
+
+    String result = '';
+    switch (processRunnerResult.type) {
+      case ProcessRunnerResultType.successful:
+        result =
+            (processRunnerResult as SuccessfulProcessRunnerResult).stdout ?? '';
+        break;
+      case ProcessRunnerResultType.failure:
+        break;
+    }
+
+    return result;
+  }
+
+  @override
+  Future<void> addMigrationAsync({
+    required Uri csprojUri,
+    required Uri configUri,
+    required String migrationName,
+  }) async {
+    final args = <String>[];
+
+    // Add migrations command.
+    args.add(_migrationsCommandName);
+
+    // Add list command.
+    args.add('add');
+
+    // Add migration id.
+    args.add(migrationName);
+
+    final ef6Command = await _dotnetEf6CommandResolver.getDotnetEf6CommandAsync(
+      csprojUri: csprojUri,
+      configUri: configUri,
+    );
+
+    _logService.info(
+      'Start adding migration with command: ${_getFullCommand(
+        ef6Command: ef6Command,
+        args: args,
+      )}',
+    );
+
+    final processRunnerResult = await _processRunnerService.runAsync(
+      ef6Command.commandName,
+      _combineDotnetEf6CommandArgs(
+        ef6Command: ef6Command,
+        args: args,
+      ),
+    );
+    processRunnerResult.logResult();
   }
 
   String _getFullCommand({

@@ -38,7 +38,7 @@ Future<void> main() async {
     'AppDotnetEf6Service.listMigrationAsync returns all migrations',
     () async {
       final dotnetEf6Service = GetIt.I<DotnetEf6Service>();
-      final migrations = await dotnetEf6Service.listMigrationAsync(
+      final migrations = await dotnetEf6Service.listMigrationsAsync(
         csprojUri: csprojUri,
         configUri: configUri,
       );
