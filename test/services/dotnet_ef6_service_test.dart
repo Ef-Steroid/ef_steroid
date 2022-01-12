@@ -1,3 +1,4 @@
+@TestOn('windows')
 import 'dart:io';
 
 import 'package:fast_dotnet_ef/services/dotnet_ef6/dotnet_ef6_service.dart';
