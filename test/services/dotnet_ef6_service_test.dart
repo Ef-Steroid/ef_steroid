@@ -1,11 +1,11 @@
 import 'dart:io';
 
 import 'package:fast_dotnet_ef/services/dotnet_ef6/dotnet_ef6_service.dart';
-import 'package:fast_dotnet_ef/services/log/log_service.dart';
-import 'package:fast_dotnet_ef/services/service_locator.dart' as sl;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 import 'package:path/path.dart' as path;
+
+import '../test_bootstrap.dart';
 
 Future<void> main() async {
   //region Testing projects relative path from project root.
@@ -21,10 +21,7 @@ Future<void> main() async {
   // returns `<Project root>/main.dart`.
   final rootProjectDirectory = File.fromUri(Platform.script).parent;
 
-  await sl.configure();
-  GetIt.I<LogService>().onRecord.listen((event) {
-    print(event);
-  });
+  await TestBootstrap.runAsync();
 
   final rootProjectDirectoryPath = rootProjectDirectory.path;
   final csprojUri = File(path.joinAll([
