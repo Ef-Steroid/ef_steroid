@@ -23,7 +23,7 @@ class MigrationHistory {
 
   final bool applied;
 
-  /// Compute if this migration history is ancient, for reverting all migration
+  /// Compute if this migration history is ancient, for reverting all migrations
   /// purpose.
   bool get isAncient => id == '0';
 
