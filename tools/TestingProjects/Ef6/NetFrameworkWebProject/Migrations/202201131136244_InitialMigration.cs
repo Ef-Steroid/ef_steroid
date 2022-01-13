@@ -12,8 +12,8 @@
                 c => new
                     {
                         Id = c.Int(nullable: false, identity: true),
-                        LastName = c.String(),
-                        FirstMidName = c.String(),
+                        LastName = c.String(unicode: false),
+                        FirstMidName = c.String(unicode: false),
                     })
                 .PrimaryKey(t => t.Id);
             

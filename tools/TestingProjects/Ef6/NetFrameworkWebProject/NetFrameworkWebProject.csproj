@@ -73,9 +73,9 @@
         <Compile Include="Global.asax.cs">
             <DependentUpon>Global.asax</DependentUpon>
         </Compile>
-        <Compile Include="Migrations\202201111220407_InitialMigration.cs" />
-        <Compile Include="Migrations\202201111220407_InitialMigration.Designer.cs">
-          <DependentUpon>202201111220407_InitialMigration.cs</DependentUpon>
+        <Compile Include="Migrations\202201131136244_InitialMigration.cs" />
+        <Compile Include="Migrations\202201131136244_InitialMigration.Designer.cs">
+          <DependentUpon>202201131136244_InitialMigration.cs</DependentUpon>
         </Compile>
         <Compile Include="Migrations\Configuration.cs" />
         <Compile Include="Models\Student.cs" />
@@ -101,6 +101,9 @@
         <Content Include="Views\Home\About.cshtml" />
         <Content Include="Views\Home\Contact.cshtml" />
         <Content Include="Views\Home\Index.cshtml" />
+        <None Include="Web.MySql.config">
+          <DependentUpon>Web.config</DependentUpon>
+        </None>
     </ItemGroup>
     <ItemGroup>
         <Folder Include="App_Data" />
@@ -119,12 +122,15 @@
       <PackageReference Include="Microsoft.jQuery.Unobtrusive.Validation" Version="3.2.11" />
       <PackageReference Include="Microsoft.Web.Infrastructure" Version="1.0.0" />
       <PackageReference Include="Modernizr" Version="2.8.3" />
+      <PackageReference Include="MySQL.Data.Entities" Version="6.8.3" />
+      <PackageReference Include="MySql.Data.EntityFramework" Version="8.0.27" />
+      <PackageReference Include="MySqlConnector" Version="2.1.2" />
       <PackageReference Include="Newtonsoft.Json" Version="11.0.1" />
       <PackageReference Include="WebGrease" Version="1.6.0" />
     </ItemGroup>
     <ItemGroup>
-      <EmbeddedResource Include="Migrations\202201111220407_InitialMigration.resx">
-        <DependentUpon>202201111220407_InitialMigration.cs</DependentUpon>
+      <EmbeddedResource Include="Migrations\202201131136244_InitialMigration.resx">
+        <DependentUpon>202201131136244_InitialMigration.cs</DependentUpon>
       </EmbeddedResource>
     </ItemGroup>
     <PropertyGroup>

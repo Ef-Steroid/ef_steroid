@@ -13,7 +13,7 @@ namespace NetFrameworkWebProject.Migrations
         
         string IMigrationMetadata.Id
         {
-            get { return "202201111220407_InitialMigration"; }
+            get { return "202201131136244_InitialMigration"; }
         }
         
         string IMigrationMetadata.Source
