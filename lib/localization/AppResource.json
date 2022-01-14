@@ -1,43 +1,11 @@
 {
   "texts": [
     {
-      "name": "UpdateDatabase",
-      "values": {
-        "en": "Update database",
-        "zh_Hans": "更新数据库"
-      },
-      "isReferenced": false
-    },
-    {
-      "name": "CollectLog",
-      "values": {
-        "en": "Collect log",
-        "zh_Hans": "收集日志"
-      },
-      "isReferenced": false
-    },
-    {
-      "name": "Database",
-      "values": {
-        "en": "Database",
-        "zh_Hans": "数据库"
-      },
-      "isReferenced": false
-    },
-    {
       "name": "Migrations",
       "values": {
         "en": "Migrations",
         "zh_Hans": "迁移"
       }
-    },
-    {
-      "name": "Script",
-      "values": {
-        "en": "Script",
-        "zh_Hans": "脚本"
-      },
-      "isReferenced": false
     },
     {
       "name": "Migration",
@@ -240,6 +208,20 @@
       "values": {
         "en": "Close",
         "zh_Hans": "关闭"
+      }
+    },
+    {
+      "name": "PleaseSelectAnEntityFrameworkType",
+      "values": {
+        "en": "Please select an Entity Framework type",
+        "zh_Hans": "请选择一个实体框架类型"
+      }
+    },
+    {
+      "name": "UnableToIdentifyProjectEfType",
+      "values": {
+        "en": "Unable to identify project Entity Framework type. You may select one instead.",
+        "zh_Hans": "无法识别项目的实体框架类型。您可以自行选择一个。"
       }
     }
   ]

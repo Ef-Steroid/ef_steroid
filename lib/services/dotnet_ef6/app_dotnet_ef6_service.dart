@@ -29,7 +29,7 @@ class AppDotnetEf6Service extends DotnetEf6Service {
 
   @override
   Future<List<String>> listMigrationsAsync({
-    required Uri csprojUri,
+    required Uri projectUri,
     required Uri configUri,
   }) async {
     final args = <String>[];
@@ -41,7 +41,7 @@ class AppDotnetEf6Service extends DotnetEf6Service {
     args.add('list');
 
     final ef6Command = await _dotnetEf6CommandResolver.getDotnetEf6CommandAsync(
-      csprojUri: csprojUri,
+      projectUri: projectUri,
       configUri: configUri,
     );
 
@@ -71,13 +71,17 @@ class AppDotnetEf6Service extends DotnetEf6Service {
 
           return stdout
               .split('\n')
-              .map((x) => _dotnetDataRegex
-                  .allMatches(x)
-                  .map((e) => e.input
-                      .substring(e.start, e.end)
-                      .replaceAll(_dotnetEfDataPrefix, ''))
-                  .join()
-                  .replaceAll(RegExp(r'\s'), ''))
+              .map(
+                (x) => _dotnetDataRegex
+                    .allMatches(x)
+                    .map(
+                      (e) => e.input
+                          .substring(e.start, e.end)
+                          .replaceAll(_dotnetEfDataPrefix, ''),
+                    )
+                    .join()
+                    .replaceAll(RegExp(r'\s'), ''),
+              )
               .where((element) => isNotBlank(element))
               .toList(growable: false);
         }
@@ -93,7 +97,7 @@ class AppDotnetEf6Service extends DotnetEf6Service {
 
   @override
   Future<String> updateDatabaseAsync({
-    required Uri csprojUri,
+    required Uri projectUri,
     required Uri configUri,
     MigrationHistory? migrationHistory,
   }) async {
@@ -109,7 +113,7 @@ class AppDotnetEf6Service extends DotnetEf6Service {
     }
 
     final ef6Command = await _dotnetEf6CommandResolver.getDotnetEf6CommandAsync(
-      csprojUri: csprojUri,
+      projectUri: projectUri,
       configUri: configUri,
     );
 
@@ -144,7 +148,7 @@ class AppDotnetEf6Service extends DotnetEf6Service {
 
   @override
   Future<void> addMigrationAsync({
-    required Uri csprojUri,
+    required Uri projectUri,
     required Uri configUri,
     required String migrationName,
   }) async {
@@ -160,7 +164,7 @@ class AppDotnetEf6Service extends DotnetEf6Service {
     args.add(migrationName);
 
     final ef6Command = await _dotnetEf6CommandResolver.getDotnetEf6CommandAsync(
-      csprojUri: csprojUri,
+      projectUri: projectUri,
       configUri: configUri,
     );
 

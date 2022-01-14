@@ -25,10 +25,12 @@ class AppProcessRunnerService extends ProcessRunnerService {
       asyncExecutor.logger.enabledExecution = true;
     }
 
-    final result = await asyncExecutor.execute(_ProcessRunner(
-      executable: executable,
-      arguments: arguments,
-    ));
+    final result = await asyncExecutor.execute(
+      _ProcessRunner(
+        executable: executable,
+        arguments: arguments,
+      ),
+    );
     await asyncExecutor.close();
 
     final processRunnerResultType = ProcessRunnerResult.fromJson(result).type;
@@ -78,10 +80,12 @@ class _ProcessRunner extends AsyncTask<String, Map<String, dynamic>> {
 
   @override
   String parameters() {
-    return jsonEncode(ProcessRunnerArgument(
-      arguments: arguments,
-      executable: executable,
-    ));
+    return jsonEncode(
+      ProcessRunnerArgument(
+        arguments: arguments,
+        executable: executable,
+      ),
+    );
   }
 
   @override
@@ -98,8 +102,8 @@ class _ProcessRunner extends AsyncTask<String, Map<String, dynamic>> {
             : null,
       );
       return SuccessfulProcessRunnerResult.fromProcessResult(
-              processResult: processResult)
-          .toJson();
+        processResult: processResult,
+      ).toJson();
     } on ProcessException catch (ex, stackTrace) {
       if (kDebugMode) {
         print(ex);

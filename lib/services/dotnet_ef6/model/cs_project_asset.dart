@@ -18,7 +18,8 @@ class CsProjectAsset {
   )
   final List<String> targets;
 
-  /// The key contains the package version.
+  /// The key contains the package name and version. The value ([LibraryInfo])
+  /// contains other useful information.
   ///
   /// Eg:
   ///  "EntityFramework/6.4.4": {
@@ -100,7 +101,9 @@ class CsProjectAsset {
       _$CsProjectAssetFromJson(json);
 }
 
-@JsonSerializable()
+@JsonSerializable(
+  createToJson: false,
+)
 class LibraryInfo {
   final String? sha512;
 

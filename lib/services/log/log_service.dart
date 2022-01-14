@@ -48,8 +48,13 @@ abstract class LogService implements Logger {
   bool isLoggable(Level value);
 
   @override
-  void log(Level logLevel, Object? message,
-      [Object? error, StackTrace? stackTrace, Zone? zone]);
+  void log(
+    Level logLevel,
+    Object? message, [
+    Object? error,
+    StackTrace? stackTrace,
+    Zone? zone,
+  ]);
 
   @override
   void severe(Object? message, [Object? error, StackTrace? stackTrace]);

@@ -7,12 +7,12 @@ abstract class DotnetEf6Service {
   ///
   /// {@template dotnet_ef6_service.DotnetEf6Service.listMigrationsAsync}
   ///
-  /// - [csprojUri] -> The EntityFramework project uri.
+  /// - [projectUri] -> The EntityFramework project uri.
   /// - [configUri] -> The config file uri.
   ///
   /// {@endtemplate}
   Future<List<String>> listMigrationsAsync({
-    required Uri csprojUri,
+    required Uri projectUri,
     required Uri configUri,
   });
 
@@ -24,7 +24,7 @@ abstract class DotnetEf6Service {
   /// - [migrationHistory] -> The targeted migration history. Update to the
   /// latest if this is null.
   Future<String> updateDatabaseAsync({
-    required Uri csprojUri,
+    required Uri projectUri,
     required Uri configUri,
     MigrationHistory? migrationHistory,
   });
@@ -35,7 +35,7 @@ abstract class DotnetEf6Service {
   /// {@macro dotnet_ef6_service.DotnetEf6Service.listMigrationsAsync}
   /// - [migrationName] -> The migration to add.
   Future<void> addMigrationAsync({
-    required Uri csprojUri,
+    required Uri projectUri,
     required Uri configUri,
     required String migrationName,
   });

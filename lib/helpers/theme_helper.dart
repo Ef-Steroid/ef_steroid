@@ -89,7 +89,10 @@ class ThemeHelper {
   static final OutlinedButtonThemeData _outlinedButtonTheme =
       OutlinedButtonThemeData(
     style: OutlinedButton.styleFrom(
-      shape: const StadiumBorder(),
+      shape: const RoundedRectangleBorder(
+        borderRadius:
+        BorderRadius.all(Radius.circular(8.0)),
+      ),
       side: const BorderSide(
         color: ColorConst.primaryColor,
       ),

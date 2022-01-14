@@ -1,11 +1,11 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:fast_dotnet_ef/exceptions/resolve_dotnet_ef6_command_name_exception.dart';
+import 'package:fast_dotnet_ef/services/cs_project_resolver/cs_project_resolver.dart';
 import 'package:fast_dotnet_ef/services/dotnet_ef6/data/cs_project_type.dart';
 import 'package:fast_dotnet_ef/services/dotnet_ef6/model/cs_project_asset.dart';
 import 'package:injectable/injectable.dart';
-import 'package:path/path.dart' as path;
+import 'package:path/path.dart' as p;
 import 'package:xml/xml.dart';
 
 class Ef6Command {
@@ -34,56 +34,38 @@ class DotnetEf6CommandResolver {
   static const String _conditionToken = 'Condition';
   static const String _configurationToken = 'Configuration';
 
+  static const String csProjectFileExtension = '.csproj';
+
+  final CsProjectResolver _csProjectResolver;
+
+  DotnetEf6CommandResolver(
+    this._csProjectResolver,
+  );
+
   Future<Ef6Command> getDotnetEf6CommandAsync({
-    required Uri csprojUri,
+    required Uri projectUri,
     required Uri configUri,
   }) async {
-    final csprojFile = File.fromUri(csprojUri);
+    final csprojFile = File(
+      p.joinAll([
+        projectUri.path,
+        // csproj file is the same as the project name.
+        '${p.basenameWithoutExtension(projectUri.path)}$csProjectFileExtension',
+      ]),
+    );
     if (!(await csprojFile.exists())) {
       throw ResolveDotnetEf6CommandNameException.csprojFileNotFound(
-        csprojUri: csprojUri,
-      );
-    }
-
-    final projectDirectory = csprojFile.parent;
-    const buildObjectDirectoryName = 'obj';
-    final buildObjectDirectory = Directory(path.join(
-      projectDirectory.path,
-      buildObjectDirectoryName,
-    ));
-    if (!(await buildObjectDirectory.exists())) {
-      throw ResolveDotnetEf6CommandNameException.projectNotBuild(
-        lookup: buildObjectDirectoryName,
-      );
-    }
-
-    const projectAssetsJsonFileName = 'project.assets.json';
-    final projectAssetsJsonFile = File(path.join(
-      buildObjectDirectory.path,
-      projectAssetsJsonFileName,
-    ));
-    if (!(await projectAssetsJsonFile.exists())) {
-      throw ResolveDotnetEf6CommandNameException.projectNotBuild(
-        lookup: projectAssetsJsonFileName,
+        csprojUri: projectUri,
       );
     }
 
     final readFilesResult = await Future.wait([
-      projectAssetsJsonFile.readAsString(),
+      _csProjectResolver.getCsProjectAsset(projectUri: projectUri),
       csprojFile.readAsString(),
     ]);
 
-    final projectAssetsJson = jsonDecode(readFilesResult[0]);
-    final csprojFileContent = readFilesResult[1];
-
-    CsProjectAsset csProjectAsset;
-    try {
-      csProjectAsset = CsProjectAsset.fromJson(projectAssetsJson);
-    } catch (e) {
-      throw ResolveDotnetEf6CommandNameException.projectAssetJsonParsingFailure(
-        projectAssetJsonPath: projectAssetsJsonFile.path,
-      );
-    }
+    final csProjectAsset = readFilesResult[0] as CsProjectAsset;
+    final csprojFileContent = readFilesResult[1] as String;
 
     final csprojRoot = XmlDocument.parse(
       csprojFileContent,
@@ -107,7 +89,7 @@ class DotnetEf6CommandResolver {
     return _detectEf6PathByFramework(
       csprojRoot: csprojRoot,
       properties: properties,
-      projectDirectory: projectDirectory,
+      projectDirectory: csprojFile.parent,
       csProjectAsset: csProjectAsset,
       targetFrameworkVersion: targetFrameworkVersion,
       platformTarget: platformTarget,
@@ -122,10 +104,12 @@ class DotnetEf6CommandResolver {
     required CsProjectAsset csProjectAsset,
   }) {
     var targetFrameworkVersion = properties.children
-        .firstWhere((node) =>
-            node is XmlElement &&
-            _possibleTargetFrameworkVersionNodeNames
-                .contains(node.name.toXmlString()))
+        .firstWhere(
+          (node) =>
+              node is XmlElement &&
+              _possibleTargetFrameworkVersionNodeNames
+                  .contains(node.name.toXmlString()),
+        )
         .innerText;
 
     switch (csProjectAsset.csProjectType) {
@@ -140,7 +124,8 @@ class DotnetEf6CommandResolver {
         break;
     }
     final targetFrameworkVersionNumber = int.tryParse(
-        targetFrameworkVersion.replaceAll('.', '').padRight(3, '0'));
+      targetFrameworkVersion.replaceAll('.', '').padRight(3, '0'),
+    );
 
     if (targetFrameworkVersionNumber == null) {
       throw ResolveDotnetEf6CommandNameException.invalidTargetFrameworkVersion(
@@ -205,11 +190,13 @@ class DotnetEf6CommandResolver {
 
     final buildConfigurationPropertyGroup = csprojRoot
         .findAllElements(_propertyGroupToken)
-        .firstWhere((x) =>
-            x
-                .getAttribute(_conditionToken)
-                ?.contains('$currentProjectConfiguration|$platformTarget') ??
-            false);
+        .firstWhere(
+          (x) =>
+              x
+                  .getAttribute(_conditionToken)
+                  ?.contains('$currentProjectConfiguration|$platformTarget') ??
+              false,
+        );
     return buildConfigurationPropertyGroup
         .findElements('OutputPath')
         .first
@@ -280,7 +267,7 @@ class DotnetEf6CommandResolver {
           csprojRoot: csprojRoot,
           properties: properties,
         );
-        final targetDir = path.join(
+        final targetDir = p.join(
           projectDirectory.path,
           outputPath,
         );
@@ -291,12 +278,12 @@ class DotnetEf6CommandResolver {
         // throw here.
         // TODO: Figure out a way to handle this better.
         final targetFileName = csProjectAsset.project.restore.projectName!;
-        final targetPath = path.join(targetDir, '$targetFileName.dll');
+        final targetPath = p.join(targetDir, '$targetFileName.dll');
         final rootNamespace = _getRootNamespace(properties: properties);
         final language = _getProgrammingLanguage();
 
         return Ef6Command(
-          commandName: path.joinAll([
+          commandName: p.joinAll([
             if (Platform.isWindows)
               Platform.environment['USERPROFILE'].toString()
             else

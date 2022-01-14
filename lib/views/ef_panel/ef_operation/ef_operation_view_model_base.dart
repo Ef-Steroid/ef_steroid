@@ -1,66 +1,86 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:bot_toast/bot_toast.dart';
 import 'package:darq/darq.dart';
 import 'package:fast_dotnet_ef/domain/ef_panel.dart';
-import 'package:fast_dotnet_ef/exceptions/dotnet_ef_exception.dart';
 import 'package:fast_dotnet_ef/helpers/tabbed_view_controller_helper.dart';
 import 'package:fast_dotnet_ef/helpers/uri_helper.dart';
-import 'package:fast_dotnet_ef/localization/localizations.dart';
 import 'package:fast_dotnet_ef/models/form/form_model.dart';
 import 'package:fast_dotnet_ef/models/form/form_view_model_mixin.dart';
 import 'package:fast_dotnet_ef/models/form/text_editing_form_field_model.dart';
-import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef_service.dart';
+import 'package:fast_dotnet_ef/repository/repository.dart';
 import 'package:fast_dotnet_ef/services/dotnet_ef/ef_model/migration_history.dart';
+import 'package:fast_dotnet_ef/shared/project_ef_type.dart';
+import 'package:fast_dotnet_ef/views/ef_panel/ef_operation/ef_operation_view_model_data.dart';
+import 'package:fast_dotnet_ef/views/ef_panel/ef_project_operation/ef_project_operation_view.dart';
 import 'package:fast_dotnet_ef/views/ef_panel/tab_data_value.dart';
 import 'package:fast_dotnet_ef/views/root_tab_view.dart';
 import 'package:fast_dotnet_ef/views/view_model_base.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:path/path.dart' as p;
 
-class EfDatabaseOperationViewModel extends ViewModelBase
+abstract class EfOperationViewModelBase extends ViewModelBase
     with FormViewModelMixin<_AddMigrationFormModel> {
-  final DotnetEfService _dotnetEfService;
+  final Repository<EfPanel> _efPanelRepository = GetIt.I<Repository<EfPanel>>();
 
-  late EfPanel efPanel;
+  late EfPanel _efPanel;
 
+  @nonVirtual
+  EfPanel get efPanel => _efPanel;
+
+  @override
+  final _AddMigrationFormModel form = _AddMigrationFormModel();
   bool _showListMigrationBanner = false;
 
   /// Indicate if we should show the list migration banner to inform the user
   /// that we might need to run [listMigrationsAsync].
+  @nonVirtual
   bool get showListMigrationBanner => _showListMigrationBanner;
+
+  @protected
+  @nonVirtual
+  set showListMigrationBanner(bool value) => _showListMigrationBanner = value;
 
   List<MigrationHistory> _migrationHistories = [];
 
   /// The migration histories.
+  @nonVirtual
   List<MigrationHistory> get migrationHistories => _migrationHistories;
 
-  late RootTabView _rootTabView;
+  @nonVirtual
+  @protected
+  set migrationHistories(List<MigrationHistory> value) =>
+      _migrationHistories = value;
 
   bool _sortMigrationAscending = true;
 
   /// Indicate if we should sort the migration column in ascending order.
+  @nonVirtual
   bool get sortMigrationAscending => _sortMigrationAscending;
 
+  @nonVirtual
   set sortMigrationAscending(bool sortMigrationAscending) {
     if (sortMigrationAscending == _sortMigrationAscending) return;
     _sortMigrationAscending = sortMigrationAscending;
-    _sortMigrationHistory();
+    sortMigrationHistory();
     notifyListeners();
   }
+
+  late RootTabView _rootTabView;
 
   StreamSubscription<FileSystemEvent>? _migrationFileSubscription;
 
   @override
-  final _AddMigrationFormModel form = _AddMigrationFormModel();
+  Future<void> initViewModelAsync({
+    required InitParam initParam,
+  }) async {
+    final state = initParam.param;
+    if (state is EfOperationViewModelData) {
+      _efPanel = state.efPanel;
+    }
 
-  EfDatabaseOperationViewModel(
-    this._dotnetEfService,
-  );
-
-  @override
-  Future<void> initViewModelAsync() async {
     _setupMigrationFilesWatchers();
     WidgetsBinding.instance!.addPostFrameCallback((_) async {
       _rootTabView = context.findAncestorWidgetOfExactType<RootTabView>()!;
@@ -73,10 +93,11 @@ class EfDatabaseOperationViewModel extends ViewModelBase
         _rootTabView.tabbedViewController.addListener(_onTabChangedAsync);
       }
     });
-    return super.initViewModelAsync();
+    return super.initViewModelAsync(initParam: initParam);
   }
 
   /// Check if [this] is the selected tab.
+  @nonVirtual
   bool isSelectedTab() {
     final selectedTab = _rootTabView.tabbedViewController.selectedTab;
     return selectedTab != null &&
@@ -93,7 +114,7 @@ class EfDatabaseOperationViewModel extends ViewModelBase
   }
 
   Directory _getMigrationsDirectory() {
-    final directoryUri = efPanel.directoryUrl;
+    final directoryUri = efPanel.directoryUri;
 
     final migrationsDirectoryPath = p.joinAll([
       directoryUri.toDecodedString(),
@@ -121,142 +142,70 @@ class EfDatabaseOperationViewModel extends ViewModelBase
     });
   }
 
-  Future<void> listMigrationsAsync() async {
-    if (isBusy) return;
-
-    notifyListeners(isBusy: true);
-    try {
-      _migrationHistories = await _dotnetEfService.listMigrationsAsync(
-        projectUri: efPanel.directoryUrl,
-      );
-
-      _showListMigrationBanner = false;
-      notifyListeners();
-    } catch (ex, stackTrace) {
-      await dialogService.showErrorDialog(
-        context,
-        ex,
-        stackTrace,
-      );
-    }
-
-    notifyListeners(isBusy: false);
-  }
-
   void hideListMigrationBanner() {
     _showListMigrationBanner = false;
     notifyListeners();
   }
 
+  Future<void> listMigrationsAsync();
+
+  Future<void> removeMigrationAsync({
+    required bool force,
+  });
+
+  @nonVirtual
   Future<void> revertAllMigrationsAsync() =>
       updateDatabaseToTargetedMigrationAsync(
         migrationHistory: const MigrationHistory.ancient(),
       );
 
+  Future<void> addMigrationAsync();
+
   Future<void> updateDatabaseToTargetedMigrationAsync({
     required MigrationHistory migrationHistory,
-  }) async {
-    try {
-      if (isBusy) return;
+  });
 
-      notifyListeners(isBusy: true);
-      await _dotnetEfService.updateDatabaseAsync(
-        projectUri: efPanel.directoryUrl,
-        migrationHistory: migrationHistory,
-      );
-
-      notifyListeners(isBusy: false);
-
-      BotToast.showText(
-        text: AL.of(context).text('DoneUpdatingDatabase'),
-      );
-
-      return listMigrationsAsync();
-    } catch (ex, stackTrace) {
-      await dialogService.showErrorDialog(
-        context,
-        ex,
-        stackTrace,
-      );
-      notifyListeners(isBusy: false);
-    }
-  }
-
-  void _sortMigrationHistory() {
-    _migrationHistories = sortMigrationAscending
+  @protected
+  @nonVirtual
+  void sortMigrationHistory() {
+    migrationHistories = sortMigrationAscending
         ? migrationHistories.orderBy((x) => x.id).toList(growable: false)
         : migrationHistories
             .orderByDescending((x) => x.id)
             .toList(growable: false);
   }
 
-  Future<void> addMigrationAsync() async {
-    try {
-      checkInput();
-
-      await _dotnetEfService.addMigrationAsync(
-        projectUri: efPanel.directoryUrl,
-        migrationName: form.migrationFormField.toText(),
-      );
-
-      Navigator.pop(context);
-    } catch (ex, stackTrace) {
-      await dialogService.showErrorDialog(
-        context,
-        ex,
-        stackTrace,
-      );
-    }
-  }
-
-  Future<void> removeMigrationAsync({
-    required bool force,
+  Future<void> switchEfProjectTypeAsync({
+    required ProjectEfType efProjectType,
   }) async {
+    if (efPanel.projectEfType == efProjectType) return;
+
+    if (isBusy) return;
+    notifyListeners(isBusy: true);
+
     try {
-      if (isBusy) return;
-      notifyListeners(isBusy: true);
-
-      await _dotnetEfService.removeMigrationAsync(
-        projectUri: efPanel.directoryUrl,
-        force: force,
+      await _efPanelRepository.insertOrUpdateAsync(
+        efPanel.copyWith(
+          projectEfType: efProjectType,
+        ),
       );
-
-      notifyListeners(isBusy: false);
-
-      BotToast.showText(
-        text: AL.of(context).text('DoneRemovingMigration'),
-      );
-
-      return listMigrationsAsync();
+      await EfProjectOperation.of(context)!.refreshEfPanelAsync();
     } catch (ex, stackTrace) {
-      if (ex is RemoveMigrationDotnetEfException &&
-          ex.isMigrationAppliedError) {
-        notifyListeners(isBusy: false);
-        return _promptRerunRemoveMigrationWithForceAsync(ex.errorMessage);
-      }
       await dialogService.showErrorDialog(
         context,
         ex,
         stackTrace,
       );
+      logService.severe(ex, stackTrace);
+    } finally {
       notifyListeners(isBusy: false);
     }
   }
 
-  Future<void> _promptRerunRemoveMigrationWithForceAsync(
-      String? errorMessage) async {
-    final l = AL.of(context).text;
-    final response = await dialogService.promptConfirmationDialog(
-      context,
-      title: l('DoYouWantToRerunWithForce'),
-      subtitle: errorMessage,
-      okText: l('Yes'),
-      cancelText: l('No'),
-    );
-
-    if (response == true) {
-      return removeMigrationAsync(force: true);
-    }
+  @override
+  void dispose() {
+    _migrationFileSubscription?.cancel();
+    super.dispose();
   }
 }
 

@@ -43,7 +43,8 @@ class EfPanelTabDataValue extends TabDataValue {
 
   static String _generateTabDisplayTextFromUri(EfPanel efPanel) {
     final name = path.basenameWithoutExtension(
-        Uri.decodeFull(efPanel.directoryUrl.toDecodedString()));
+      Uri.decodeFull(efPanel.directoryUri.toDecodedString()),
+    );
     return name;
   }
 }

@@ -14,7 +14,9 @@ namespace FastDotnetEfSqlite.Migrations
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
-                    DirectoryUrl = table.Column<string>(type: "TEXT", nullable: false)
+                    DirectoryUri = table.Column<string>(type: "TEXT", nullable: false),
+                    ConfigFileUri = table.Column<string>(type: "TEXT", nullable: true),
+                    ProjectEfType = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {

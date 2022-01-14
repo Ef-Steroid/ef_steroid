@@ -9,3 +9,8 @@ targets:
       json_serializable:
         options:
           explicit_to_json: true
+      reflectable:
+        generate_for:
+          - lib/main.dart
+        options:
+          formatted: true

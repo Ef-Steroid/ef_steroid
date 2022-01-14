@@ -23,10 +23,12 @@ class RootTabViewModel extends ViewModelBase with ReassembleHandler {
   );
 
   @override
-  Future<void> initViewModelAsync() async {
+  Future<void> initViewModelAsync({
+    required InitParam initParam,
+  }) async {
     _logService.info('Init RootTabViewModel');
     await _loadLastSessionTabsAsync();
-    return super.initViewModelAsync();
+    return super.initViewModelAsync(initParam: initParam);
   }
 
   Future<void> _loadLastSessionTabsAsync() async {
@@ -40,8 +42,10 @@ class RootTabViewModel extends ViewModelBase with ReassembleHandler {
         .where((x) => x.value is! AddEfPanelTabDataValue)
         .map((e) => e.value as EfPanelTabDataValue);
     results
-        .where((x) => efPanelInTabs
-            .every((y) => y.efPanel.directoryUrl != x.directoryUrl))
+        .where(
+          (x) => efPanelInTabs
+              .every((y) => y.efPanel.directoryUri != x.directoryUri),
+        )
         .forEach(_addProjectTab);
     _logService.info('Done loading last session tabs');
   }
@@ -71,9 +75,11 @@ class RootTabViewModel extends ViewModelBase with ReassembleHandler {
       return;
     }
 
-    final output = tabbedViewController.tabs.anyWithResult((x) =>
-        x.value is! AddEfPanelTabDataValue &&
-        (x.value as EfPanelTabDataValue).efPanel.directoryUrl == fileUri);
+    final output = tabbedViewController.tabs.anyWithResult(
+      (x) =>
+          x.value is! AddEfPanelTabDataValue &&
+          (x.value as EfPanelTabDataValue).efPanel.directoryUri == fileUri,
+    );
     if (output.passed) {
       tabbedViewController.selectedIndex =
           tabbedViewController.tabs.indexOf(output.output);
@@ -81,7 +87,7 @@ class RootTabViewModel extends ViewModelBase with ReassembleHandler {
     }
 
     final efPanel = EfPanel(
-      directoryUrl: fileUri,
+      directoryUri: fileUri,
     );
     final id = await _efPanelRepository.insertOrUpdateAsync(efPanel);
 

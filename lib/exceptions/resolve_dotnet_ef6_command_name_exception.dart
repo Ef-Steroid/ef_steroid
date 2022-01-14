@@ -9,18 +9,6 @@ class ResolveDotnetEf6CommandNameException implements Exception {
     required Uri csprojUri,
   }) : this(message: 'csproj file: ${csprojUri.path} does not exist');
 
-  ResolveDotnetEf6CommandNameException.projectNotBuild({required String lookup})
-      : this(
-          message: 'Your project is not built. $lookup was not found.',
-        );
-
-  ResolveDotnetEf6CommandNameException.projectAssetJsonParsingFailure({
-    required String projectAssetJsonPath,
-  }) : this(
-          message:
-              'Unable to parse project.assets.json. Please file an issue with your project.assets.json in $projectAssetJsonPath.',
-        );
-
   ResolveDotnetEf6CommandNameException.invalidTargetFrameworkVersion({
     required String targetFrameworkVersion,
   }) : this(

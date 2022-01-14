@@ -66,7 +66,6 @@ class AppDotnetEfService extends DotnetEfService {
       projectUri: projectUri,
     );
 
-
     _logService.info(
       'Start updating database with command: ${_getFullCommand(args)}',
     );
@@ -125,7 +124,8 @@ class AppDotnetEfService extends DotnetEfService {
     switch (processRunnerResult.type) {
       case ProcessRunnerResultType.successful:
         final extractedJsonOutput = _extractJsonOutput(
-            (processRunnerResult as SuccessfulProcessRunnerResult).stdout);
+          (processRunnerResult as SuccessfulProcessRunnerResult).stdout,
+        );
         final decodedJson =
             isBlank(extractedJsonOutput) ? [] : jsonDecode(extractedJsonOutput);
         migrations = (decodedJson as List)
@@ -241,9 +241,11 @@ class AppDotnetEfService extends DotnetEfService {
 
     return _dotnetDataRegex
         .allMatches(stdout)
-        .map((e) => e.input
-            .substring(e.start, e.end)
-            .replaceAll(_dotnetEfDataPrefix, ''))
+        .map(
+          (e) => e.input
+              .substring(e.start, e.end)
+              .replaceAll(_dotnetEfDataPrefix, ''),
+        )
         .join()
         .replaceAll(RegExp(r'\s'), '');
   }
@@ -255,9 +257,11 @@ class AppDotnetEfService extends DotnetEfService {
 
     return _dotnetErrorRegex
         .allMatches(stdout)
-        .map((e) => e.input
-            .substring(e.start, e.end)
-            .replaceAll(_dotnetEfErrorPrefix, ''))
+        .map(
+          (e) => e.input
+              .substring(e.start, e.end)
+              .replaceAll(_dotnetEfErrorPrefix, ''),
+        )
         .join()
         .trim();
   }

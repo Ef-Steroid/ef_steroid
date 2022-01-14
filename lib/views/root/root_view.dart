@@ -1,4 +1,5 @@
 import 'package:fast_dotnet_ef/views/root/root_view_model.dart';
+import 'package:fast_dotnet_ef/views/view_model_base.dart';
 import 'package:fast_dotnet_ef/views/widgets/mvvm_binding_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -21,13 +22,9 @@ class _RootViewState extends State<RootView> {
   @override
   void initState() {
     super.initState();
-    vm.initViewModelAsync();
-  }
-
-  @override
-  void dispose() {
-    vm.dispose();
-    super.dispose();
+    vm.initViewModelAsync(
+      initParam: const InitParam(),
+    );
   }
 
   @override
@@ -36,7 +33,7 @@ class _RootViewState extends State<RootView> {
       viewModel: vm,
       builder: (context, vm, child) {
         return widget.child;
-      }
+      },
     );
   }
 }

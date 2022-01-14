@@ -9,8 +9,10 @@ class RootViewModel extends ViewModelBase {
   );
 
   @override
-  Future<void> initViewModelAsync() {
+  Future<void> initViewModelAsync({
+    required InitParam initParam,
+  }) {
     _menuBarService.setup();
-    return super.initViewModelAsync();
+    return super.initViewModelAsync(initParam: initParam);
   }
 }

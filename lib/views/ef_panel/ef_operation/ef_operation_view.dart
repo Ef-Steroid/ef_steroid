@@ -1,60 +1,50 @@
 import 'package:fast_dotnet_ef/domain/ef_panel.dart';
 import 'package:fast_dotnet_ef/helpers/theme_helper.dart';
 import 'package:fast_dotnet_ef/localization/localizations.dart';
-import 'package:fast_dotnet_ef/views/ef_panel/ef_database_operation/ef_database_operation_view_model.dart';
+import 'package:fast_dotnet_ef/shared/project_ef_type.dart';
+import 'package:fast_dotnet_ef/views/ef_panel/ef_operation/ef_operation_view_model_base.dart';
+import 'package:fast_dotnet_ef/views/ef_panel/ef_operation/ef_operation_view_model_data.dart';
+import 'package:fast_dotnet_ef/views/ef_panel/widgets/project_ef_type_toolbar.dart';
+import 'package:fast_dotnet_ef/views/view_model_base.dart';
 import 'package:fast_dotnet_ef/views/widgets/form_fields/custom_text_form_field.dart';
 import 'package:fast_dotnet_ef/views/widgets/loading_widget.dart';
 import 'package:fast_dotnet_ef/views/widgets/mvvm_binding_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get_it/get_it.dart';
 import 'package:quiver/strings.dart';
 
-class EfDatabaseOperationView extends StatefulWidget {
+class EfOperationView extends StatefulWidget {
+  final EfOperationViewModelBase vm;
+
   final EfPanel efPanel;
 
-  const EfDatabaseOperationView({
+  const EfOperationView({
     Key? key,
     required this.efPanel,
+    required this.vm,
   }) : super(key: key);
 
   @override
-  _EfDatabaseOperationViewState createState() =>
-      _EfDatabaseOperationViewState();
+  _EfOperationViewState createState() => _EfOperationViewState();
 }
 
-class _EfDatabaseOperationViewState extends State<EfDatabaseOperationView> {
-  EfDatabaseOperationViewModel? vm;
-
+class _EfOperationViewState extends State<EfOperationView> {
   @override
   void initState() {
     super.initState();
-    _initViewModelAsync();
-  }
-
-  @override
-  void didUpdateWidget(covariant EfDatabaseOperationView oldWidget) {
-    if (oldWidget.efPanel.configFileUrl != widget.efPanel.configFileUrl) {
-
-    }
-    super.didUpdateWidget(oldWidget);
-  }
-
-  void _initViewModelAsync() {
-    vm.efPanel = widget.efPanel;
-    vm.initViewModelAsync();
-  }
-
-  @override
-  void dispose() {
-    vm.dispose();
-    super.dispose();
+    widget.vm.initViewModelAsync(
+      initParam: InitParam(
+        param: EfOperationViewModelData(efPanel: widget.efPanel),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final l = AL.of(context).text;
-    return MVVMBindingWidget<EfDatabaseOperationViewModel>(
+    final vm = widget.vm;
+
+    return MVVMBindingWidget<EfOperationViewModelBase>(
       viewModel: vm,
       builder: (context, vm, child) {
         return Scaffold(
@@ -89,26 +79,35 @@ class _EfDatabaseOperationViewState extends State<EfDatabaseOperationView> {
                   ),
                 ),
               const SizedBox(height: 8.0),
-              Align(
-                alignment: Alignment.centerRight,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      OutlinedButton.icon(
-                        icon: const Icon(Icons.autorenew_outlined),
-                        label: Text(l('RevertAllMigrations')),
-                        onPressed: vm.revertAllMigrationsAsync,
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: ProjectEfTypeToolbar(
+                        onProjectEfTypeSaved: _onProjectEfTypeSaved,
+                        projectEfType: vm.efPanel.projectEfType,
                       ),
-                      const SizedBox(width: 8.0),
-                      OutlinedButton.icon(
-                        icon: const Icon(Icons.refresh),
-                        label: Text(l('Refresh')),
-                        onPressed: vm.listMigrationsAsync,
-                      ),
-                    ],
-                  ),
+                    ),
+                    const Spacer(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        OutlinedButton.icon(
+                          icon: const Icon(Icons.autorenew_outlined),
+                          label: Text(l('RevertAllMigrations')),
+                          onPressed: vm.revertAllMigrationsAsync,
+                        ),
+                        const SizedBox(width: 8.0),
+                        OutlinedButton.icon(
+                          icon: const Icon(Icons.refresh),
+                          label: Text(l('Refresh')),
+                          onPressed: vm.listMigrationsAsync,
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
               Expanded(
@@ -126,14 +125,18 @@ class _EfDatabaseOperationViewState extends State<EfDatabaseOperationView> {
       context: context,
       pageBuilder: (context, animation, secondaryAnimation) =>
           _AddMigrationForm(
-        vm: vm,
+        vm: widget.vm,
       ),
     );
+  }
+
+  void _onProjectEfTypeSaved(ProjectEfType value) {
+    widget.vm.switchEfProjectTypeAsync(efProjectType: value);
   }
 }
 
 class _MigrationsTable extends StatefulWidget {
-  final EfDatabaseOperationViewModel vm;
+  final EfOperationViewModelBase vm;
 
   const _MigrationsTable({
     Key? key,
@@ -245,7 +248,7 @@ class _MigrationsTableState extends State<_MigrationsTable> {
 }
 
 class _AddMigrationForm extends StatefulWidget {
-  final EfDatabaseOperationViewModel vm;
+  final EfOperationViewModelBase vm;
 
   const _AddMigrationForm({
     Key? key,

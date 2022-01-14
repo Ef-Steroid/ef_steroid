@@ -2,6 +2,7 @@
 enum CsProjectType {
   /// .Net Core project.
   netCore,
+
   /// .Net Framework project.
   netFramework,
 }

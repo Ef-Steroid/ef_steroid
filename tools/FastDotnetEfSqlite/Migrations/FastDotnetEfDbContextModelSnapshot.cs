@@ -22,13 +22,15 @@ namespace FastDotnetEfSqlite.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("ConfigFileUrl")
+                    b.Property<string>("ConfigFileUri")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("DirectoryUri")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("DirectoryUrl")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                    b.Property<int?>("ProjectEfType")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 

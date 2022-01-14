@@ -66,15 +66,17 @@ class _ShakeWidgetState extends State<ShakeWidget>
     try {
       final tickerFuture = _controller.repeat(reverse: true);
       _cancelableShake?.cancel();
-      _cancelableShake = CancelableOperation.fromFuture(tickerFuture.timeout(
-        const Duration(milliseconds: 500),
-        onTimeout: () {
-          _controller.forward(from: 0);
-          _controller.stop(canceled: true);
-          widget.shakeController.enabled = false;
-          widget.shakeController.isShaking = false;
-        },
-      ));
+      _cancelableShake = CancelableOperation.fromFuture(
+        tickerFuture.timeout(
+          const Duration(milliseconds: 500),
+          onTimeout: () {
+            _controller.forward(from: 0);
+            _controller.stop(canceled: true);
+            widget.shakeController.enabled = false;
+            widget.shakeController.isShaking = false;
+          },
+        ),
+      );
     } catch (ex, stackTrace) {
       _logService.severe(ex, stackTrace);
     }
