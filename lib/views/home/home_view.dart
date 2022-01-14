@@ -33,6 +33,12 @@ class _HomeViewState extends State<HomeView> {
   }
 
   @override
+  void dispose() {
+    vm.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return MVVMBindingWidget<HomeViewModel>(
         viewModel: vm,

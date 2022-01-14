@@ -23,6 +23,12 @@ class _PreferenceViewState extends State<PreferenceView> {
   }
 
   @override
+  void dispose() {
+    vm.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final l = AL.of(context).text;
     return Dialog(

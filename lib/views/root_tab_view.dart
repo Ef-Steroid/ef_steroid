@@ -31,6 +31,12 @@ class _RootTabViewState extends State<RootTabView> {
   }
 
   @override
+  void dispose() {
+    vm.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return MVVMBindingWidget<RootTabViewModel>(
       viewModel: vm,

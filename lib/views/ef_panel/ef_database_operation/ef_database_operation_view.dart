@@ -24,14 +24,31 @@ class EfDatabaseOperationView extends StatefulWidget {
 }
 
 class _EfDatabaseOperationViewState extends State<EfDatabaseOperationView> {
-  final EfDatabaseOperationViewModel vm =
-      GetIt.I<EfDatabaseOperationViewModel>();
+  EfDatabaseOperationViewModel? vm;
 
   @override
   void initState() {
     super.initState();
+    _initViewModelAsync();
+  }
+
+  @override
+  void didUpdateWidget(covariant EfDatabaseOperationView oldWidget) {
+    if (oldWidget.efPanel.configFileUrl != widget.efPanel.configFileUrl) {
+
+    }
+    super.didUpdateWidget(oldWidget);
+  }
+
+  void _initViewModelAsync() {
     vm.efPanel = widget.efPanel;
     vm.initViewModelAsync();
+  }
+
+  @override
+  void dispose() {
+    vm.dispose();
+    super.dispose();
   }
 
   @override

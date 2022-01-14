@@ -12,9 +12,15 @@ class EfPanel extends EntityDto {
   /// The directory url of the EF Panel.
   final Uri directoryUrl;
 
+  /// The config file path selected for the EF Panel previously.
+  ///
+  /// We use this to store the user's configuration.
+  final Uri? configFileUrl;
+
   EfPanel({
     int? id,
     required this.directoryUrl,
+    this.configFileUrl,
   }) : super(id: id);
 
   factory EfPanel.fromJson(Map<String, dynamic> json) =>
@@ -26,10 +32,12 @@ class EfPanel extends EntityDto {
   EfPanel copyWith({
     int? id,
     Uri? directoryUrl,
+    Uri? configFileUrl,
   }) {
     return EfPanel(
       id: id ?? this.id,
       directoryUrl: directoryUrl ?? this.directoryUrl,
+      configFileUrl: configFileUrl ?? this.configFileUrl,
     );
   }
 }

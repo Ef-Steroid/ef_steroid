@@ -25,6 +25,12 @@ class _RootViewState extends State<RootView> {
   }
 
   @override
+  void dispose() {
+    vm.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return MVVMBindingWidget<RootViewModel>(
       viewModel: vm,
