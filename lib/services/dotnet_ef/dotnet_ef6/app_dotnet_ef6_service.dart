@@ -30,8 +30,9 @@ class AppDotnetEf6Service extends DotnetEf6Service {
   static const String _dotnetEfJsonKey = '--json';
 
   static const String _dotnetEfDataPrefix = 'data:';
-  static final RegExp _dotnetDataRegex = RegExp(
+  static final RegExp _dotnetEfResultDataRegex = RegExp(
     '^$_dotnetEfDataPrefix.*',
+    multiLine: true,
   );
 
   static const String _includeToken = 'Include';
@@ -140,7 +141,7 @@ class AppDotnetEf6Service extends DotnetEf6Service {
     return stdout
         .split('\n')
         .map(
-          (x) => _dotnetDataRegex
+          (x) => _dotnetEfResultDataRegex
               .allMatches(x)
               .map(
                 (e) => e.input
@@ -502,7 +503,7 @@ class AppDotnetEf6Service extends DotnetEf6Service {
   String _extractJsonOutput(String? stdout) {
     if (stdout == null) return '';
 
-    return _dotnetDataRegex
+    return _dotnetEfResultDataRegex
         .allMatches(stdout)
         .map(
           (e) => e.input
