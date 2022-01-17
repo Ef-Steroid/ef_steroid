@@ -39,12 +39,6 @@ class _EfProjectOperationViewState extends State<EfProjectOperationView> {
   }
 
   @override
-  void dispose() {
-    vm.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return MVVMBindingWidget<EfProjectOperationViewModel>(
       viewModel: vm,

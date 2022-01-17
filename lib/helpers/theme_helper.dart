@@ -90,8 +90,7 @@ class ThemeHelper {
       OutlinedButtonThemeData(
     style: OutlinedButton.styleFrom(
       shape: const RoundedRectangleBorder(
-        borderRadius:
-        BorderRadius.all(Radius.circular(8.0)),
+        borderRadius: BorderRadius.all(Radius.circular(8.0)),
       ),
       side: const BorderSide(
         color: ColorConst.primaryColor,

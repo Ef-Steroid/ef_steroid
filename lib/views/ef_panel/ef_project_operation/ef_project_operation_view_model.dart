@@ -113,25 +113,25 @@ class EfProjectOperationViewModel extends ViewModelBase {
       final ef6PackageRegex = RegExp(r'^EntityFramework/6.+');
       final efCorePackageRegex = RegExp(r'^Microsoft.EntityFrameworkCore/.+');
 
-      ProjectEfType? efProjectType;
+      ProjectEfType? projectEfType;
       csProjectAsset.libraries.forEach((key, value) {
         if (ef6PackageRegex.hasMatch(key)) {
-          efProjectType = ProjectEfType.ef6;
+          projectEfType = ProjectEfType.ef6;
           return;
         }
 
         if (efCorePackageRegex.hasMatch(key)) {
-          efProjectType = ProjectEfType.efCore;
+          projectEfType = ProjectEfType.efCore;
           return;
         }
       });
 
-      if (efProjectType == null) {
+      if (projectEfType == null) {
         return;
       }
 
       _efPanel = efPanel = efPanel.copyWith(
-        projectEfType: efProjectType,
+        projectEfType: projectEfType,
       );
 
       await _efPanelRepository.insertOrUpdateAsync(efPanel);

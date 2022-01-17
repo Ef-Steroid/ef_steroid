@@ -11,11 +11,13 @@ part 'ef_panel.g.dart';
 @reflector
 class EfPanel extends EntityDto {
   /// The directory url of the EF Panel.
+  // @UriConverter()
   final Uri directoryUri;
 
   /// The config file path selected for the EF Panel previously.
   ///
   /// We use this to store the user's configuration.
+  // @UriNullableConverter()
   final Uri? configFileUri;
 
   /// The entity framework project type of this [EfPanel].

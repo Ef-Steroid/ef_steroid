@@ -32,5 +32,7 @@
   "PleaseSelectAnEntityFrameworkType": "Please select an Entity Framework type",
   "UnableToIdentifyProjectEfType": "Unable to identify project Entity Framework type. You may select one instead.",
   "ConfigFile": "Config file: ",
-  "SelectConfigFile": "Select config file"
+  "SelectConfigFile": "Select config file",
+  "NoConfigFileSelected": "No config file selected",
+  "PleaseSelectAConfigFileFirst": "Please select a config file first"
 }

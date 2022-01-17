@@ -7,7 +7,7 @@ class _ProjectEfTypeValue {
 }
 
 enum ProjectEfType {
-/// The entity framework project type.
+  /// The entity framework project type.
   /// Entity framework Core.
   @JsonValue(_ProjectEfTypeValue.efCore)
   efCore,

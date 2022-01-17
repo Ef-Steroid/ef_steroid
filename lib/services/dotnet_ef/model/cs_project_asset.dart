@@ -1,4 +1,3 @@
-
 import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef6/data/cs_project_type.dart';
 import 'package:json_annotation/json_annotation.dart';
 

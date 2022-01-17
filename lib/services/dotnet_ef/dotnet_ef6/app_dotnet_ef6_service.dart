@@ -153,7 +153,10 @@ class AppDotnetEf6Service extends DotnetEf6Service {
 
     args.add('update');
 
-    if (migrationHistory != null) {
+    if (migrationHistory != null &&
+        // EF6 can only deal with applied migration.
+        migrationHistory.applied) {
+      args.add('--target');
       args.add(migrationHistory.id);
     }
 

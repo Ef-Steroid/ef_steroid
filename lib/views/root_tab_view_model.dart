@@ -58,7 +58,7 @@ class RootTabViewModel extends ViewModelBase with ReassembleHandler {
       return;
     }
 
-    final fileUri = Uri.tryParse(filePath);
+    final fileUri = _tryParseFileUri(filePath: filePath);
 
     if (fileUri == null) {
       final message = 'Unable to parse file path: $filePath to Uri.';
@@ -95,6 +95,18 @@ class RootTabViewModel extends ViewModelBase with ReassembleHandler {
       selectedTabDataValue: addedEfPanelTabDataValue,
     );
     logService.info('Done reset tab closable');
+  }
+
+  Uri? _tryParseFileUri({
+    required String filePath,
+  }) {
+    try {
+      return Uri.file(filePath);
+    } catch (ex, stackTrace) {
+      final message = 'Unable to parse file path: $filePath to Uri.';
+      logService.severe(message, ex, stackTrace);
+      return null;
+    }
   }
 
   /// Add project tab.

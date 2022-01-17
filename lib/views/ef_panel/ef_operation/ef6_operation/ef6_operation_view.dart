@@ -1,10 +1,14 @@
 import 'package:fast_dotnet_ef/domain/ef_panel.dart';
+import 'package:fast_dotnet_ef/helpers/theme_helper.dart';
 import 'package:fast_dotnet_ef/localization/localizations.dart';
 import 'package:fast_dotnet_ef/shared/project_ef_type.dart';
 import 'package:fast_dotnet_ef/views/ef_panel/ef_operation/ef6_operation/ef6_operation_view_model.dart';
 import 'package:fast_dotnet_ef/views/ef_panel/ef_operation/ef_operation_view.dart';
+import 'package:fast_dotnet_ef/views/ef_panel/ef_operation/ef_operation_view_model_data.dart';
+import 'package:fast_dotnet_ef/views/ef_panel/ef_operation/widgets/add_migration_form.dart';
 import 'package:fast_dotnet_ef/views/ef_panel/widgets/list_migration_banner.dart';
 import 'package:fast_dotnet_ef/views/ef_panel/widgets/project_ef_type_toolbar.dart';
+import 'package:fast_dotnet_ef/views/view_model_base.dart';
 import 'package:fast_dotnet_ef/views/widgets/mvvm_binding_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -25,15 +29,35 @@ class _Ef6OperationViewState extends State<Ef6OperationView> {
   final Ef6OperationViewModel vm = GetIt.I<Ef6OperationViewModel>();
 
   @override
+  void initState() {
+    super.initState();
+    vm.initViewModelAsync(
+      initParam: InitParam(
+        param: EfOperationViewModelData(efPanel: widget.efPanel),
+      ),
+    );
+  }
+
+  @override
+  void didUpdateWidget(covariant Ef6OperationView oldWidget) {
+    if (oldWidget.efPanel != widget.efPanel) {
+      vm.updateEfPanel(widget.efPanel);
+      vm.listMigrationsAsync();
+    }
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
   Widget build(BuildContext context) {
     final l = AL.of(context).text;
     return MVVMBindingWidget<Ef6OperationViewModel>(
       viewModel: vm,
       builder: (context, vm, child) {
         final configFileUri = vm.efPanel.configFileUri;
+        final hasConfigFile = configFileUri != null;
         return Scaffold(
           floatingActionButton: FloatingActionButton.extended(
-            onPressed: /*_addMigrationAsync*/ () {},
+            onPressed: _addMigrationAsync,
             label: Text(l('AddMigration')),
             icon: const Icon(Icons.add),
           ),
@@ -49,22 +73,42 @@ class _Ef6OperationViewState extends State<Ef6OperationView> {
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: ProjectEfTypeToolbar(
                   onProjectEfTypeSaved: _onProjectEfTypeSaved,
-                  projectEfType: vm.efPanel.projectEfType,
+                  projectEfType: widget.efPanel.projectEfType,
                 ),
               ),
               const SizedBox(height: 8.0),
-              Row(
-                children: [
-                  Text(
-                    '${l('ConfigFile')} $configFileUri',
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Text.rich(
+                  TextSpan(
+                    text: l('ConfigFile'),
+                    children: <InlineSpan>[
+                      if (hasConfigFile)
+                        TextSpan(
+                          text: configFileUri.toFilePath(),
+                        )
+                      else
+                        TextSpan(
+                          text: l('NoConfigFileSelected'),
+                          style: const TextStyle(
+                            color: ColorConst.dangerColor,
+                          ),
+                        ),
+                      WidgetSpan(
+                        child: IconButton(
+                          onPressed: vm.updateConfigFile,
+                          icon: const Icon(
+                            Icons.edit,
+                            color: ColorConst.primaryColor,
+                          ),
+                        ),
+                        alignment: PlaceholderAlignment.middle,
+                      ),
+                    ],
                   ),
-                  IconButton(
-                    onPressed: vm.updateConfigFile,
-                    icon: const Icon(Icons.edit),
-                  ),
-                ],
+                ),
               ),
-              if (configFileUri != null) ...[
+              if (hasConfigFile) ...[
                 const SizedBox(height: 8.0),
                 Expanded(
                   child: EfOperationView(
@@ -72,7 +116,10 @@ class _Ef6OperationViewState extends State<Ef6OperationView> {
                     efPanel: widget.efPanel,
                   ),
                 ),
-              ],
+              ] else
+                Center(
+                  child: Text(l('PleaseSelectAConfigFileFirst')),
+                ),
             ],
           ),
         );
@@ -82,5 +129,14 @@ class _Ef6OperationViewState extends State<Ef6OperationView> {
 
   void _onProjectEfTypeSaved(ProjectEfType value) {
     vm.switchEfProjectTypeAsync(efProjectType: value);
+  }
+
+  Future<void> _addMigrationAsync() {
+    return showGeneralDialog(
+      context: context,
+      pageBuilder: (context, animation, secondaryAnimation) => AddMigrationForm(
+        vm: vm,
+      ),
+    );
   }
 }

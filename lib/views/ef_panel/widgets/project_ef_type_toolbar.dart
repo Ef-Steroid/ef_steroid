@@ -1,4 +1,3 @@
-
 import 'package:darq/darq.dart';
 import 'package:fast_dotnet_ef/helpers/theme_helper.dart';
 import 'package:fast_dotnet_ef/localization/localizations.dart';
@@ -27,8 +26,7 @@ class _ProjectEfTypeToolbarState extends State<ProjectEfTypeToolbar> {
 
   ProjectEfType? _projectEfType;
 
-  bool get hasProjectTypeChanged =>
-      widget.projectEfType != _projectEfType;
+  bool get hasProjectTypeChanged => widget.projectEfType != _projectEfType;
 
   @override
   void initState() {
@@ -48,15 +46,15 @@ class _ProjectEfTypeToolbarState extends State<ProjectEfTypeToolbar> {
           items: _efProjectTypes
               .map(
                 (efProjectType) => DropdownMenuItem<ProjectEfType?>(
-              value: efProjectType,
-              enabled: efProjectType != null || _projectEfType == null,
-              child: Text(
-                efProjectType == null
-                    ? l('PleaseSelectAnEntityFrameworkType')
-                    : efProjectType.toDisplayString(),
-              ),
-            ),
-          )
+                  value: efProjectType,
+                  enabled: efProjectType != null || _projectEfType == null,
+                  child: Text(
+                    efProjectType == null
+                        ? l('PleaseSelectAnEntityFrameworkType')
+                        : efProjectType.toDisplayString(),
+                  ),
+                ),
+              )
               .toList(growable: false),
         ),
         if (hasProjectTypeChanged) ...[

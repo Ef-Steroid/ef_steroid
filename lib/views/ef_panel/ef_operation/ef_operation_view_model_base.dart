@@ -79,7 +79,7 @@ abstract class EfOperationViewModelBase extends ViewModelBase
   }) async {
     final state = initParam.param;
     if (state is EfOperationViewModelData) {
-      _efPanel = state.efPanel;
+      updateEfPanel(state.efPanel);
     }
 
     _setupMigrationFilesWatchers();
@@ -95,6 +95,10 @@ abstract class EfOperationViewModelBase extends ViewModelBase
       }
     });
     return super.initViewModelAsync(initParam: initParam);
+  }
+
+  void updateEfPanel(EfPanel efPanel) {
+    _efPanel = efPanel;
   }
 
   /// Check if [this] is the selected tab.

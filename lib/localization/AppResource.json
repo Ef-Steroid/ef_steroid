@@ -237,6 +237,20 @@
         "en": "Select config file",
         "zh_Hans": "选择配置文件"
       }
+    },
+    {
+      "name": "NoConfigFileSelected",
+      "values": {
+        "en": "No config file selected",
+        "zh_Hans": "配置文件未选择"
+      }
+    },
+    {
+      "name": "PleaseSelectAConfigFileFirst",
+      "values": {
+        "en": "Please select a config file first",
+        "zh_Hans": "请先选择一个配置文件"
+      }
     }
   ]
 }
