@@ -1,6 +1,10 @@
-import 'package:fast_dotnet_ef/services/dotnet_ef/ef_model/migration_history.dart';
-import 'package:fast_dotnet_ef/services/dotnet_ef6/dotnet_ef6_service.dart';
-import 'package:fast_dotnet_ef/services/dotnet_ef6/resolvers/dotnet_ef6_command_resolver.dart';
+import 'dart:io';
+
+import 'package:fast_dotnet_ef/domain/migration_history.dart';
+import 'package:fast_dotnet_ef/helpers/file_helper.dart';
+import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef6/dotnet_ef6_service.dart';
+import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef6/resolvers/dotnet_ef6_command_resolver.dart';
+import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef_migration/dotnet_ef_migration_service.dart';
 import 'package:fast_dotnet_ef/services/log/log_service.dart';
 import 'package:fast_dotnet_ef/services/process_runner/model/process_runner_result.dart';
 import 'package:fast_dotnet_ef/services/process_runner/process_runner_service.dart';
@@ -20,15 +24,18 @@ class AppDotnetEf6Service extends DotnetEf6Service {
   final LogService _logService;
   final DotnetEf6CommandResolver _dotnetEf6CommandResolver;
   final ProcessRunnerService _processRunnerService;
+  final DotnetEfMigrationService _dotnetEfMigrationService;
 
   AppDotnetEf6Service(
     this._logService,
     this._dotnetEf6CommandResolver,
     this._processRunnerService,
+    this._dotnetEfMigrationService,
   );
 
+  //region List migrations
   @override
-  Future<List<String>> listMigrationsAsync({
+  Future<List<MigrationHistory>> listMigrationsAsync({
     required Uri projectUri,
     required Uri configUri,
   }) async {
@@ -61,39 +68,77 @@ class AppDotnetEf6Service extends DotnetEf6Service {
     );
     processRunnerResult.logResult();
 
-    List<String> result = <String>[];
+    List<MigrationHistory> migrationHistories = <MigrationHistory>[];
     switch (processRunnerResult.type) {
       case ProcessRunnerResultType.successful:
-        List<String> _extractMigrations() {
-          final stdout =
-              (processRunnerResult as SuccessfulProcessRunnerResult).stdout;
-          if (stdout == null) return [];
-
-          return stdout
-              .split('\n')
-              .map(
-                (x) => _dotnetDataRegex
-                    .allMatches(x)
-                    .map(
-                      (e) => e.input
-                          .substring(e.start, e.end)
-                          .replaceAll(_dotnetEfDataPrefix, ''),
-                    )
-                    .join()
-                    .replaceAll(RegExp(r'\s'), ''),
-              )
-              .where((element) => isNotBlank(element))
-              .toList(growable: false);
-        }
-        result = _extractMigrations();
-
+        final stdout =
+            (processRunnerResult as SuccessfulProcessRunnerResult).stdout;
+        final appliedMigrations = _extractAppliedMigrations(stdout: stdout);
+        migrationHistories = _computeMigrationHistories(
+          projectUri: projectUri,
+          appliedMigrations: appliedMigrations,
+        );
         break;
       case ProcessRunnerResultType.failure:
         break;
     }
 
-    return result;
+    return migrationHistories;
   }
+
+  /// Compute the migration histories from added migrations written in
+  /// `Migrations` directory.
+  List<MigrationHistory> _computeMigrationHistories({
+    required Uri projectUri,
+    required List<String> appliedMigrations,
+  }) {
+    return Directory.fromUri(
+      _dotnetEfMigrationService.getMigrationsDirectory(
+        projectUri: projectUri,
+      ),
+    )
+        .listSync()
+        .where(
+          (x) =>
+              x.statSync().type == FileSystemEntityType.file &&
+              DotnetEfMigrationService.migrationDesignerFileRegex
+                  .hasMatch(x.path),
+        )
+        .map((e) {
+      final migrationId = e.fileName.replaceAll(
+        DotnetEfMigrationService.migrationDesignerFileRegex,
+        '',
+      );
+      return MigrationHistory.ef6(
+        id: migrationId,
+        applied: appliedMigrations.contains(migrationId),
+      );
+    }).toList(growable: false);
+  }
+
+  List<String> _extractAppliedMigrations({
+    String? stdout,
+  }) {
+    if (stdout == null) return [];
+
+    return stdout
+        .split('\n')
+        .map(
+          (x) => _dotnetDataRegex
+              .allMatches(x)
+              .map(
+                (e) => e.input
+                    .substring(e.start, e.end)
+                    .replaceAll(_dotnetEfDataPrefix, ''),
+              )
+              .join()
+              .replaceAll(RegExp(r'\s'), ''),
+        )
+        .where((element) => isNotBlank(element))
+        .toList(growable: false);
+  }
+
+  //endregion
 
   @override
   Future<String> updateDatabaseAsync({

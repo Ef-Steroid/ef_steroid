@@ -30,5 +30,7 @@
   "Language": "Language",
   "Close": "Close",
   "PleaseSelectAnEntityFrameworkType": "Please select an Entity Framework type",
-  "UnableToIdentifyProjectEfType": "Unable to identify project Entity Framework type. You may select one instead."
+  "UnableToIdentifyProjectEfType": "Unable to identify project Entity Framework type. You may select one instead.",
+  "ConfigFile": "Config file: ",
+  "SelectConfigFile": "Select config file"
 }

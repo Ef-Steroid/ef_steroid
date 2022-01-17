@@ -223,6 +223,20 @@
         "en": "Unable to identify project Entity Framework type. You may select one instead.",
         "zh_Hans": "无法识别项目的实体框架类型。您可以自行选择一个。"
       }
+    },
+    {
+      "name": "ConfigFile",
+      "values": {
+        "en": "Config file: ",
+        "zh_Hans": "配置文件："
+      }
+    },
+    {
+      "name": "SelectConfigFile",
+      "values": {
+        "en": "Select config file",
+        "zh_Hans": "选择配置文件"
+      }
     }
   ]
 }

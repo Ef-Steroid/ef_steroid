@@ -4,7 +4,6 @@ import 'package:fast_dotnet_ef/localization/localizations.dart';
 import 'package:fast_dotnet_ef/shared/project_ef_type.dart';
 import 'package:fast_dotnet_ef/views/ef_panel/ef_operation/ef_operation_view_model_base.dart';
 import 'package:fast_dotnet_ef/views/ef_panel/ef_operation/ef_operation_view_model_data.dart';
-import 'package:fast_dotnet_ef/views/ef_panel/widgets/project_ef_type_toolbar.dart';
 import 'package:fast_dotnet_ef/views/view_model_base.dart';
 import 'package:fast_dotnet_ef/views/widgets/form_fields/custom_text_form_field.dart';
 import 'package:fast_dotnet_ef/views/widgets/loading_widget.dart';
@@ -46,75 +45,33 @@ class _EfOperationViewState extends State<EfOperationView> {
 
     return MVVMBindingWidget<EfOperationViewModelBase>(
       viewModel: vm,
+      isReuse: true,
       builder: (context, vm, child) {
-        return Scaffold(
-          floatingActionButton: FloatingActionButton.extended(
-            onPressed: _addMigrationAsync,
-            label: Text(l('AddMigration')),
-            icon: const Icon(Icons.add),
-          ),
-          body: Column(
-            children: [
-              if (vm.showListMigrationBanner)
-                Container(
-                  padding: const EdgeInsets.all(8.0),
-                  decoration: const BoxDecoration(
-                    color: ColorConst.warningColor,
+        return Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  OutlinedButton.icon(
+                    icon: const Icon(Icons.autorenew_outlined),
+                    label: Text(l('RevertAllMigrations')),
+                    onPressed: vm.revertAllMigrationsAsync,
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        l('RefreshMigrationIndicator'),
-                        maxLines: 2,
-                      ),
-                      const SizedBox(width: 8),
-                      TextButton(
-                        onPressed: vm.hideListMigrationBanner,
-                        child: Text(
-                          l('Ignore'),
-                        ),
-                      ),
-                    ],
+                  const SizedBox(width: 8.0),
+                  OutlinedButton.icon(
+                    icon: const Icon(Icons.refresh),
+                    label: Text(l('Refresh')),
+                    onPressed: vm.listMigrationsAsync,
                   ),
-                ),
-              const SizedBox(height: 8.0),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                      child: ProjectEfTypeToolbar(
-                        onProjectEfTypeSaved: _onProjectEfTypeSaved,
-                        projectEfType: vm.efPanel.projectEfType,
-                      ),
-                    ),
-                    const Spacer(),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        OutlinedButton.icon(
-                          icon: const Icon(Icons.autorenew_outlined),
-                          label: Text(l('RevertAllMigrations')),
-                          onPressed: vm.revertAllMigrationsAsync,
-                        ),
-                        const SizedBox(width: 8.0),
-                        OutlinedButton.icon(
-                          icon: const Icon(Icons.refresh),
-                          label: Text(l('Refresh')),
-                          onPressed: vm.listMigrationsAsync,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                ],
               ),
-              Expanded(
-                child: _MigrationsTable(vm: vm),
-              ),
-            ],
-          ),
+            ),
+            Expanded(
+              child: _MigrationsTable(vm: vm),
+            ),
+          ],
         );
       },
     );

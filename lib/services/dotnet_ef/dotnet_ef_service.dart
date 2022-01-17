@@ -1,4 +1,4 @@
-import 'package:fast_dotnet_ef/services/dotnet_ef/ef_model/migration_history.dart';
+import 'package:fast_dotnet_ef/domain/migration_history.dart';
 
 abstract class DotnetEfService {
   /// Update the database.

@@ -3,13 +3,13 @@ import 'dart:io';
 
 import 'package:darq/darq.dart';
 import 'package:fast_dotnet_ef/domain/ef_panel.dart';
+import 'package:fast_dotnet_ef/domain/migration_history.dart';
 import 'package:fast_dotnet_ef/helpers/tabbed_view_controller_helper.dart';
-import 'package:fast_dotnet_ef/helpers/uri_helper.dart';
 import 'package:fast_dotnet_ef/models/form/form_model.dart';
 import 'package:fast_dotnet_ef/models/form/form_view_model_mixin.dart';
 import 'package:fast_dotnet_ef/models/form/text_editing_form_field_model.dart';
 import 'package:fast_dotnet_ef/repository/repository.dart';
-import 'package:fast_dotnet_ef/services/dotnet_ef/ef_model/migration_history.dart';
+import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef_migration/dotnet_ef_migration_service.dart';
 import 'package:fast_dotnet_ef/shared/project_ef_type.dart';
 import 'package:fast_dotnet_ef/views/ef_panel/ef_operation/ef_operation_view_model_data.dart';
 import 'package:fast_dotnet_ef/views/ef_panel/ef_project_operation/ef_project_operation_view.dart';
@@ -19,11 +19,12 @@ import 'package:fast_dotnet_ef/views/view_model_base.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:path/path.dart' as p;
 
 abstract class EfOperationViewModelBase extends ViewModelBase
     with FormViewModelMixin<_AddMigrationFormModel> {
   final Repository<EfPanel> _efPanelRepository = GetIt.I<Repository<EfPanel>>();
+  final DotnetEfMigrationService _dotnetEfMigrationService =
+      GetIt.I<DotnetEfMigrationService>();
 
   late EfPanel _efPanel;
 
@@ -114,15 +115,11 @@ abstract class EfOperationViewModelBase extends ViewModelBase
   }
 
   Directory _getMigrationsDirectory() {
-    final directoryUri = efPanel.directoryUri;
-
-    final migrationsDirectoryPath = p.joinAll([
-      directoryUri.toDecodedString(),
-      // TODO: Support user-defined migrations directory.
-      // Default Migrations directory.
-      'Migrations',
-    ]);
-    return Directory(migrationsDirectoryPath);
+    return Directory.fromUri(
+      _dotnetEfMigrationService.getMigrationsDirectory(
+        projectUri: efPanel.directoryUri,
+      ),
+    );
   }
 
   /// If the directory changes, there is a possible migration changes.

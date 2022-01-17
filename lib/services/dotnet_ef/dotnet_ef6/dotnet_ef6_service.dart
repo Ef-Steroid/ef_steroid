@@ -1,4 +1,4 @@
-import 'package:fast_dotnet_ef/services/dotnet_ef/ef_model/migration_history.dart';
+import 'package:fast_dotnet_ef/domain/migration_history.dart';
 
 abstract class DotnetEf6Service {
   /// List all the migrations.
@@ -11,7 +11,7 @@ abstract class DotnetEf6Service {
   /// - [configUri] -> The config file uri.
   ///
   /// {@endtemplate}
-  Future<List<String>> listMigrationsAsync({
+  Future<List<MigrationHistory>> listMigrationsAsync({
     required Uri projectUri,
     required Uri configUri,
   });

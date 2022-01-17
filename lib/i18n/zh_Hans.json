@@ -30,5 +30,7 @@
   "Language": "语言",
   "Close": "关闭",
   "PleaseSelectAnEntityFrameworkType": "请选择一个实体框架类型",
-  "UnableToIdentifyProjectEfType": "无法识别项目的实体框架类型。您可以自行选择一个。"
+  "UnableToIdentifyProjectEfType": "无法识别项目的实体框架类型。您可以自行选择一个。",
+  "ConfigFile": "配置文件：",
+  "SelectConfigFile": "选择配置文件"
 }

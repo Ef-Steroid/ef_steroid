@@ -1,11 +1,11 @@
 @TestOn('windows')
 import 'dart:io';
 
-import 'package:fast_dotnet_ef/services/dotnet_ef6/dotnet_ef6_service.dart';
-import 'package:fast_dotnet_ef/services/dotnet_ef6/resolvers/dotnet_ef6_command_resolver.dart';
+import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef6/dotnet_ef6_service.dart';
+import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef_migration/dotnet_ef_migration_service.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
-import 'package:path/path.dart' as path;
+import 'package:path/path.dart' as p;
 
 import '../test_bootstrap.dart';
 
@@ -16,8 +16,6 @@ Future<void> main() async {
   const migrationsDirectoryPath = '$netFrameworkWebProjectPath/Migrations';
   const netFrameworkWebProjectWebConfigPath =
       '$netFrameworkWebProjectPath/Web.config';
-  const netFrameworkWebProjectCsprojFilePath =
-      '$netFrameworkWebProjectPath/NetFrameworkWebProject.${DotnetEf6CommandResolver.csProjectFileExtension}';
   //endregion
 
   // This implementation takes advantage of the fact that Platform.script
@@ -27,14 +25,8 @@ Future<void> main() async {
   await TestBootstrap.runAsync();
 
   final rootProjectDirectoryPath = rootProjectDirectory.path;
-  final csprojUri = File(
-    path.joinAll([
-      rootProjectDirectoryPath,
-      netFrameworkWebProjectCsprojFilePath,
-    ]),
-  ).uri;
   final configUri = File(
-    path.joinAll([
+    p.joinAll([
       rootProjectDirectoryPath,
       netFrameworkWebProjectWebConfigPath,
     ]),
@@ -45,24 +37,32 @@ Future<void> main() async {
     () async {
       final dotnetEf6Service = GetIt.I<DotnetEf6Service>();
       final migrations = await dotnetEf6Service.listMigrationsAsync(
-        projectUri: csprojUri,
+        projectUri: Directory(
+          p.joinAll([
+            rootProjectDirectoryPath,
+            netFrameworkWebProjectPath,
+          ]),
+        ).uri,
         configUri: configUri,
       );
 
       final migrationsDirectory = Directory(migrationsDirectoryPath);
       expect(await migrationsDirectory.exists(), true);
 
-      final migrationDesignerFileRegex = RegExp(r'.\.designer.cs');
       final migrationsDesignerFileCount = migrationsDirectory
           .listSync()
           .where(
             (x) =>
                 x.statSync().type == FileSystemEntityType.file &&
-                migrationDesignerFileRegex.hasMatch(x.path),
+                DotnetEfMigrationService.migrationDesignerFileRegex
+                    .hasMatch(x.path),
           )
           .length;
 
-      expect(migrations.length, migrationsDesignerFileCount);
+      expect(
+        migrations.length,
+        migrationsDesignerFileCount,
+      );
     },
   );
 }

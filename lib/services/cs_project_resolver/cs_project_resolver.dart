@@ -2,18 +2,13 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:fast_dotnet_ef/exceptions/resolve_cs_project_exception.dart';
-import 'package:fast_dotnet_ef/services/dotnet_ef6/model/cs_project_asset.dart';
-import 'package:fast_dotnet_ef/services/file/file_service.dart';
+import 'package:fast_dotnet_ef/services/dotnet_ef/model/cs_project_asset.dart';
 import 'package:injectable/injectable.dart';
 import 'package:path/path.dart' as p;
 
 @injectable
 class CsProjectResolver {
-  final FileService _fileService;
-
-  CsProjectResolver(
-    this._fileService,
-  );
+  CsProjectResolver();
 
   /// Get the project.asset.json file of [projectUri].
   ///
@@ -23,11 +18,9 @@ class CsProjectResolver {
     required Uri projectUri,
   }) async {
     const buildObjectDirectoryName = 'obj';
-    final projectPath =
-        _fileService.stripMacDiscFromPath(path: projectUri.path);
     final buildObjectDirectory = Directory(
       p.join(
-        projectPath,
+        projectUri.toFilePath(),
         buildObjectDirectoryName,
       ),
     );
