@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:fast_dotnet_ef/exceptions/resolve_dotnet_ef6_command_name_exception.dart';
-
 import 'package:fast_dotnet_ef/services/cs_project_resolver/cs_project_resolver.dart';
 import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef6/data/cs_project_type.dart';
 import 'package:fast_dotnet_ef/services/dotnet_ef/model/cs_project_asset.dart';
@@ -35,8 +34,6 @@ class DotnetEf6CommandResolver {
   static const String _conditionToken = 'Condition';
   static const String _configurationToken = 'Configuration';
 
-  static const String csProjectFileExtension = '.csproj';
-
   final CsProjectResolver _csProjectResolver;
 
   DotnetEf6CommandResolver(
@@ -47,30 +44,13 @@ class DotnetEf6CommandResolver {
     required Uri projectUri,
     required Uri configUri,
   }) async {
-    final csprojFile = File(
-      p.joinAll([
-        projectUri.toFilePath(),
-        // csproj file is the same as the project name.
-        '${p.basenameWithoutExtension(projectUri.path)}$csProjectFileExtension',
-      ]),
-    );
-    if (!(await csprojFile.exists())) {
-      throw ResolveDotnetEf6CommandNameException.csprojFileNotFound(
-        csprojUri: projectUri,
-      );
-    }
-
     final readFilesResult = await Future.wait([
       _csProjectResolver.getCsProjectAsset(projectUri: projectUri),
-      csprojFile.readAsString(),
+      _csProjectResolver.getCsprojRootAsXml(projectUri: projectUri),
     ]);
 
     final csProjectAsset = readFilesResult[0] as CsProjectAsset;
-    final csprojFileContent = readFilesResult[1] as String;
-
-    final csprojRoot = XmlDocument.parse(
-      csprojFileContent,
-    );
+    final csprojRoot = readFilesResult[1] as XmlDocument;
 
     final properties = csprojRoot.children
         .firstWhere((node) => node.nodeType == XmlNodeType.ELEMENT)
@@ -90,7 +70,7 @@ class DotnetEf6CommandResolver {
     return _detectEf6PathByFramework(
       csprojRoot: csprojRoot,
       properties: properties,
-      projectDirectory: csprojFile.parent,
+      projectDirectory: Directory.fromUri(projectUri),
       csProjectAsset: csProjectAsset,
       targetFrameworkVersion: targetFrameworkVersion,
       platformTarget: platformTarget,
@@ -109,7 +89,7 @@ class DotnetEf6CommandResolver {
           (node) =>
               node is XmlElement &&
               _possibleTargetFrameworkVersionNodeNames
-                  .contains(node.name.toXmlString()),
+                  .contains(node.name.local),
         )
         .innerText;
 

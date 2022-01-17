@@ -1,13 +1,17 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:fast_dotnet_ef/exceptions/resolve_csproj_exception.dart';
 import 'package:fast_dotnet_ef/exceptions/resolve_cs_project_exception.dart';
 import 'package:fast_dotnet_ef/services/dotnet_ef/model/cs_project_asset.dart';
 import 'package:injectable/injectable.dart';
 import 'package:path/path.dart' as p;
+import 'package:xml/xml.dart';
 
 @injectable
 class CsProjectResolver {
+  static const String csProjectFileExtension = '.csproj';
+
   CsProjectResolver();
 
   /// Get the project.asset.json file of [projectUri].
@@ -58,4 +62,38 @@ class CsProjectResolver {
 
     return csProjectAsset;
   }
+
+  Future<XmlDocument> getCsprojRootAsXml({
+    required Uri projectUri,
+  }) async {
+    final csprojFile = getCsprojFile(projectUri: projectUri);
+    if (!(await csprojFile.exists())) {
+      throw ResolveCsprojException.csprojFileNotFound(
+        csprojUri: projectUri,
+      );
+    }
+
+    return XmlDocument.parse(
+      await csprojFile.readAsString(),
+    );
+  }
+
+  Future<void> saveCsprojRootAsXml({
+    required XmlDocument csprojXml,
+    required Uri projectUri,
+  }) {
+    final csprojFile = getCsprojFile(projectUri: projectUri);
+    return csprojFile.writeAsString(csprojXml.toXmlString());
+  }
+
+  File getCsprojFile({
+    required Uri projectUri,
+  }) =>
+      File(
+        p.joinAll([
+          projectUri.toFilePath(),
+          // csproj file is the same as the project name.
+          '${p.basenameWithoutExtension(projectUri.path)}$csProjectFileExtension',
+        ]),
+      );
 }

@@ -5,10 +5,6 @@ class ResolveDotnetEf6CommandNameException implements Exception {
     required this.message,
   });
 
-  ResolveDotnetEf6CommandNameException.csprojFileNotFound({
-    required Uri csprojUri,
-  }) : this(message: 'csproj file: ${csprojUri.path} does not exist');
-
   ResolveDotnetEf6CommandNameException.invalidTargetFrameworkVersion({
     required String targetFrameworkVersion,
   }) : this(
@@ -37,4 +33,9 @@ class ResolveDotnetEf6CommandNameException implements Exception {
   /// for FastDotnetEf that we can use to develop accordingly.
   ResolveDotnetEf6CommandNameException.unsupportedFramework()
       : this(message: 'EF6 for .Net Core is not supported.');
+
+  @override
+  String toString() {
+    return message;
+  }
 }
