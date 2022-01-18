@@ -12,10 +12,18 @@ import 'package:injectable/injectable.dart';
 @Injectable(as: ProcessRunnerService)
 class AppProcessRunnerService extends ProcessRunnerService {
   @override
-  Future<ProcessRunnerResult> runAsync(
-    String executable,
-    List<String> arguments,
-  ) async {
+  String getCompleteCommand({
+    required String executable,
+    required List<String> args,
+  }) {
+    return '$executable ${args.join(' ')}';
+  }
+
+  @override
+  Future<ProcessRunnerResult> runAsync({
+    required String executable,
+    required List<String> arguments,
+  }) async {
     final asyncExecutor = AsyncExecutor(
       taskTypeRegister: _runExecutableAsync(executable, arguments),
     );

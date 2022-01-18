@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:async_task/async_task_extension.dart';
 import 'package:fast_dotnet_ef/domain/migration_history.dart';
 import 'package:fast_dotnet_ef/helpers/file_helper.dart';
+import 'package:fast_dotnet_ef/services/artifact/artifact_service.dart';
 import 'package:fast_dotnet_ef/services/cs_project_resolver/cs_project_resolver.dart';
 import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef6/dotnet_ef6_service.dart';
 import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef6/models/add_migration_dto.dart';
@@ -13,9 +14,7 @@ import 'package:fast_dotnet_ef/services/log/log_service.dart';
 import 'package:fast_dotnet_ef/services/process_runner/model/process_runner_result.dart';
 import 'package:fast_dotnet_ef/services/process_runner/process_runner_service.dart';
 import 'package:injectable/injectable.dart';
-import 'package:path/path.dart' as p;
 import 'package:quiver/strings.dart';
-import 'package:xml/xml.dart';
 
 @Injectable(as: DotnetEf6Service)
 class AppDotnetEf6Service extends DotnetEf6Service {
@@ -35,12 +34,12 @@ class AppDotnetEf6Service extends DotnetEf6Service {
     multiLine: true,
   );
 
-  static const String _includeToken = 'Include';
   final LogService _logService;
   final DotnetEf6CommandResolver _dotnetEf6CommandResolver;
   final ProcessRunnerService _processRunnerService;
   final DotnetEfMigrationService _dotnetEfMigrationService;
   final CsProjectResolver _csProjectResolver;
+  final ArtifactService _artifactService;
 
   AppDotnetEf6Service(
     this._logService,
@@ -48,6 +47,7 @@ class AppDotnetEf6Service extends DotnetEf6Service {
     this._processRunnerService,
     this._dotnetEfMigrationService,
     this._csProjectResolver,
+    this._artifactService,
   );
 
   //region List migrations
@@ -70,15 +70,15 @@ class AppDotnetEf6Service extends DotnetEf6Service {
     );
 
     _logService.info(
-      'Start listing migration with command: ${_getFullCommand(
+      'Start listing migration with command: ${_getEf6CompleteCommand(
         ef6Command: ef6Command,
         args: args,
       )}',
     );
 
     final processRunnerResult = await _processRunnerService.runAsync(
-      ef6Command.commandName,
-      _combineDotnetEf6CommandArgs(
+      executable: ef6Command.commandName,
+      arguments: _combineDotnetEf6CommandArgs(
         ef6Command: ef6Command,
         args: args,
       ),
@@ -183,15 +183,15 @@ class AppDotnetEf6Service extends DotnetEf6Service {
     );
 
     _logService.info(
-      'Start updating database with command: ${_getFullCommand(
+      'Start updating database with command: ${_getEf6CompleteCommand(
         ef6Command: ef6Command,
         args: args,
       )}',
     );
 
     final processRunnerResult = await _processRunnerService.runAsync(
-      ef6Command.commandName,
-      _combineDotnetEf6CommandArgs(
+      executable: ef6Command.commandName,
+      arguments: _combineDotnetEf6CommandArgs(
         ef6Command: ef6Command,
         args: args,
       ),
@@ -237,15 +237,15 @@ class AppDotnetEf6Service extends DotnetEf6Service {
     );
 
     _logService.info(
-      'Start adding migration with command: ${_getFullCommand(
+      'Start adding migration with command: ${_getEf6CompleteCommand(
         ef6Command: ef6Command,
         args: args,
       )}',
     );
 
     final processRunnerResult = await _processRunnerService.runAsync(
-      ef6Command.commandName,
-      _combineDotnetEf6CommandArgs(
+      executable: ef6Command.commandName,
+      arguments: _combineDotnetEf6CommandArgs(
         ef6Command: ef6Command,
         args: args,
       ),
@@ -291,207 +291,45 @@ class AppDotnetEf6Service extends DotnetEf6Service {
     required AddMigrationDto addMigrationDto,
     required String migrationName,
   }) async {
-    final csprojRoot =
-        await _csProjectResolver.getCsprojRootAsXml(projectUri: projectUri);
+    final args = <String>[];
 
-    final csprojFileParentDirectoryPath =
-        _csProjectResolver.getCsprojFile(projectUri: projectUri).parent.path;
+    args.add('--csproj-path');
 
-    // Attempt to figure out the csproj XML indent style.
-    _writeToCompileSection(
-      csprojRoot: csprojRoot,
-      csprojFileParentDirectoryPath: csprojFileParentDirectoryPath,
-      addMigrationDto: addMigrationDto,
+    final csprojFilePath =
+        _csProjectResolver.getCsprojFile(projectUri: projectUri).path;
+    args.add(csprojFilePath);
+
+    args.add('--add-migration-dto');
+    args.add(base64Encode(utf8.encode(jsonEncode(addMigrationDto))));
+
+    final csprojToolExecutable = _artifactService.getCsprojToolExecutable();
+    _logService.info(
+      'Start adding migration with command: ${_processRunnerService.getCompleteCommand(
+        executable: csprojToolExecutable,
+        args: args,
+      )}',
     );
 
-    _writeToEmbeddedResourceSection(
-      csprojRoot: csprojRoot,
-      csprojFileParentDirectoryPath: csprojFileParentDirectoryPath,
-      addMigrationDto: addMigrationDto,
+    final processRunnerResult = await _processRunnerService.runAsync(
+      executable: csprojToolExecutable,
+      arguments: args,
     );
-    await _csProjectResolver.saveCsprojRootAsXml(
-      csprojXml: csprojRoot,
-      projectUri: projectUri,
-    );
-  }
-
-  XmlElement _getItemGroupXmlElement({
-    required XmlDocument csprojRoot,
-    required String propertyName,
-  }) {
-    return csprojRoot.children
-        .firstWhere((node) => node.nodeType == XmlNodeType.ELEMENT)
-        .findElements('ItemGroup')
-        .where(
-          (x) => x.childElements.any((y) => y.name.local == propertyName),
-        )
-        .first;
-  }
-
-  String _getPathRelativeToCsprojFile({
-    required String csprojFileParentDirectoryPath,
-    required String path,
-  }) {
-    return p.relative(
-      path,
-      from: csprojFileParentDirectoryPath,
-    );
-  }
-
-  void _writeToCompileSection({
-    required XmlDocument csprojRoot,
-    required String csprojFileParentDirectoryPath,
-    required AddMigrationDto addMigrationDto,
-  }) {
-    const compileToken = 'Compile';
-    final compileElement = _getItemGroupXmlElement(
-      csprojRoot: csprojRoot,
-      propertyName: compileToken,
-    );
-    final compiles = compileElement.children;
-    final delimiter =
-        compiles.firstWhere((node) => node.nodeType == XmlNodeType.TEXT);
-
-    // TODO: Figure a way to optimize this. Currently, this is way too hacky.
-    // XmlNodeList<XmlNode>.add method handles newline & tab internally.
-    final leadingDelimiter = XmlText(delimiter.text.replaceFirst('\n    ', ''));
-    final trailingDelimiter = XmlText(delimiter.text.replaceFirst('    ', ''));
-
-    List<XmlNode> wrapWithDelimiter({
-      required XmlElement xmlElement,
-    }) {
-      return [
-        leadingDelimiter.copy(),
-        xmlElement,
-        trailingDelimiter.copy(),
-      ];
-    }
-
-    void writeToItemGroup({
-      required XmlElement xmlElement,
-    }) {
-      compiles.addAll(
-        wrapWithDelimiter(
-          xmlElement: xmlElement,
-        ),
-      );
-    }
-
-    writeToItemGroup(
-      xmlElement: XmlElement(
-        XmlName(compileToken),
-        [
-          XmlAttribute(
-            XmlName(_includeToken),
-            _getPathRelativeToCsprojFile(
-              csprojFileParentDirectoryPath: csprojFileParentDirectoryPath,
-              path: addMigrationDto.migration,
-            ),
-          ),
-        ],
-      ),
-    );
-    writeToItemGroup(
-      xmlElement: XmlElement(
-        XmlName(compileToken),
-        [
-          XmlAttribute(
-            XmlName(_includeToken),
-            _getPathRelativeToCsprojFile(
-              csprojFileParentDirectoryPath: csprojFileParentDirectoryPath,
-              path: addMigrationDto.migrationDesigner,
-            ),
-          ),
-        ],
-        wrapWithDelimiter(
-          xmlElement: XmlElement(
-            XmlName('DependentUpon'),
-            [],
-            [
-              XmlText(p.basename(addMigrationDto.migration)),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  void _writeToEmbeddedResourceSection({
-    required XmlDocument csprojRoot,
-    required String csprojFileParentDirectoryPath,
-    required AddMigrationDto addMigrationDto,
-  }) {
-    const embeddedResourceToken = 'EmbeddedResource';
-    // TODO: Support adding new EmbeddedResource section.
-    // This is going to fail if we support scaffolding Migration.
-    final embeddedResourceElement = _getItemGroupXmlElement(
-      csprojRoot: csprojRoot,
-      propertyName: embeddedResourceToken,
-    );
-    final embeddedResources = embeddedResourceElement.children;
-    final delimiter = embeddedResources
-        .firstWhere((node) => node.nodeType == XmlNodeType.TEXT);
-
-    // TODO: Figure a way to optimize this. Currently, this is way too hacky.
-    // XmlNodeList<XmlNode>.add method handles newline & tab internally.
-    final leadingDelimiter = XmlText(delimiter.text.replaceFirst('\n    ', ''));
-    final trailingDelimiter = XmlText(delimiter.text.replaceFirst('    ', ''));
-
-    List<XmlNode> wrapWithDelimiter({
-      required XmlElement xmlElement,
-    }) {
-      return [
-        leadingDelimiter.copy(),
-        xmlElement,
-        trailingDelimiter.copy(),
-      ];
-    }
-
-    void writeToItemGroup({
-      required XmlElement xmlElement,
-    }) {
-      embeddedResources.addAll(
-        wrapWithDelimiter(
-          xmlElement: xmlElement,
-        ),
-      );
-    }
-
-    writeToItemGroup(
-      xmlElement: XmlElement(
-        XmlName(embeddedResourceToken),
-        [
-          XmlAttribute(
-            XmlName(_includeToken),
-            _getPathRelativeToCsprojFile(
-              csprojFileParentDirectoryPath: csprojFileParentDirectoryPath,
-              path: addMigrationDto.migrationResources,
-            ),
-          ),
-        ],
-        wrapWithDelimiter(
-          xmlElement: XmlElement(
-            XmlName('DependentUpon'),
-            [],
-            [
-              XmlText(p.basename(addMigrationDto.migration)),
-            ],
-          ),
-        ),
-      ),
-    );
+    processRunnerResult.logResult();
   }
 
   //endregion
 
-  String _getFullCommand({
+  String _getEf6CompleteCommand({
     required Ef6Command ef6Command,
     required List<String> args,
   }) {
-    return '${ef6Command.commandName} ${_combineDotnetEf6CommandArgs(
-      ef6Command: ef6Command,
-      args: args,
-    ).join(' ')}';
+    return _processRunnerService.getCompleteCommand(
+      executable: ef6Command.commandName,
+      args: _combineDotnetEf6CommandArgs(
+        ef6Command: ef6Command,
+        args: args,
+      ),
+    );
   }
 
   List<String> _combineDotnetEf6CommandArgs({
