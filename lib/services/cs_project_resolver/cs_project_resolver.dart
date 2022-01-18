@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:fast_dotnet_ef/exceptions/resolve_csproj_exception.dart';
 import 'package:fast_dotnet_ef/exceptions/resolve_cs_project_exception.dart';
+import 'package:fast_dotnet_ef/exceptions/resolve_csproj_exception.dart';
 import 'package:fast_dotnet_ef/services/dotnet_ef/model/cs_project_asset.dart';
 import 'package:injectable/injectable.dart';
 import 'package:path/path.dart' as p;
@@ -83,7 +83,9 @@ class CsProjectResolver {
     required Uri projectUri,
   }) {
     final csprojFile = getCsprojFile(projectUri: projectUri);
-    return csprojFile.writeAsString(csprojXml.toXmlString());
+    return csprojFile.writeAsString(
+      csprojXml.toXmlString(),
+    );
   }
 
   File getCsprojFile({
