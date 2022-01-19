@@ -7,6 +7,7 @@ import 'package:fast_dotnet_ef/domain/migration_history.dart';
 import 'package:fast_dotnet_ef/helpers/tabbed_view_controller_helper.dart';
 import 'package:fast_dotnet_ef/models/form/form_model.dart';
 import 'package:fast_dotnet_ef/models/form/form_view_model_mixin.dart';
+import 'package:fast_dotnet_ef/models/form/single_value_form_field_model.dart';
 import 'package:fast_dotnet_ef/models/form/text_editing_form_field_model.dart';
 import 'package:fast_dotnet_ef/repository/repository.dart';
 import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef_migration/dotnet_ef_migration_service.dart';
@@ -213,10 +214,21 @@ abstract class EfOperationViewModelBase extends ViewModelBase
 class _AddMigrationFormModel extends FormModel {
   final TextEditingFormFieldModel migrationFormField;
 
-  _AddMigrationFormModel() : migrationFormField = TextEditingFormFieldModel();
+  final SingleValueFormFieldModel<bool> forceFormField, ignoreChangesFormField;
+
+  _AddMigrationFormModel()
+      : migrationFormField = TextEditingFormFieldModel(),
+        forceFormField = SingleValueFormFieldModel.fromValue(
+          valueNotifier: ValueNotifier(false),
+        ),
+        ignoreChangesFormField = SingleValueFormFieldModel.fromValue(
+          valueNotifier: ValueNotifier(false),
+        );
 
   @override
   void dispose() {
     migrationFormField.dispose();
+    forceFormField.dispose();
+    ignoreChangesFormField.dispose();
   }
 }

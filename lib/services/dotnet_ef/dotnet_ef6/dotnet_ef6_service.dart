@@ -38,5 +38,7 @@ abstract class DotnetEf6Service {
     required Uri projectUri,
     required Uri configUri,
     required String migrationName,
+    required bool force,
+    required bool ignoreChanges,
   });
 }

@@ -217,17 +217,26 @@ class AppDotnetEf6Service extends DotnetEf6Service {
     required Uri projectUri,
     required Uri configUri,
     required String migrationName,
+    required bool force,
+    required bool ignoreChanges,
   }) async {
     final args = <String>[];
 
     // Add migrations command.
     args.add(_migrationsCommandName);
 
-    // Add list command.
     args.add('add');
 
     // Add migration id.
     args.add(migrationName);
+
+    if (force) {
+      args.add('--force');
+    }
+
+    if (ignoreChanges) {
+      args.add('--ignore-changes');
+    }
 
     args.add(_dotnetEfJsonKey);
 

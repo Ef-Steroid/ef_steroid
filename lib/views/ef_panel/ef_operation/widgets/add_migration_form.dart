@@ -1,5 +1,6 @@
 import 'package:fast_dotnet_ef/helpers/theme_helper.dart';
 import 'package:fast_dotnet_ef/localization/localizations.dart';
+import 'package:fast_dotnet_ef/shared/project_ef_type.dart';
 import 'package:fast_dotnet_ef/views/ef_panel/ef_operation/ef_operation_view_model_base.dart';
 import 'package:fast_dotnet_ef/views/widgets/form_fields/custom_text_form_field.dart';
 import 'package:fast_dotnet_ef/views/widgets/loading_widget.dart';
@@ -33,12 +34,20 @@ class _AddMigrationFormState extends State<AddMigrationForm> {
   final FocusNode _cancelButtonFocusNode = FocusNode(
     debugLabel: 'Cancel Button',
   );
+  final FocusNode _forceCheckboxFocusNode = FocusNode(
+    debugLabel: 'Force Checkbox',
+  );
+  final FocusNode _ignoreChangesCheckboxFocusNode = FocusNode(
+    debugLabel: 'Ignore Changes Checkbox',
+  );
 
   @override
   void dispose() {
     _migrationFieldFocusNode.dispose();
     _addMigrationButtonFocusNode.dispose();
     _cancelButtonFocusNode.dispose();
+    _forceCheckboxFocusNode.dispose();
+    _ignoreChangesCheckboxFocusNode.dispose();
     _focusScopeNode.dispose();
     super.dispose();
   }
@@ -90,6 +99,27 @@ class _AddMigrationFormState extends State<AddMigrationForm> {
                     },
                   ),
                 ),
+                if (vm.efPanel.projectEfType == ProjectEfType.ef6) ...[
+                  const SizedBox(height: 8),
+                  CheckboxListTile(
+                    value: form.forceFormField.valueNotifier.value,
+                    focusNode: _forceCheckboxFocusNode,
+                    title: const Text('Force'),
+                    onChanged: (value) {
+                      form.forceFormField.valueNotifier.value = value!;
+                      setState(() {});
+                    },
+                  ),
+                  CheckboxListTile(
+                    value: form.ignoreChangesFormField.valueNotifier.value,
+                    focusNode: _ignoreChangesCheckboxFocusNode,
+                    title: const Text('Ignore Changes'),
+                    onChanged: (value) {
+                      form.ignoreChangesFormField.valueNotifier.value = value!;
+                      setState(() {});
+                    },
+                  ),
+                ],
                 const SizedBox(height: 16),
                 ButtonBar(
                   children: <Widget>[

@@ -127,6 +127,8 @@ class Ef6OperationViewModel extends EfOperationViewModelBase {
         projectUri: efPanel.directoryUri,
         migrationName: form.migrationFormField.toText(),
         configUri: configFileUri,
+        force: form.forceFormField.valueNotifier.value,
+        ignoreChanges: form.ignoreChangesFormField.valueNotifier.value,
       );
 
       Navigator.pop(context);
