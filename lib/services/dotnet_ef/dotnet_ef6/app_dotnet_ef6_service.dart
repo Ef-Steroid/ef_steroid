@@ -7,13 +7,14 @@ import 'package:fast_dotnet_ef/helpers/file_helper.dart';
 import 'package:fast_dotnet_ef/services/artifact/artifact_service.dart';
 import 'package:fast_dotnet_ef/services/cs_project_resolver/cs_project_resolver.dart';
 import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef6/dotnet_ef6_service.dart';
-import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef6/models/add_migration_dto.dart';
+import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef6/models/ef6_migration_dto.dart';
 import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef6/resolvers/dotnet_ef6_command_resolver.dart';
 import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef_migration/dotnet_ef_migration_service.dart';
 import 'package:fast_dotnet_ef/services/log/log_service.dart';
 import 'package:fast_dotnet_ef/services/process_runner/model/process_runner_result.dart';
 import 'package:fast_dotnet_ef/services/process_runner/process_runner_service.dart';
 import 'package:injectable/injectable.dart';
+import 'package:path/path.dart' as p;
 import 'package:quiver/strings.dart';
 
 @Injectable(as: DotnetEf6Service)
@@ -103,11 +104,9 @@ class AppDotnetEf6Service extends DotnetEf6Service {
     return migrationHistories;
   }
 
-  /// Compute the migration histories from added migrations written in
-  /// `Migrations` directory.
-  List<MigrationHistory> _computeMigrationHistories({
+  @override
+  List<String> getLocalMigrations({
     required Uri projectUri,
-    required List<String> appliedMigrations,
   }) {
     return Directory.fromUri(
       _dotnetEfMigrationService.getMigrationsDirectory(
@@ -121,14 +120,27 @@ class AppDotnetEf6Service extends DotnetEf6Service {
               DotnetEfMigrationService.migrationDesignerFileRegex
                   .hasMatch(x.path),
         )
-        .map((e) {
-      final migrationId = e.fileName.replaceAll(
-        DotnetEfMigrationService.migrationDesignerFileRegex,
-        '',
-      );
+        .map(
+          (e) => e.fileName.replaceAll(
+            DotnetEfMigrationService.migrationDesignerFileRegex,
+            '',
+          ),
+        )
+        .toList(growable: false);
+  }
+
+  /// Compute the migration histories from added migrations written in
+  /// `Migrations` directory.
+  List<MigrationHistory> _computeMigrationHistories({
+    required Uri projectUri,
+    required List<String> appliedMigrations,
+  }) {
+    return getLocalMigrations(
+      projectUri: projectUri,
+    ).map((e) {
       return MigrationHistory.ef6(
-        id: migrationId,
-        applied: appliedMigrations.contains(migrationId),
+        id: e,
+        applied: appliedMigrations.contains(e),
       );
     }).toList(growable: false);
   }
@@ -270,11 +282,11 @@ class AppDotnetEf6Service extends DotnetEf6Service {
                     '';
 
             final migrationFilesJson = _extractJsonOutput(stdout);
-            final addMigrationDto =
-                AddMigrationDto.fromJson(jsonDecode(migrationFilesJson));
-            _addMigrationFilesToCsprojAsync(
+            final ef6MigrationDto =
+                Ef6MigrationDto.fromJson(jsonDecode(migrationFilesJson));
+            _addGeneratedMigrationFilesToCsprojAsync(
               projectUri: projectUri,
-              addMigrationDto: addMigrationDto,
+              ef6MigrationDto: ef6MigrationDto,
               migrationName: migrationName,
             );
           },
@@ -295,9 +307,9 @@ class AppDotnetEf6Service extends DotnetEf6Service {
   /// Add the generated migration files to <project-name>.csproj.
   ///
   /// We read the csproj file here to ensure it is up-to-date upon adding.
-  Future<void> _addMigrationFilesToCsprojAsync({
+  Future<void> _addGeneratedMigrationFilesToCsprojAsync({
     required Uri projectUri,
-    required AddMigrationDto addMigrationDto,
+    required Ef6MigrationDto ef6MigrationDto,
     required String migrationName,
   }) async {
     final args = <String>[];
@@ -309,11 +321,11 @@ class AppDotnetEf6Service extends DotnetEf6Service {
     args.add(csprojFilePath);
 
     args.add('--add-migration-dto');
-    args.add(base64Encode(utf8.encode(jsonEncode(addMigrationDto))));
+    args.add(base64Encode(utf8.encode(jsonEncode(ef6MigrationDto))));
 
     final csprojToolExecutable = _artifactService.getCsprojToolExecutable();
     _logService.info(
-      'Start adding migration with command: ${_processRunnerService.getCompleteCommand(
+      'Start adding migration to csproj file with command: ${_processRunnerService.getCompleteCommand(
         executable: csprojToolExecutable,
         args: args,
       )}',
@@ -327,6 +339,99 @@ class AppDotnetEf6Service extends DotnetEf6Service {
   }
 
   //endregion
+
+  @override
+  Future<void> removeMigrationAsync({
+    required Uri projectUri,
+    required MigrationHistory migrationHistory,
+  }) {
+    final deleteGeneratedMigrationFiles = Future.sync(() async {
+      final generatedMigrationFiles = Directory.fromUri(
+        _dotnetEfMigrationService.getMigrationsDirectory(
+          projectUri: projectUri,
+        ),
+      ).listSync().where(
+            (x) =>
+                x.statSync().type == FileSystemEntityType.file &&
+                DotnetEfMigrationService.ef6GeneratedMigrationFileExtensions
+                    .any((y) => '${migrationHistory.id}.$y' == x.fileName),
+          );
+
+      for (final generatedMigrationFile in generatedMigrationFiles) {
+        if (!(await generatedMigrationFile.exists())) continue;
+
+        await generatedMigrationFile.delete();
+      }
+    });
+
+    return Future.wait([
+      deleteGeneratedMigrationFiles,
+      _removeGeneratedMigrationFilesFromCsproj(
+        migrationHistory: migrationHistory,
+        projectUri: projectUri,
+      ),
+    ]);
+  }
+
+  Future<void> _removeGeneratedMigrationFilesFromCsproj({
+    required Uri projectUri,
+    required MigrationHistory migrationHistory,
+  }) async {
+    final migrationsDirectoryPath = _dotnetEfMigrationService
+        .getMigrationsDirectory(
+          projectUri: projectUri,
+        )
+        .path;
+
+    String joinGeneratedMigrationFilePath({
+      required String fileExtension,
+    }) {
+      return p.setExtension(
+        p.joinAll([
+          migrationsDirectoryPath,
+          migrationHistory.id,
+        ]),
+        '.$fileExtension',
+      );
+    }
+
+    final ef6MigrationDto = Ef6MigrationDto(
+      migration: joinGeneratedMigrationFilePath(
+        fileExtension: DotnetEfMigrationService.ef6MigrationFileExtension,
+      ),
+      migrationResources: joinGeneratedMigrationFilePath(
+        fileExtension: DotnetEfMigrationService.efResourcesFileExtension,
+      ),
+      migrationDesigner: joinGeneratedMigrationFilePath(
+        fileExtension: DotnetEfMigrationService.ef6DesignerFileExtension,
+      ),
+    );
+
+    final args = <String>[];
+
+    args.add('--csproj-path');
+
+    final csprojFilePath =
+        _csProjectResolver.getCsprojFile(projectUri: projectUri).path;
+    args.add(csprojFilePath);
+
+    args.add('--remove-migration-dto');
+    args.add(base64Encode(utf8.encode(jsonEncode(ef6MigrationDto))));
+
+    final csprojToolExecutable = _artifactService.getCsprojToolExecutable();
+    _logService.info(
+      'Start removing migration from csproj file with command: ${_processRunnerService.getCompleteCommand(
+        executable: csprojToolExecutable,
+        args: args,
+      )}',
+    );
+
+    final processRunnerResult = await _processRunnerService.runAsync(
+      executable: csprojToolExecutable,
+      arguments: args,
+    );
+    processRunnerResult.logResult();
+  }
 
   String _getEf6CompleteCommand({
     required Ef6Command ef6Command,

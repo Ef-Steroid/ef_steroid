@@ -78,9 +78,26 @@ class Ef6OperationViewModel extends EfOperationViewModelBase {
   @override
   Future<void> removeMigrationAsync({
     required bool force,
-  }) {
-    // TODO: implement removeMigrationAsync
-    throw UnimplementedError();
+    required MigrationHistory migrationHistory,
+  }) async {
+    final configFileUri = efPanel.configFileUri;
+    if (isBusy || configFileUri == null) return;
+    notifyListeners(isBusy: true);
+    try {
+      await _dotnetEf6Service.removeMigrationAsync(
+        projectUri: efPanel.directoryUri,
+        migrationHistory: migrationHistory,
+      );
+    } catch (ex, stackTrace) {
+      logService.severe(ex, stackTrace);
+      await dialogService.showErrorDialog(
+        context,
+        ex,
+        stackTrace,
+      );
+    } finally {
+      notifyListeners(isBusy: false);
+    }
   }
 
   @override

@@ -1,10 +1,10 @@
 import 'package:json_annotation/json_annotation.dart';
 
-part 'add_migration_dto.g.dart';
+part 'ef6_migration_dto.g.dart';
 
 /// Contains the path to the respective generated files.
 @JsonSerializable()
-class AddMigrationDto {
+class Ef6MigrationDto {
   /// The migration Id (a.k.a the migration name provided by the user).
   ///
   /// E.g. 202201150842177_InitialMigration.cs
@@ -20,14 +20,14 @@ class AddMigrationDto {
   /// E.g. 202201150842177_InitialMigration.Designer.cs
   final String migrationDesigner;
 
-  AddMigrationDto({
+  Ef6MigrationDto({
     required this.migration,
     required this.migrationResources,
     required this.migrationDesigner,
   });
 
-  factory AddMigrationDto.fromJson(Map<String, dynamic> json) =>
-      _$AddMigrationDtoFromJson(json);
+  factory Ef6MigrationDto.fromJson(Map<String, dynamic> json) =>
+      _$Ef6MigrationDtoFromJson(json);
 
-  Map<String, dynamic> toJson() => _$AddMigrationDtoToJson(this);
+  Map<String, dynamic> toJson() => _$Ef6MigrationDtoToJson(this);
 }

@@ -147,7 +147,10 @@ class _MigrationsTableState extends State<_MigrationsTable> {
                             migrationHistory.id)
                           IconButton(
                             onPressed: () {
-                              vm.removeMigrationAsync(force: false);
+                              vm.removeMigrationAsync(
+                                force: false,
+                                migrationHistory: migrationHistory,
+                              );
                             },
                             icon: const Icon(
                               Icons.remove,

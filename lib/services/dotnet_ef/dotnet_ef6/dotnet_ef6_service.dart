@@ -41,4 +41,19 @@ abstract class DotnetEf6Service {
     required bool force,
     required bool ignoreChanges,
   });
+
+  /// Get a list of migrations from 'Migrations' directory.
+  List<String> getLocalMigrations({
+    required Uri projectUri,
+  });
+
+  /// Remove the selected migration.
+  ///
+  /// **Arguments:**
+  /// - [projectUri] -> The project uri.
+  /// - [migrationHistory] -> The migration history to remove.
+  Future<void> removeMigrationAsync({
+    required Uri projectUri,
+    required MigrationHistory migrationHistory,
+  });
 }

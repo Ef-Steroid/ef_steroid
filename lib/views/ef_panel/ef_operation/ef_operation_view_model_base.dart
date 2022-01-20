@@ -133,15 +133,19 @@ abstract class EfOperationViewModelBase extends ViewModelBase
       throw StateError('You can only call _setupMigrationFilesWatchers once.');
     }
 
-    _migrationFileSubscription =
-        _getMigrationsDirectory().watch().listen((event) {
-      if (!isSelectedTab()) return;
+    _migrationFileSubscription = _getMigrationsDirectory()
+        .watch()
+        .listen(onNewMigrationsAddedToDirectory);
+  }
 
-      if (_showListMigrationBanner) return;
+  @protected
+  void onNewMigrationsAddedToDirectory(FileSystemEvent event) {
+    if (!isSelectedTab()) return;
 
-      _showListMigrationBanner = true;
-      notifyListeners();
-    });
+    if (_showListMigrationBanner) return;
+
+    _showListMigrationBanner = true;
+    notifyListeners();
   }
 
   void hideListMigrationBanner() {
@@ -151,8 +155,14 @@ abstract class EfOperationViewModelBase extends ViewModelBase
 
   Future<void> listMigrationsAsync();
 
+  /// Remove a migration.
+  ///
+  /// - For EFCore, this will remove the latest migration regardless the provided
+  /// [migrationHistory].
+  /// - For EF6, this will remove the [migrationHistory] and omits [force].
   Future<void> removeMigrationAsync({
     required bool force,
+    required MigrationHistory migrationHistory,
   });
 
   @nonVirtual

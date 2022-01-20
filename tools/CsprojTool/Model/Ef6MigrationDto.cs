@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace CsprojTool.Model;
 
-public struct AddMigrationDto
+public record struct Ef6MigrationDto
 {
     /// <summary>
     /// The migration Id (a.k.a the migration name provided by the user).
@@ -26,9 +26,8 @@ public struct AddMigrationDto
     public string MigrationDesigner { get; set; }
 }
 
-[JsonSerializable(typeof(AddMigrationDto))]
+[JsonSerializable(typeof(Ef6MigrationDto))]
 [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
-public partial class AddMigrationDtoJsonContext : JsonSerializerContext
+public partial class Ef6MigrationDtoJsonContext : JsonSerializerContext
 {
-
 }

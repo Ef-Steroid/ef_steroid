@@ -91,6 +91,7 @@ class EfCoreOperationViewModel extends EfOperationViewModelBase {
   @override
   Future<void> removeMigrationAsync({
     required bool force,
+    required MigrationHistory migrationHistory,
   }) async {
     try {
       if (isBusy) return;
@@ -112,7 +113,10 @@ class EfCoreOperationViewModel extends EfOperationViewModelBase {
       if (ex is RemoveMigrationDotnetEfException &&
           ex.isMigrationAppliedError) {
         notifyListeners(isBusy: false);
-        return _promptRerunRemoveMigrationWithForceAsync(ex.errorMessage);
+        return _promptRerunRemoveMigrationWithForceAsync(
+          errorMessage: ex.errorMessage,
+          migrationHistory: migrationHistory,
+        );
       }
       await dialogService.showErrorDialog(
         context,
@@ -123,9 +127,10 @@ class EfCoreOperationViewModel extends EfOperationViewModelBase {
     }
   }
 
-  Future<void> _promptRerunRemoveMigrationWithForceAsync(
+  Future<void> _promptRerunRemoveMigrationWithForceAsync({
     String? errorMessage,
-  ) async {
+    required MigrationHistory migrationHistory,
+  }) async {
     final l = AL.of(context).text;
     final response = await dialogService.promptConfirmationDialog(
       context,
@@ -136,7 +141,10 @@ class EfCoreOperationViewModel extends EfOperationViewModelBase {
     );
 
     if (response == true) {
-      return removeMigrationAsync(force: true);
+      return removeMigrationAsync(
+        force: true,
+        migrationHistory: migrationHistory,
+      );
     }
   }
 }

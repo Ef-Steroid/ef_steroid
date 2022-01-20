@@ -15,6 +15,7 @@ part 'migration_history.g.dart';
 /// ```
 @JsonSerializable()
 class MigrationHistory {
+  /// A combination of timestamp and migration name.
   final String id;
 
   final String name;
