@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:async_task/async_task_extension.dart';
 import 'package:fast_dotnet_ef/domain/migration_history.dart';
+import 'package:fast_dotnet_ef/exceptions/dotnet_ef_exception.dart';
 import 'package:fast_dotnet_ef/helpers/file_helper.dart';
 import 'package:fast_dotnet_ef/services/artifact/artifact_service.dart';
 import 'package:fast_dotnet_ef/services/cs_project_resolver/cs_project_resolver.dart';
@@ -10,6 +11,9 @@ import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef6/dotnet_ef6_service.
 import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef6/models/ef6_migration_dto.dart';
 import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef6/resolvers/dotnet_ef6_command_resolver.dart';
 import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef_migration/dotnet_ef_migration_service.dart';
+import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef_result_parser/data/dotnet_ef_result_type.dart';
+import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef_result_parser/dotnet_ef_result_parser_service.dart';
+import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef_result_parser/model/dotnet_ef_result_line.dart';
 import 'package:fast_dotnet_ef/services/log/log_service.dart';
 import 'package:fast_dotnet_ef/services/process_runner/model/process_runner_result.dart';
 import 'package:fast_dotnet_ef/services/process_runner/process_runner_service.dart';
@@ -41,6 +45,7 @@ class AppDotnetEf6Service extends DotnetEf6Service {
   final DotnetEfMigrationService _dotnetEfMigrationService;
   final CsProjectResolver _csProjectResolver;
   final ArtifactService _artifactService;
+  final DotnetEfResultParserService _dotnetEfResultParserService;
 
   AppDotnetEf6Service(
     this._logService,
@@ -49,6 +54,7 @@ class AppDotnetEf6Service extends DotnetEf6Service {
     this._dotnetEfMigrationService,
     this._csProjectResolver,
     this._artifactService,
+    this._dotnetEfResultParserService,
   );
 
   //region List migrations
@@ -281,7 +287,26 @@ class AppDotnetEf6Service extends DotnetEf6Service {
                 (processRunnerResult as SuccessfulProcessRunnerResult).stdout ??
                     '';
 
-            final migrationFilesJson = _extractJsonOutput(stdout);
+            final dotnetEfResultLines = _dotnetEfResultParserService
+                .parseDotnetEfResult(stdout: stdout);
+
+            bool testError(DotnetEfResultLine x) =>
+                x.dotnetEfResultType == DotnetEfResultType.error;
+
+            if (dotnetEfResultLines.any(testError)) {
+              throw AddMigrationDotnetEf6Exception(
+                errorMessage: dotnetEfResultLines
+                    .where(testError)
+                    .map((e) => e.line)
+                    .join('')
+                    .trim(),
+              );
+            }
+
+            final migrationFilesJson = _dotnetEfResultParserService
+                .extractJsonOutputFromDotnetEfResultLines(
+              dotnetEfResultLines: dotnetEfResultLines,
+            );
             final ef6MigrationDto =
                 Ef6MigrationDto.fromJson(jsonDecode(migrationFilesJson));
             _addGeneratedMigrationFilesToCsprojAsync(
@@ -313,6 +338,8 @@ class AppDotnetEf6Service extends DotnetEf6Service {
     required String migrationName,
   }) async {
     final args = <String>[];
+
+    args.add('add-ef6-generated-migration-files');
 
     args.add('--csproj-path');
 
@@ -409,6 +436,8 @@ class AppDotnetEf6Service extends DotnetEf6Service {
 
     final args = <String>[];
 
+    args.add('remove-ef6-generated-migration-files');
+
     args.add('--csproj-path');
 
     final csprojFilePath =
@@ -451,18 +480,4 @@ class AppDotnetEf6Service extends DotnetEf6Service {
     required List<String> args,
   }) =>
       args + ef6Command.mandatoryArguments;
-
-  String _extractJsonOutput(String? stdout) {
-    if (stdout == null) return '';
-
-    return _dotnetEfResultDataRegex
-        .allMatches(stdout)
-        .map(
-          (e) => e.input
-              .substring(e.start, e.end)
-              .replaceAll(_dotnetEfDataPrefix, ''),
-        )
-        .join()
-        .replaceAll(RegExp(r'\s'), '');
-  }
 }

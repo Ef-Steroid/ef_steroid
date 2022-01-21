@@ -4,9 +4,9 @@ abstract class DotnetEfMigrationService {
   static const String efResourcesFileExtension = 'resx';
 
   static const List<String> ef6GeneratedMigrationFileExtensions = [
-    '.$ef6MigrationFileExtension',
-    '.$ef6DesignerFileExtension',
-    '.$efResourcesFileExtension',
+    ef6MigrationFileExtension,
+    ef6DesignerFileExtension,
+    efResourcesFileExtension,
   ];
 
   static final RegExp migrationDesignerFileRegex = RegExp(

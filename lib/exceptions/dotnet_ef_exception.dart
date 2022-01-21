@@ -1,5 +1,6 @@
 enum DotnetEfExceptionType {
   removeMigration,
+  addMigration,
 }
 
 abstract class DotnetEfException implements Exception {
@@ -16,11 +17,12 @@ abstract class DotnetEfException implements Exception {
   String toString() {
     switch (dotnetEfExceptionType) {
       case DotnetEfExceptionType.removeMigration:
-        return _parseRemoveMigrationErrorMessage();
+      case DotnetEfExceptionType.addMigration:
+        return _parseGeneralErrorMessage();
     }
   }
 
-  String _parseRemoveMigrationErrorMessage() {
+  String _parseGeneralErrorMessage() {
     return errorMessage ?? '';
   }
 }
@@ -41,6 +43,15 @@ class RemoveMigrationDotnetEfException extends DotnetEfException {
     String? errorMessage,
   }) : super(
           dotnetEfExceptionType: DotnetEfExceptionType.removeMigration,
+          errorMessage: errorMessage,
+        );
+}
+
+class AddMigrationDotnetEf6Exception extends DotnetEfException {
+  AddMigrationDotnetEf6Exception({
+    String? errorMessage,
+  }) : super(
+          dotnetEfExceptionType: DotnetEfExceptionType.addMigration,
           errorMessage: errorMessage,
         );
 }

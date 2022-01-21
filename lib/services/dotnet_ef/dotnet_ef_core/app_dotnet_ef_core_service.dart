@@ -3,6 +3,9 @@ import 'dart:convert';
 import 'package:fast_dotnet_ef/domain/migration_history.dart';
 import 'package:fast_dotnet_ef/exceptions/dotnet_ef_exception.dart';
 import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef_core/dotnet_ef_core_service.dart';
+import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef_result_parser/data/dotnet_ef_result_type.dart';
+import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef_result_parser/dotnet_ef_result_parser_service.dart';
+import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef_result_parser/model/dotnet_ef_result_line.dart';
 import 'package:fast_dotnet_ef/services/file/file_service.dart';
 import 'package:fast_dotnet_ef/services/log/log_service.dart';
 import 'package:fast_dotnet_ef/services/process_runner/model/process_runner_result.dart';
@@ -15,6 +18,7 @@ class AppDotnetEfCoreService extends DotnetEfCoreService {
   final FileService _fileService;
   final ProcessRunnerService _processRunnerService;
   final LogService _logService;
+  final DotnetEfResultParserService _dotnetEfResultParserService;
 
   static const String _dotnetEfCommandName = 'dotnet-ef';
   static const String _migrationsCommandName = 'migrations';
@@ -25,21 +29,11 @@ class AppDotnetEfCoreService extends DotnetEfCoreService {
   static const String _dotnetEfJsonKey = '--json';
   static const String _dotnetEfPrefixOutputKey = '--prefix-output';
 
-  static const String _dotnetEfDataPrefix = 'data:';
-  static final RegExp _dotnetDataRegex = RegExp(
-    '^$_dotnetEfDataPrefix.*',
-    multiLine: true,
-  );
-  static const String _dotnetEfErrorPrefix = 'error:';
-  static final RegExp _dotnetErrorRegex = RegExp(
-    '^$_dotnetEfErrorPrefix.*',
-    multiLine: true,
-  );
-
   AppDotnetEfCoreService(
     this._fileService,
     this._processRunnerService,
     this._logService,
+    this._dotnetEfResultParserService,
   );
 
   @override
@@ -212,10 +206,22 @@ class AppDotnetEfCoreService extends DotnetEfCoreService {
     final stdout = successfulProcessRunnerResult.stdout;
     switch (processRunnerResult.type) {
       case ProcessRunnerResultType.successful:
-        if (stdout != null && _dotnetErrorRegex.hasMatch(stdout)) {
-          throw RemoveMigrationDotnetEfException(
-            errorMessage: _extractErrorFromStdout(stdout),
-          );
+        if (stdout != null) {
+          final dotnetEfResultLines =
+              _dotnetEfResultParserService.parseDotnetEfResult(stdout: stdout);
+
+          bool testError(DotnetEfResultLine x) =>
+              x.dotnetEfResultType == DotnetEfResultType.error;
+
+          if (dotnetEfResultLines.any(testError)) {
+            throw RemoveMigrationDotnetEfException(
+              errorMessage: dotnetEfResultLines
+                  .where(testError)
+                  .map((e) => e.line)
+                  .join('')
+                  .trim(),
+            );
+          }
         }
         break;
       case ProcessRunnerResultType.failure:
@@ -238,31 +244,12 @@ class AppDotnetEfCoreService extends DotnetEfCoreService {
   String _extractJsonOutput(String? stdout) {
     if (stdout == null) return '';
 
-    return _dotnetDataRegex
-        .allMatches(stdout)
-        .map(
-          (e) => e.input
-              .substring(e.start, e.end)
-              .replaceAll(_dotnetEfDataPrefix, ''),
-        )
-        .join()
-        .replaceAll(RegExp(r'\s'), '');
-  }
+    final dotnetEfResultLines =
+        _dotnetEfResultParserService.parseDotnetEfResult(stdout: stdout);
 
-  /// EFCore returns the error part of the [stdout]. We can filter it by looking
-  /// for 'error:' in the [stdout].
-  String _extractErrorFromStdout(String? stdout) {
-    if (stdout == null) return '';
-
-    return _dotnetErrorRegex
-        .allMatches(stdout)
-        .map(
-          (e) => e.input
-              .substring(e.start, e.end)
-              .replaceAll(_dotnetEfErrorPrefix, ''),
-        )
-        .join()
-        .trim();
+    return dotnetEfResultLines
+        .where((x) => x.dotnetEfResultType == DotnetEfResultType.data)
+        .join('');
   }
 
   String _getFullCommand(List<String> args) {
