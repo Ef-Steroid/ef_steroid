@@ -4,15 +4,15 @@ import 'package:bot_toast/bot_toast.dart';
 import 'package:fast_dotnet_ef/domain/migration_history.dart';
 import 'package:fast_dotnet_ef/exceptions/dotnet_ef_exception.dart';
 import 'package:fast_dotnet_ef/localization/localizations.dart';
-import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef_service.dart';
+import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef_core/dotnet_ef_core_service.dart';
 import 'package:fast_dotnet_ef/views/ef_panel/ef_operation/ef_operation_view_model_base.dart';
 import 'package:flutter/material.dart';
 
 class EfCoreOperationViewModel extends EfOperationViewModelBase {
-  final DotnetEfService _dotnetEfService;
+  final DotnetEfCoreService _dotnetEfCoreService;
 
   EfCoreOperationViewModel(
-    this._dotnetEfService,
+    this._dotnetEfCoreService,
   );
 
   @override
@@ -21,7 +21,7 @@ class EfCoreOperationViewModel extends EfOperationViewModelBase {
 
     notifyListeners(isBusy: true);
     try {
-      migrationHistories = await _dotnetEfService.listMigrationsAsync(
+      migrationHistories = await _dotnetEfCoreService.listMigrationsAsync(
         projectUri: efPanel.directoryUri,
       );
 
@@ -46,7 +46,7 @@ class EfCoreOperationViewModel extends EfOperationViewModelBase {
       if (isBusy) return;
 
       notifyListeners(isBusy: true);
-      await _dotnetEfService.updateDatabaseAsync(
+      await _dotnetEfCoreService.updateDatabaseAsync(
         projectUri: efPanel.directoryUri,
         migrationHistory: migrationHistory,
       );
@@ -73,7 +73,7 @@ class EfCoreOperationViewModel extends EfOperationViewModelBase {
     try {
       checkInput();
 
-      await _dotnetEfService.addMigrationAsync(
+      await _dotnetEfCoreService.addMigrationAsync(
         projectUri: efPanel.directoryUri,
         migrationName: form.migrationFormField.toText(),
       );
@@ -97,7 +97,7 @@ class EfCoreOperationViewModel extends EfOperationViewModelBase {
       if (isBusy) return;
       notifyListeners(isBusy: true);
 
-      await _dotnetEfService.removeMigrationAsync(
+      await _dotnetEfCoreService.removeMigrationAsync(
         projectUri: efPanel.directoryUri,
         force: force,
       );

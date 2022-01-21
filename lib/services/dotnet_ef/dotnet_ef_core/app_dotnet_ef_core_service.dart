@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:fast_dotnet_ef/domain/migration_history.dart';
 import 'package:fast_dotnet_ef/exceptions/dotnet_ef_exception.dart';
-import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef_service.dart';
+import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef_core/dotnet_ef_core_service.dart';
 import 'package:fast_dotnet_ef/services/file/file_service.dart';
 import 'package:fast_dotnet_ef/services/log/log_service.dart';
 import 'package:fast_dotnet_ef/services/process_runner/model/process_runner_result.dart';
@@ -10,8 +10,8 @@ import 'package:fast_dotnet_ef/services/process_runner/process_runner_service.da
 import 'package:injectable/injectable.dart';
 import 'package:quiver/strings.dart';
 
-@Injectable(as: DotnetEfService)
-class AppDotnetEfService extends DotnetEfService {
+@Injectable(as: DotnetEfCoreService)
+class AppDotnetEfCoreService extends DotnetEfCoreService {
   final FileService _fileService;
   final ProcessRunnerService _processRunnerService;
   final LogService _logService;
@@ -36,7 +36,7 @@ class AppDotnetEfService extends DotnetEfService {
     multiLine: true,
   );
 
-  AppDotnetEfService(
+  AppDotnetEfCoreService(
     this._fileService,
     this._processRunnerService,
     this._logService,
