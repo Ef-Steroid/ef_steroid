@@ -62,6 +62,8 @@ class Ef6OperationViewModel extends EfOperationViewModelBase {
         configUri: configFileUri,
       );
 
+      sortMigrationHistory();
+
       showListMigrationBanner = false;
       notifyListeners();
     } catch (ex, stackTrace) {

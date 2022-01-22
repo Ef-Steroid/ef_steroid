@@ -9,10 +9,10 @@ import 'package:fast_dotnet_ef/views/ef_panel/ef_operation/ef_operation_view_mod
 import 'package:flutter/material.dart';
 
 class EfCoreOperationViewModel extends EfOperationViewModelBase {
-  final DotnetEfCoreService _dotnetEfCoreService;
+  final DotnetEfCoreService _dotnetEfService;
 
   EfCoreOperationViewModel(
-    this._dotnetEfCoreService,
+    this._dotnetEfService,
   );
 
   @override
@@ -21,10 +21,11 @@ class EfCoreOperationViewModel extends EfOperationViewModelBase {
 
     notifyListeners(isBusy: true);
     try {
-      migrationHistories = await _dotnetEfCoreService.listMigrationsAsync(
+      migrationHistories = await _dotnetEfService.listMigrationsAsync(
         projectUri: efPanel.directoryUri,
       );
 
+      sortMigrationHistory();
       showListMigrationBanner = false;
       notifyListeners();
     } catch (ex, stackTrace) {
@@ -46,7 +47,7 @@ class EfCoreOperationViewModel extends EfOperationViewModelBase {
       if (isBusy) return;
 
       notifyListeners(isBusy: true);
-      await _dotnetEfCoreService.updateDatabaseAsync(
+      await _dotnetEfService.updateDatabaseAsync(
         projectUri: efPanel.directoryUri,
         migrationHistory: migrationHistory,
       );
@@ -73,7 +74,7 @@ class EfCoreOperationViewModel extends EfOperationViewModelBase {
     try {
       checkInput();
 
-      await _dotnetEfCoreService.addMigrationAsync(
+      await _dotnetEfService.addMigrationAsync(
         projectUri: efPanel.directoryUri,
         migrationName: form.migrationFormField.toText(),
       );
@@ -97,7 +98,7 @@ class EfCoreOperationViewModel extends EfOperationViewModelBase {
       if (isBusy) return;
       notifyListeners(isBusy: true);
 
-      await _dotnetEfCoreService.removeMigrationAsync(
+      await _dotnetEfService.removeMigrationAsync(
         projectUri: efPanel.directoryUri,
         force: force,
       );
