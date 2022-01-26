@@ -148,4 +148,14 @@ class EfCoreOperationViewModel extends EfOperationViewModelBase {
       );
     }
   }
+
+  @override
+  bool canShowRemoveMigrationButton({
+    required MigrationHistory migrationHistory,
+  }) {
+    return (sortMigrationAscending
+            ? migrationHistories.last.id
+            : migrationHistories.first.id) ==
+        migrationHistory.id;
+  }
 }

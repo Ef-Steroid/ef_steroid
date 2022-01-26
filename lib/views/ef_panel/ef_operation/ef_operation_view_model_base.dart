@@ -214,6 +214,10 @@ abstract class EfOperationViewModelBase extends ViewModelBase
     }
   }
 
+  bool canShowRemoveMigrationButton({
+    required MigrationHistory migrationHistory,
+  });
+
   @override
   void dispose() {
     _migrationFileSubscription?.cancel();

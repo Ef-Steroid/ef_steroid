@@ -141,10 +141,9 @@ class _MigrationsTableState extends State<_MigrationsTable> {
                           ),
                           tooltip: l('UpdateDatabaseToHere'),
                         ),
-                        if ((vm.sortMigrationAscending
-                                ? vm.migrationHistories.last.id
-                                : vm.migrationHistories.first.id) ==
-                            migrationHistory.id)
+                        if (vm.canShowRemoveMigrationButton(
+                          migrationHistory: migrationHistory,
+                        ))
                           IconButton(
                             onPressed: () {
                               vm.removeMigrationAsync(

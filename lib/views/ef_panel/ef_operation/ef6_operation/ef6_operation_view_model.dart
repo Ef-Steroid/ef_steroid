@@ -159,4 +159,11 @@ class Ef6OperationViewModel extends EfOperationViewModelBase {
       );
     }
   }
+
+  @override
+  bool canShowRemoveMigrationButton({
+    required MigrationHistory migrationHistory,
+  }) {
+    return true;
+  }
 }
