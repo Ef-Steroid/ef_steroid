@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:fast_dotnet_ef/services/artifact/artifact_service.dart';
+import 'package:ef_steroid/services/artifact/artifact_service.dart';
 import 'package:injectable/injectable.dart';
 import 'package:path/path.dart' as p;
 

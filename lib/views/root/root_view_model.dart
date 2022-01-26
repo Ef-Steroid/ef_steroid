@@ -1,5 +1,5 @@
-import 'package:fast_dotnet_ef/services/app/platform_channels/menu_bar/menu_bar_service.dart';
-import 'package:fast_dotnet_ef/views/view_model_base.dart';
+import 'package:ef_steroid/services/app/platform_channels/menu_bar/menu_bar_service.dart';
+import 'package:ef_steroid/views/view_model_base.dart';
 
 class RootViewModel extends ViewModelBase {
   final MenuBarService _menuBarService;

@@ -1,5 +1,5 @@
-import 'package:fast_dotnet_ef/models/form/text_editing_form_field_model.dart';
-import 'package:fast_dotnet_ef/views/widgets/shake_widget.dart';
+import 'package:ef_steroid/models/form/text_editing_form_field_model.dart';
+import 'package:ef_steroid/views/widgets/shake_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 

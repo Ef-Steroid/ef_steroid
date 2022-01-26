@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
-import 'package:fast_dotnet_ef/localization/localizations.dart';
-import 'package:fast_dotnet_ef/models/form/form_model.dart';
+import 'package:ef_steroid/localization/localizations.dart';
+import 'package:ef_steroid/models/form/form_model.dart';
 import 'package:meta/meta.dart';
 
 mixin FormStateMixin<T extends StatefulWidget, TFormModel extends FormModel>

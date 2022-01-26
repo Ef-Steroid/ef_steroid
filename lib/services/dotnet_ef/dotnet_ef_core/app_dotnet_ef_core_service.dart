@@ -1,15 +1,15 @@
 import 'dart:convert';
 
-import 'package:fast_dotnet_ef/domain/migration_history.dart';
-import 'package:fast_dotnet_ef/exceptions/dotnet_ef_exception.dart';
-import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef_core/dotnet_ef_core_service.dart';
-import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef_result_parser/data/dotnet_ef_result_type.dart';
-import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef_result_parser/dotnet_ef_result_parser_service.dart';
-import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef_result_parser/model/dotnet_ef_result_line.dart';
-import 'package:fast_dotnet_ef/services/file/file_service.dart';
-import 'package:fast_dotnet_ef/services/log/log_service.dart';
-import 'package:fast_dotnet_ef/services/process_runner/model/process_runner_result.dart';
-import 'package:fast_dotnet_ef/services/process_runner/process_runner_service.dart';
+import 'package:ef_steroid/domain/migration_history.dart';
+import 'package:ef_steroid/exceptions/dotnet_ef_exception.dart';
+import 'package:ef_steroid/services/dotnet_ef/dotnet_ef_core/dotnet_ef_core_service.dart';
+import 'package:ef_steroid/services/dotnet_ef/dotnet_ef_result_parser/data/dotnet_ef_result_type.dart';
+import 'package:ef_steroid/services/dotnet_ef/dotnet_ef_result_parser/dotnet_ef_result_parser_service.dart';
+import 'package:ef_steroid/services/dotnet_ef/dotnet_ef_result_parser/model/dotnet_ef_result_line.dart';
+import 'package:ef_steroid/services/file/file_service.dart';
+import 'package:ef_steroid/services/log/log_service.dart';
+import 'package:ef_steroid/services/process_runner/model/process_runner_result.dart';
+import 'package:ef_steroid/services/process_runner/process_runner_service.dart';
 import 'package:injectable/injectable.dart';
 import 'package:quiver/strings.dart';
 

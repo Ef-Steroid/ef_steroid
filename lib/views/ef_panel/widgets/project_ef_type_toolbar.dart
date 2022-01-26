@@ -1,7 +1,7 @@
 import 'package:darq/darq.dart';
-import 'package:fast_dotnet_ef/helpers/theme_helper.dart';
-import 'package:fast_dotnet_ef/localization/localizations.dart';
-import 'package:fast_dotnet_ef/shared/project_ef_type.dart';
+import 'package:ef_steroid/helpers/theme_helper.dart';
+import 'package:ef_steroid/localization/localizations.dart';
+import 'package:ef_steroid/shared/project_ef_type.dart';
 import 'package:flutter/material.dart';
 
 class ProjectEfTypeToolbar extends StatefulWidget {

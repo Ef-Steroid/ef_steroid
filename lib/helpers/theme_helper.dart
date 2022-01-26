@@ -1,4 +1,4 @@
-import 'package:fast_dotnet_ef/localization/localizations.dart';
+import 'package:ef_steroid/localization/localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:tabbed_view/tabbed_view.dart';
 

@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:fast_dotnet_ef/domain/ef_panel.dart';
+import 'package:ef_steroid/domain/ef_panel.dart';
 
 import 'package:path/path.dart' as path;
 import 'package:uuid/uuid.dart';

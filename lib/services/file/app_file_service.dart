@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:fast_dotnet_ef/services/file/file_service.dart';
+import 'package:ef_steroid/services/file/file_service.dart';
 import 'package:injectable/injectable.dart';
 
 @Injectable(as: FileService)

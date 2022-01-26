@@ -1,4 +1,4 @@
-# fast_dotnet_ef
+# ef_steroid
 
 A new Flutter project.
 

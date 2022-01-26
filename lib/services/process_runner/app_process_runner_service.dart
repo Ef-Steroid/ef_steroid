@@ -3,9 +3,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:async_task/async_task.dart';
-import 'package:fast_dotnet_ef/services/process_runner/model/process_runner_argument.dart';
-import 'package:fast_dotnet_ef/services/process_runner/model/process_runner_result.dart';
-import 'package:fast_dotnet_ef/services/process_runner/process_runner_service.dart';
+import 'package:ef_steroid/services/process_runner/model/process_runner_argument.dart';
+import 'package:ef_steroid/services/process_runner/model/process_runner_result.dart';
+import 'package:ef_steroid/services/process_runner/process_runner_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 

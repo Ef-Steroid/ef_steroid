@@ -1,12 +1,12 @@
 import 'dart:io';
 
-import 'package:fast_dotnet_ef/services/file/resource_group_key.dart';
-import 'package:fast_dotnet_ef/services/file/resource_key.dart';
-import 'package:fast_dotnet_ef/services/log/log_service.dart';
-import 'package:fast_dotnet_ef/services/sqlite/initialization_script.dart';
-import 'package:fast_dotnet_ef/services/sqlite/migration_scripts.dart';
-import 'package:fast_dotnet_ef/services/sqlite/sqlite_service.dart';
-import 'package:fast_dotnet_ef/services/sqlite/unit_of_work.dart';
+import 'package:ef_steroid/services/file/resource_group_key.dart';
+import 'package:ef_steroid/services/file/resource_key.dart';
+import 'package:ef_steroid/services/log/log_service.dart';
+import 'package:ef_steroid/services/sqlite/initialization_script.dart';
+import 'package:ef_steroid/services/sqlite/migration_scripts.dart';
+import 'package:ef_steroid/services/sqlite/sqlite_service.dart';
+import 'package:ef_steroid/services/sqlite/unit_of_work.dart';
 import 'package:injectable/injectable.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart' as path_provider;

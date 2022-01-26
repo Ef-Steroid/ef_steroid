@@ -1,4 +1,4 @@
-import 'package:fast_dotnet_ef/helpers/theme_helper.dart';
+import 'package:ef_steroid/helpers/theme_helper.dart';
 import 'package:flutter/material.dart';
 
 class LoadingWidget extends StatelessWidget {

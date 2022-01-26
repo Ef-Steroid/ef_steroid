@@ -1,14 +1,14 @@
-import 'package:fast_dotnet_ef/domain/ef_panel.dart';
-import 'package:fast_dotnet_ef/localization/localizations.dart';
-import 'package:fast_dotnet_ef/shared/project_ef_type.dart';
-import 'package:fast_dotnet_ef/views/ef_panel/ef_operation/ef_core_operation/ef_core_operation_view_model.dart';
-import 'package:fast_dotnet_ef/views/ef_panel/ef_operation/ef_operation_view.dart';
-import 'package:fast_dotnet_ef/views/ef_panel/ef_operation/ef_operation_view_model_data.dart';
-import 'package:fast_dotnet_ef/views/ef_panel/ef_operation/widgets/add_migration_form.dart';
-import 'package:fast_dotnet_ef/views/ef_panel/widgets/list_migration_banner.dart';
-import 'package:fast_dotnet_ef/views/ef_panel/widgets/project_ef_type_toolbar.dart';
-import 'package:fast_dotnet_ef/views/view_model_base.dart';
-import 'package:fast_dotnet_ef/views/widgets/mvvm_binding_widget.dart';
+import 'package:ef_steroid/domain/ef_panel.dart';
+import 'package:ef_steroid/localization/localizations.dart';
+import 'package:ef_steroid/shared/project_ef_type.dart';
+import 'package:ef_steroid/views/ef_panel/ef_operation/ef_core_operation/ef_core_operation_view_model.dart';
+import 'package:ef_steroid/views/ef_panel/ef_operation/ef_operation_view.dart';
+import 'package:ef_steroid/views/ef_panel/ef_operation/ef_operation_view_model_data.dart';
+import 'package:ef_steroid/views/ef_panel/ef_operation/widgets/add_migration_form.dart';
+import 'package:ef_steroid/views/ef_panel/widgets/list_migration_banner.dart';
+import 'package:ef_steroid/views/ef_panel/widgets/project_ef_type_toolbar.dart';
+import 'package:ef_steroid/views/view_model_base.dart';
+import 'package:ef_steroid/views/widgets/mvvm_binding_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 

@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:fast_dotnet_ef/services/log/log_service.dart';
+import 'package:ef_steroid/services/log/log_service.dart';
 import 'package:injectable/injectable.dart';
 import 'package:logging/logging.dart';
 

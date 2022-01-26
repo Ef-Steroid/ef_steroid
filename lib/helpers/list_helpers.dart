@@ -1,4 +1,4 @@
-import 'package:fast_dotnet_ef/models/iterable_test_output.dart';
+import 'package:ef_steroid/models/iterable_test_output.dart';
 
 typedef Test<T> = bool Function(T element);
 

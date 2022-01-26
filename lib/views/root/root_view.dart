@@ -1,6 +1,6 @@
-import 'package:fast_dotnet_ef/views/root/root_view_model.dart';
-import 'package:fast_dotnet_ef/views/view_model_base.dart';
-import 'package:fast_dotnet_ef/views/widgets/mvvm_binding_widget.dart';
+import 'package:ef_steroid/views/root/root_view_model.dart';
+import 'package:ef_steroid/views/view_model_base.dart';
+import 'package:ef_steroid/views/widgets/mvvm_binding_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 

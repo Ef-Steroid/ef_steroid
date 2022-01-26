@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:fast_dotnet_ef/app_settings.dart';
+import 'package:ef_steroid/app_settings.dart';
 import 'package:intl/intl.dart';
 
 class LanguageHelper {

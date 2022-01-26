@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.15)
-project(fast_dotnet_ef LANGUAGES CXX)
+project(ef_steroid LANGUAGES CXX)
 
-set(BINARY_NAME "fast_dotnet_ef")
+set(BINARY_NAME "ef_steroid")
 
 cmake_policy(SET CMP0063 NEW)
 

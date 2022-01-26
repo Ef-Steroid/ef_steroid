@@ -1,6 +1,6 @@
-import 'package:fast_dotnet_ef/domain/entity_dto.dart';
-import 'package:fast_dotnet_ef/shared/project_ef_type.dart';
-import 'package:fast_dotnet_ef/util/reflector.dart';
+import 'package:ef_steroid/domain/entity_dto.dart';
+import 'package:ef_steroid/shared/project_ef_type.dart';
+import 'package:ef_steroid/util/reflector.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'ef_panel.g.dart';

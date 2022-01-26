@@ -1,9 +1,9 @@
-import 'package:fast_dotnet_ef/data/default_values.dart';
-import 'package:fast_dotnet_ef/domain/entity_dto.dart';
-import 'package:fast_dotnet_ef/repository/repository.dart';
-import 'package:fast_dotnet_ef/services/log/log_service.dart';
-import 'package:fast_dotnet_ef/services/sqlite/sqlite_service.dart';
-import 'package:fast_dotnet_ef/util/reflector.dart';
+import 'package:ef_steroid/data/default_values.dart';
+import 'package:ef_steroid/domain/entity_dto.dart';
+import 'package:ef_steroid/repository/repository.dart';
+import 'package:ef_steroid/services/log/log_service.dart';
+import 'package:ef_steroid/services/sqlite/sqlite_service.dart';
+import 'package:ef_steroid/util/reflector.dart';
 import 'package:get_it/get_it.dart';
 import 'package:reflectable/reflectable.dart';
 

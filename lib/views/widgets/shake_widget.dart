@@ -1,4 +1,4 @@
-import 'package:fast_dotnet_ef/services/log/log_service.dart';
+import 'package:ef_steroid/services/log/log_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get_it/get_it.dart';
