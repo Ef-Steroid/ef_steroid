@@ -116,8 +116,9 @@ class AppDotnetEfCoreService extends DotnetEfCoreService {
     var migrations = <MigrationHistory>[];
     switch (processRunnerResult.type) {
       case ProcessRunnerResultType.successful:
-        final extractedJsonOutput = _extractJsonOutput(
-          (processRunnerResult as SuccessfulProcessRunnerResult).stdout,
+        final extractedJsonOutput =
+            _dotnetEfResultParserService.extractJsonOutput(
+          stdout: (processRunnerResult as SuccessfulProcessRunnerResult).stdout,
         );
         final decodedJson =
             isBlank(extractedJsonOutput) ? [] : jsonDecode(extractedJsonOutput);
@@ -239,17 +240,6 @@ class AppDotnetEfCoreService extends DotnetEfCoreService {
     projectPath = _fileService.stripMacDiscFromPath(path: projectPath);
 
     args.add(projectPath);
-  }
-
-  String _extractJsonOutput(String? stdout) {
-    if (stdout == null) return '';
-
-    final dotnetEfResultLines =
-        _dotnetEfResultParserService.parseDotnetEfResult(stdout: stdout);
-
-    return dotnetEfResultLines
-        .where((x) => x.dotnetEfResultType == DotnetEfResultType.data)
-        .join('');
   }
 
   String _getFullCommand(List<String> args) {

@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastDotnetEfSqlite", "FastDotnetEfSqlite.csproj", "{0EF9B32A-5226-412E-8AEA-31092948185A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EfSteroidSqlite", "EfSteroidSqlite.csproj", "{0EF9B32A-5226-412E-8AEA-31092948185A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

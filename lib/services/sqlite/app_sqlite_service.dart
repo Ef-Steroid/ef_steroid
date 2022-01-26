@@ -43,8 +43,8 @@ class AppSqliteService extends SqliteService {
       [
         (await path_provider.getApplicationSupportDirectory()).path,
         ResourceGroupKey.storage,
-        ResourceGroupKey.fastDotnetEfSqlite,
-        ResourceKey.fastDotnetEf,
+        ResourceGroupKey.efSteroidSqlite,
+        ResourceKey.efSteroid,
       ],
     );
 
