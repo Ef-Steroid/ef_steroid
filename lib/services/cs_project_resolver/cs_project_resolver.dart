@@ -95,7 +95,7 @@ class CsProjectResolver {
         p.joinAll([
           projectUri.toFilePath(),
           // csproj file is the same as the project name.
-          '${p.basenameWithoutExtension(projectUri.path)}$csProjectFileExtension',
+          '${p.basename(projectUri.path)}$csProjectFileExtension',
         ]),
       );
 }
