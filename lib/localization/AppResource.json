@@ -21,7 +21,8 @@
       "values": {
         "en": "Database",
         "zh_Hans": "数据库"
-      }
+      },
+      "isReferenced": false
     },
     {
       "name": "Migrations",
@@ -35,7 +36,8 @@
       "values": {
         "en": "Script",
         "zh_Hans": "脚本"
-      }
+      },
+      "isReferenced": false
     },
     {
       "name": "Migration",
@@ -61,7 +63,7 @@
     {
       "name": "RefreshMigrationIndicator",
       "values": {
-        "en": "Migration update detected. You might want refresh.",
+        "en": "Migration update detected. You might want to refresh.",
         "zh_Hans": "已侦测到迁移更新。您可能需要刷新。"
       }
     },
@@ -182,6 +184,62 @@
       "values": {
         "en": "No",
         "zh_Hans": "否"
+      }
+    },
+    {
+      "name": "AddEfProject",
+      "values": {
+        "en": "Add Entity Framework Project",
+        "zh_Hans": "添加实体框架项目"
+      }
+    },
+    {
+      "name": "SelectEfProject",
+      "values": {
+        "en": "Select Entity Framework Project",
+        "zh_Hans": "选择实体框架项目"
+      }
+    },
+    {
+      "name": "Theme",
+      "values": {
+        "en": "Theme",
+        "zh_Hans": "主题"
+      }
+    },
+    {
+      "name": "FollowSystem",
+      "values": {
+        "en": "Follow system",
+        "zh_Hans": "跟随系统"
+      }
+    },
+    {
+      "name": "DarkTheme",
+      "values": {
+        "en": "Dark theme",
+        "zh_Hans": "深色主题"
+      }
+    },
+    {
+      "name": "LightTheme",
+      "values": {
+        "en": "Light theme",
+        "zh_Hans": "亮色主题"
+      }
+    },
+    {
+      "name": "Language",
+      "values": {
+        "en": "Language",
+        "zh_Hans": "语言"
+      }
+    },
+    {
+      "name": "Close",
+      "values": {
+        "en": "Close",
+        "zh_Hans": "关闭"
       }
     }
   ]

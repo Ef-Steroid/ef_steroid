@@ -24,5 +24,13 @@
   "OK": "好的",
   "Cancel": "取消",
   "Yes": "是的",
-  "No": "否"
+  "No": "否",
+  "AddEfProject": "添加实体框架项目",
+  "SelectEfProject": "选择实体框架项目",
+  "Theme": "主题",
+  "FollowSystem": "跟随系统",
+  "DarkTheme": "深色主题",
+  "LightTheme": "亮色主题",
+  "Language": "语言",
+  "Close": "关闭"
 }

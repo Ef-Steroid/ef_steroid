@@ -22,7 +22,8 @@ class LoadingWidget extends StatelessWidget {
         if (isBusy)
           Positioned.fill(
             child: Container(
-              decoration: const BoxDecoration(color: Color.fromRGBO(0, 0, 0, .3)),
+              decoration:
+                  const BoxDecoration(color: Color.fromRGBO(0, 0, 0, .3)),
               child: const Center(
                 child: CircularProgressIndicator(
                   valueColor: ThemeHelper.circularProgressIndicatorColor,

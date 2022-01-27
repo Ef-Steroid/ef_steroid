@@ -90,6 +90,12 @@ class _ProcessRunner extends AsyncTask<String, Map<String, dynamic>> {
       final processResult = await Process.run(
         executable,
         arguments,
+        environment: Platform.isMacOS
+            ? {
+                'PATH':
+                    '${Platform.environment['HOME']}/.dotnet/tools:/usr/local/share/dotnet',
+              }
+            : null,
       );
       return SuccessfulProcessRunnerResult.fromProcessResult(
               processResult: processResult)

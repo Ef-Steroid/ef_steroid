@@ -11,7 +11,7 @@ public class FastDotnetEfDbContext : DbContext
 
     public FastDotnetEfDbContext()
     {
-        var folder = Environment.SpecialFolder.LocalApplicationData;
+        const Environment.SpecialFolder folder = Environment.SpecialFolder.LocalApplicationData;
         var path = Environment.GetFolderPath(folder);
         DbPath = Path.Join(path, "FastDotnetEfSqlite", "FastDotnetEf.db");
         Directory.CreateDirectory(Directory.GetParent(DbPath)!.ToString());

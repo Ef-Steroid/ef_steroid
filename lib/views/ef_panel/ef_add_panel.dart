@@ -1,3 +1,4 @@
+import 'package:fast_dotnet_ef/localization/localizations.dart';
 import 'package:flutter/material.dart';
 
 class EfAddPanelView extends StatelessWidget {
@@ -10,10 +11,11 @@ class EfAddPanelView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AL.of(context).text;
     return Center(
       child: OutlinedButton(
         onPressed: onAddProjectPressed,
-        child: const Text('Add EF Project'),
+        child: Text(l('AddEfProject')),
       ),
     );
   }

@@ -7,6 +7,8 @@ import 'package:fast_dotnet_ef/helpers/context_helper.dart';
 import 'package:fast_dotnet_ef/localization/localizations.dart';
 import 'package:fast_dotnet_ef/services/dialog/dialog_service.dart';
 import 'package:fast_dotnet_ef/services/log/log_service.dart';
+import 'package:fast_dotnet_ef/services/navigation/navigation_service.dart';
+import 'package:fast_dotnet_ef/views/preference/preference_view.dart';
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
 
@@ -19,9 +21,11 @@ typedef _OnErrorCallback = Future<void> Function(
 @Injectable(as: DialogService)
 class AppDialogService extends DialogService {
   final LogService _logService;
+  final NavigationService _navigationService;
 
   AppDialogService(
     this._logService,
+    this._navigationService,
   );
 
   @override
@@ -40,8 +44,7 @@ class AppDialogService extends DialogService {
       pageBuilder: (context, _, __) {
         return AlertDialog(
           shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(8))
-          ),
+              borderRadius: BorderRadius.all(Radius.circular(8))),
           title: Text(title ?? ''),
           content: Text(msg ?? ''),
           actions: [
@@ -141,6 +144,21 @@ class AppDialogService extends DialogService {
         cancelText: cancelText,
       ),
     );
+  }
+
+  @override
+  Future<T?> showPreferenceDialog<T>() {
+    final context = ContextHelper.fallbackContext;
+    if (context == null) return Future.value();
+
+    final navigatorState = _navigationService.navigatorKey.currentState;
+    if (navigatorState == null) return Future.value();
+    return navigatorState.push<T>(RawDialogRoute<T>(
+      pageBuilder: (context, _, __) => const PreferenceView(),
+      barrierDismissible: false,
+      transitionDuration: AnimationHelper.standardAnimationDuration,
+      transitionBuilder: AnimationHelper.dialogTransitionBuilder,
+    ));
   }
 }
 

@@ -1,4 +1,3 @@
-
 import 'package:fast_dotnet_ef/exceptions/app_exception.dart';
 import 'package:fast_dotnet_ef/localization/localizations.dart';
 import 'package:fast_dotnet_ef/models/form/form_model.dart';

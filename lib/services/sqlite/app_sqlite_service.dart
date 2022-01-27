@@ -7,7 +7,6 @@ import 'package:fast_dotnet_ef/services/sqlite/initialization_script.dart';
 import 'package:fast_dotnet_ef/services/sqlite/migration_scripts.dart';
 import 'package:fast_dotnet_ef/services/sqlite/sqlite_service.dart';
 import 'package:fast_dotnet_ef/services/sqlite/unit_of_work.dart';
-import 'package:flutter/foundation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart' as path_provider;
@@ -50,9 +49,8 @@ class AppSqliteService extends SqliteService {
 
     _dbPath = fastDotnetEfDbPath;
 
-    if (kDebugMode) {
-      print(fastDotnetEfDbPath);
-    }
+    _logService.info(fastDotnetEfDbPath);
+
     if (Platform.isWindows || Platform.isLinux) {
       databaseFactory = databaseFactoryFfi;
       sqfliteFfiInit();
@@ -61,6 +59,7 @@ class AppSqliteService extends SqliteService {
       fastDotnetEfDbPath,
       config,
     );
+    _logService.info('Done database migration');
 
     return database.close();
   }
@@ -95,10 +94,12 @@ class AppSqliteService extends SqliteService {
     required DefaultResultAction<T> orDefault,
   }) {
     return _useDatabaseLock.synchronized(() async {
+      _logService.info('Start opening database');
       final database = await openDatabase(dbPath);
 
       T result;
       try {
+        _logService.info('Start unit of work');
         result = await uow(database);
       } catch (ex, stackTrace) {
         _logService.severe(
@@ -109,7 +110,10 @@ class AppSqliteService extends SqliteService {
 
         result = orDefault();
       }
+
+      _logService.info('Start closing database');
       await database.close();
+      _logService.info('Done closing database');
       return result;
     });
   }

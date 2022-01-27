@@ -1,5 +1,6 @@
 import 'package:fast_dotnet_ef/domain/ef_panel.dart';
 import 'package:fast_dotnet_ef/helpers/list_helpers.dart';
+import 'package:fast_dotnet_ef/helpers/tabbed_view_controller_helper.dart';
 import 'package:fast_dotnet_ef/localization/localizations.dart';
 import 'package:fast_dotnet_ef/repository/repository.dart';
 import 'package:fast_dotnet_ef/services/log/log_service.dart';
@@ -23,12 +24,18 @@ class RootTabViewModel extends ViewModelBase with ReassembleHandler {
 
   @override
   Future<void> initViewModelAsync() async {
-    await _loadPreviousTabsAsync();
+    _logService.info('Init RootTabViewModel');
+    await _loadLastSessionTabsAsync();
     return super.initViewModelAsync();
   }
 
-  Future<void> _loadPreviousTabsAsync() async {
+  Future<void> _loadLastSessionTabsAsync() async {
+    _logService.info('Start loading last session tabs');
+
+    _logService.info('Start getting last session tabs from db');
     final results = await _efPanelRepository.getAllAsync();
+    _logService.info('Done getting last session tabs from db');
+
     final efPanelInTabs = tabbedViewController.tabs
         .where((x) => x.value is! AddEfPanelTabDataValue)
         .map((e) => e.value as EfPanelTabDataValue);
@@ -36,11 +43,14 @@ class RootTabViewModel extends ViewModelBase with ReassembleHandler {
         .where((x) => efPanelInTabs
             .every((y) => y.efPanel.directoryUrl != x.directoryUrl))
         .forEach(_addProjectTab);
+    _logService.info('Done loading last session tabs');
   }
 
   Future<void> addEfProjectAsync() async {
+    final l = AL.of(context).text;
     final filePath = await FilePicker.platform.getDirectoryPath(
-      dialogTitle: 'Select EF Project',
+      dialogTitle: l('SelectEfProject'),
+      lockParentWindow: true,
     );
 
     if (filePath == null) {
@@ -55,7 +65,7 @@ class RootTabViewModel extends ViewModelBase with ReassembleHandler {
       _logService.severe(message);
       await dialogService.showDefaultDialog(
         context,
-        title: AL.of(context).text('SomethingWentWrong'),
+        title: l('SomethingWentWrong'),
         msg: message,
       );
       return;
@@ -75,10 +85,20 @@ class RootTabViewModel extends ViewModelBase with ReassembleHandler {
     );
     final id = await _efPanelRepository.insertOrUpdateAsync(efPanel);
 
-    _addProjectTab(efPanel.copyWith(id: id));
+    final addedEfPanelTabDataValue = _addProjectTab(efPanel.copyWith(id: id));
+    _logService.info('Done adding ef project');
+
+    _logService.info('Start reset tab closable');
+    tabbedViewController.updateClosable(
+      selectedTabDataValue: addedEfPanelTabDataValue,
+    );
+    _logService.info('Done reset tab closable');
   }
 
-  void _addProjectTab(EfPanel efPanel) {
+  /// Add project tab.
+  ///
+  /// Return the added [EfPanelTabDataValue].
+  EfPanelTabDataValue _addProjectTab(EfPanel efPanel) {
     final efPanelTabDataValue = EfPanelTabDataValue(efPanel: efPanel);
     tabbedViewController.insertTab(
       tabbedViewController.tabs.length - 1,
@@ -86,9 +106,11 @@ class RootTabViewModel extends ViewModelBase with ReassembleHandler {
         value: efPanelTabDataValue,
         text: efPanelTabDataValue.displayText,
         keepAlive: efPanelTabDataValue.keepAlive,
-        closable: efPanelTabDataValue.closable,
+        closable: true,
       ),
     );
+    _logService.info('Done adding ef project tab');
+    return efPanelTabDataValue;
   }
 
   Future<void> removeFromStorageAsync({
@@ -99,6 +121,6 @@ class RootTabViewModel extends ViewModelBase with ReassembleHandler {
 
   @override
   void reassemble() {
-    _loadPreviousTabsAsync();
+    _loadLastSessionTabsAsync();
   }
 }

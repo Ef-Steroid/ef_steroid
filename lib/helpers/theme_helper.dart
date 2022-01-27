@@ -1,10 +1,6 @@
+import 'package:fast_dotnet_ef/localization/localizations.dart';
 import 'package:flutter/material.dart';
-
-enum ThemeKey {
-  dark,
-  light,
-  followSystem,
-}
+import 'package:tabbed_view/tabbed_view.dart';
 
 abstract class ColorConst {
   //#region: App Colors
@@ -32,6 +28,7 @@ class ThemeHelper {
       ThemeKey.dark: ThemeData.dark().copyWith(
         brightness: Brightness.dark,
         primaryColor: ColorConst.primaryColor,
+        inputDecorationTheme: _inputDecorationTheme,
         buttonTheme: _buttonTheme,
         outlinedButtonTheme: _outlinedButtonTheme,
         floatingActionButtonTheme: _floatingActionButtonTheme,
@@ -41,6 +38,7 @@ class ThemeHelper {
       ThemeKey.light: ThemeData.light().copyWith(
         brightness: Brightness.light,
         primaryColor: ColorConst.primaryColor,
+        inputDecorationTheme: _inputDecorationTheme,
         buttonTheme: _buttonTheme,
         outlinedButtonTheme: _outlinedButtonTheme,
         floatingActionButtonTheme: _floatingActionButtonTheme,
@@ -49,6 +47,23 @@ class ThemeHelper {
       ),
     };
   }
+
+  static const InputDecorationTheme _inputDecorationTheme =
+      InputDecorationTheme(
+    labelStyle: TextStyle(
+      color: ColorConst.primaryColor,
+    ),
+    border: OutlineInputBorder(
+      borderSide: BorderSide(
+        color: ColorConst.primaryColor,
+      ),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderSide: BorderSide(
+        color: ColorConst.primaryColor,
+      ),
+    ),
+  );
 
   static const TooltipThemeData _tooltipTheme = TooltipThemeData(
     waitDuration: Duration(milliseconds: 300),
@@ -81,6 +96,93 @@ class ThemeHelper {
       primary: ColorConst.primaryColor,
     ),
   );
+
   static const circularProgressIndicatorColor =
       AlwaysStoppedAnimation<Color>(ColorConst.primaryColor);
+
+  static bool isDarkMode(BuildContext context) {
+    return MediaQuery.of(context).platformBrightness == Brightness.dark;
+  }
+
+  static TabbedViewThemeData tabbedViewThemeData(BuildContext context) {
+    final tabbedViewThemeData = ThemeHelper.isDarkMode(context)
+        ? TabbedViewThemeData.dark(fontSize: 14)
+        : TabbedViewThemeData.classic(fontSize: 14);
+
+    const radius = Radius.circular(10.0);
+    const borderRadius = BorderRadius.only(topLeft: radius, topRight: radius);
+
+    tabbedViewThemeData.tab
+      ..decoration = const BoxDecoration(
+        shape: BoxShape.rectangle,
+        borderRadius: borderRadius,
+      )
+      ..padding = const EdgeInsets.all(8)
+      ..margin = EdgeInsets.zero
+      ..selectedStatus.decoration = BoxDecoration(
+        color: Colors.grey[800],
+        borderRadius: borderRadius,
+      )
+      ..highlightedStatus.decoration = const BoxDecoration(
+        borderRadius: borderRadius,
+      );
+
+    tabbedViewThemeData.contentArea.padding = EdgeInsets.zero;
+    tabbedViewThemeData.tabsArea.middleGap = 0;
+    return tabbedViewThemeData;
+  }
+
+  static String getStringFromThemeKey(ThemeKey? value) {
+    return (value ?? ThemeKey.followSystem).name;
+  }
+}
+
+enum ThemeKey {
+  dark,
+  light,
+  followSystem,
+}
+
+extension ThemeKeyExt on ThemeKey {
+  ThemeMode toThemeMode() {
+    switch (this) {
+      case ThemeKey.dark:
+        return ThemeMode.dark;
+      case ThemeKey.light:
+        return ThemeMode.light;
+      case ThemeKey.followSystem:
+        return ThemeMode.system;
+      default:
+        return ThemeMode.system;
+    }
+  }
+
+  /// This method takes [context] and retrieve the theme mode without
+  /// [ThemeMode.system].
+  ///
+  /// [ThemeMode.system] will be parsed to the correct theme set on user device.
+  ThemeMode toStrictThemeMode(BuildContext context) {
+    final themeMode = toThemeMode();
+
+    if (themeMode == ThemeMode.system) {
+      switch (MediaQuery.of(context).platformBrightness) {
+        case Brightness.dark:
+          return ThemeMode.dark;
+        case Brightness.light:
+          return ThemeMode.light;
+      }
+    }
+    return themeMode;
+  }
+
+  String toLocalizedString(BuildContext context) {
+    switch (this) {
+      case ThemeKey.dark:
+        return AL.of(context).text('DarkTheme');
+      case ThemeKey.light:
+        return AL.of(context).text('LightTheme');
+      case ThemeKey.followSystem:
+        return AL.of(context).text('FollowSystem');
+    }
+  }
 }
