@@ -12,10 +12,18 @@ import 'package:injectable/injectable.dart';
 @Injectable(as: ProcessRunnerService)
 class AppProcessRunnerService extends ProcessRunnerService {
   @override
-  Future<ProcessRunnerResult> runAsync(
-    String executable,
-    List<String> arguments,
-  ) async {
+  String getCompleteCommand({
+    required String executable,
+    required List<String> args,
+  }) {
+    return '$executable ${args.join(' ')}';
+  }
+
+  @override
+  Future<ProcessRunnerResult> runAsync({
+    required String executable,
+    required List<String> arguments,
+  }) async {
     final asyncExecutor = AsyncExecutor(
       taskTypeRegister: _runExecutableAsync(executable, arguments),
     );
@@ -25,10 +33,12 @@ class AppProcessRunnerService extends ProcessRunnerService {
       asyncExecutor.logger.enabledExecution = true;
     }
 
-    final result = await asyncExecutor.execute(_ProcessRunner(
-      executable: executable,
-      arguments: arguments,
-    ));
+    final result = await asyncExecutor.execute(
+      _ProcessRunner(
+        executable: executable,
+        arguments: arguments,
+      ),
+    );
     await asyncExecutor.close();
 
     final processRunnerResultType = ProcessRunnerResult.fromJson(result).type;
@@ -78,10 +88,12 @@ class _ProcessRunner extends AsyncTask<String, Map<String, dynamic>> {
 
   @override
   String parameters() {
-    return jsonEncode(ProcessRunnerArgument(
-      arguments: arguments,
-      executable: executable,
-    ));
+    return jsonEncode(
+      ProcessRunnerArgument(
+        arguments: arguments,
+        executable: executable,
+      ),
+    );
   }
 
   @override
@@ -98,8 +110,8 @@ class _ProcessRunner extends AsyncTask<String, Map<String, dynamic>> {
             : null,
       );
       return SuccessfulProcessRunnerResult.fromProcessResult(
-              processResult: processResult)
-          .toJson();
+        processResult: processResult,
+      ).toJson();
     } on ProcessException catch (ex, stackTrace) {
       if (kDebugMode) {
         print(ex);

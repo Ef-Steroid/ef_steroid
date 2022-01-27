@@ -3,6 +3,7 @@ import 'package:fast_dotnet_ef/helpers/intl/language_helper.dart';
 import 'package:fast_dotnet_ef/helpers/theme_helper.dart';
 import 'package:fast_dotnet_ef/localization/localizations.dart';
 import 'package:fast_dotnet_ef/views/preference/preference_view_model.dart';
+import 'package:fast_dotnet_ef/views/view_model_base.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -19,7 +20,9 @@ class _PreferenceViewState extends State<PreferenceView> {
   @override
   void initState() {
     super.initState();
-    vm.initViewModelAsync();
+    vm.initViewModelAsync(
+      initParam: const InitParam(),
+    );
   }
 
   @override
@@ -79,15 +82,17 @@ class _ThemeSetting extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: ThemeKey.values
-                .map((e) => Expanded(
-                      child: RadioListTile<ThemeKey>(
-                        title: Text(e.toLocalizedString(context)),
-                        value: e,
-                        groupValue: AppSettings.prefTheme,
-                        contentPadding: const EdgeInsets.only(right: 16.0),
-                        onChanged: _onRadioChanged,
-                      ),
-                    ))
+                .map(
+                  (e) => Expanded(
+                    child: RadioListTile<ThemeKey>(
+                      title: Text(e.toLocalizedString(context)),
+                      value: e,
+                      groupValue: AppSettings.prefTheme,
+                      contentPadding: const EdgeInsets.only(right: 16.0),
+                      onChanged: _onRadioChanged,
+                    ),
+                  ),
+                )
                 .toList(growable: false),
           ),
         ],
@@ -118,10 +123,12 @@ class _LanguageSetting extends StatelessWidget {
         value: AppSettings.prefLocale,
         underline: const SizedBox.shrink(),
         items: localeMapEntries
-            .map((e) => DropdownMenuItem(
-                  value: e.key,
-                  child: Text(e.value.name),
-                ))
+            .map(
+              (e) => DropdownMenuItem(
+                value: e.key,
+                child: Text(e.value.name),
+              ),
+            )
             .toList(growable: false),
         onChanged: _onDropdownChanged,
       ),

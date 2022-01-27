@@ -51,3 +51,4 @@ app.*.map.json
 /lib/main.reflectable.dart
 /test/widget_test.reflectable.dart
 /tools/playground/
+*.reflectable.dart

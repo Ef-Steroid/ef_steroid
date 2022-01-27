@@ -1,4 +1,5 @@
 import 'package:fast_dotnet_ef/domain/entity_dto.dart';
+import 'package:fast_dotnet_ef/shared/project_ef_type.dart';
 import 'package:fast_dotnet_ef/util/reflector.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -10,11 +11,24 @@ part 'ef_panel.g.dart';
 @reflector
 class EfPanel extends EntityDto {
   /// The directory url of the EF Panel.
-  final Uri directoryUrl;
+  // @UriConverter()
+  final Uri directoryUri;
+
+  /// The config file path selected for the EF Panel previously.
+  ///
+  /// We use this to store the user's configuration.
+  // @UriNullableConverter()
+  final Uri? configFileUri;
+
+  /// The entity framework project type of this [EfPanel].
+  @JsonKey(unknownEnumValue: ProjectEfType.defaultValue)
+  final ProjectEfType? projectEfType;
 
   EfPanel({
     int? id,
-    required this.directoryUrl,
+    required this.directoryUri,
+    this.configFileUri,
+    this.projectEfType = ProjectEfType.defaultValue,
   }) : super(id: id);
 
   factory EfPanel.fromJson(Map<String, dynamic> json) =>
@@ -25,11 +39,15 @@ class EfPanel extends EntityDto {
 
   EfPanel copyWith({
     int? id,
-    Uri? directoryUrl,
+    Uri? directoryUri,
+    Uri? configFileUri,
+    ProjectEfType? projectEfType,
   }) {
     return EfPanel(
       id: id ?? this.id,
-      directoryUrl: directoryUrl ?? this.directoryUrl,
+      directoryUri: directoryUri ?? this.directoryUri,
+      configFileUri: configFileUri ?? this.configFileUri,
+      projectEfType: projectEfType ?? this.projectEfType,
     );
   }
 }

@@ -1,0 +1,54 @@
+#!/bin/sh
+
+echo $1
+
+readonly COMMIT_MSG_FILE=$1
+readonly COMMIT_SOURCE=$2
+readonly SHA1=$3
+
+# If the commit is from merging, exit.
+
+if [ $COMMIT_SOURCE == "merge" ]
+then
+  exit
+fi
+
+readonly BRANCH_NAME=$(git branch --show-current)
+readonly GITHUB_ISSUE_ID_REGEX="^#([0-9]+)"
+
+# Match regex
+
+[[ $BRANCH_NAME =~ $GITHUB_ISSUE_ID_REGEX ]]
+
+# Retrieve the regex matched from previous command.
+
+readonly GITHUB_ISSUE_ID=$BASH_REMATCH
+
+echo "Hello"
+# If current branch name has no Github ID, exit.
+
+if [ -z "$GITHUB_ISSUE_ID" ]
+then
+  exit
+fi
+
+echo "Hello"
+# Retrieve the commit message from stdin.
+
+readonly ORIGINAL_COMMIT=$(cat "$COMMIT_MSG_FILE")
+
+# If current commit already have task number prepended, exit (this will happen when current action is git commit --amend).
+
+readonly PREVIOUS_GITHUB_ISSUE_ID_REGEX="^\(#([0-9]+)\)"
+
+[[ $ORIGINAL_COMMIT =~ ^$PREVIOUS_GITHUB_ISSUE_ID_REGEX ]]
+
+if [ ! -z $BASH_REMATCH ]
+then
+  exit
+fi
+
+readonly COMMIT="(${GITHUB_ISSUE_ID}) ${ORIGINAL_COMMIT}"
+
+echo "$COMMIT" > "$1"
+echo $1

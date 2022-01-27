@@ -10,7 +10,11 @@
 include: package:flutter_lints/flutter.yaml
 
 analyzer:
-  exclude: [build/**]
+  exclude:
+    - build/**
+    - '**.reflectable.dart'
+    - '**.g.dart'
+    - '**/service_locator.config.dart'
   errors:
     invalid_use_of_protected_member: error
     invalid_override_of_non_virtual_member: error
@@ -35,3 +39,4 @@ linter:
     unnecessary_const: true
     annotate_overrides: true
     prefer_single_quotes: true
+    require_trailing_commas: true

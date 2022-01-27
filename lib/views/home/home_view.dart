@@ -10,6 +10,7 @@ import 'package:fast_dotnet_ef/views/ef_panel/tab_data_value.dart';
 import 'package:fast_dotnet_ef/views/home/home_view_model.dart';
 import 'package:fast_dotnet_ef/views/root/root_view.dart';
 import 'package:fast_dotnet_ef/views/root_tab_view.dart';
+import 'package:fast_dotnet_ef/views/view_model_base.dart';
 import 'package:fast_dotnet_ef/views/widgets/mvvm_binding_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -29,53 +30,55 @@ class _HomeViewState extends State<HomeView> {
   @override
   void initState() {
     super.initState();
-    vm.initViewModelAsync();
+    vm.initViewModelAsync(
+      initParam: const InitParam(),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return MVVMBindingWidget<HomeViewModel>(
-        viewModel: vm,
-        builder: (context, vm, child) {
-          return HomeViewModelProvider(
-            homeViewModel: vm,
-            child: StreamBuilder<Preference>(
-              stream: vm.preferenceStream,
-              initialData: vm.currentPreference,
-              builder: (context, snapshot) {
-                final snapshotData = snapshot.data!;
-                return MaterialApp(
-                  title: 'Fast Dotnet Ef',
-                  locale:
-                      LanguageHelper.languages[snapshotData.locale]?.locale ??
-                          LanguageHelper.getSystemLocale(),
-                  localizationsDelegates: [
-                    AL.delegate,
-                    GlobalMaterialLocalizations.delegate,
-                    GlobalWidgetsLocalizations.delegate,
-                    GlobalCupertinoLocalizations.delegate,
-                  ],
-                  supportedLocales: LanguageHelper.getSupportedLocales(),
-                  home: const HomePage(),
-                  navigatorKey: GetIt.I<NavigationService>().navigatorKey,
-                  navigatorObservers: <NavigatorObserver>[
-                    BotToastNavigatorObserver(),
-                  ],
-                  builder: (context, child) {
-                    ContextHelper.fallbackContext = context;
-                    return BotToastInit()(
-                      context,
-                      child ?? const SizedBox.shrink(),
-                    );
-                  },
-                  theme: ThemeHelper.instance.themes[ThemeKey.light],
-                  darkTheme: ThemeHelper.instance.themes[ThemeKey.dark],
-                  themeMode: snapshotData.theme.toThemeMode(),
-                );
-              },
-            ),
-          );
-        });
+      viewModel: vm,
+      builder: (context, vm, child) {
+        return HomeViewModelProvider(
+          homeViewModel: vm,
+          child: StreamBuilder<Preference>(
+            stream: vm.preferenceStream,
+            initialData: vm.currentPreference,
+            builder: (context, snapshot) {
+              final snapshotData = snapshot.data!;
+              return MaterialApp(
+                title: 'Fast Dotnet Ef',
+                locale: LanguageHelper.languages[snapshotData.locale]?.locale ??
+                    LanguageHelper.getSystemLocale(),
+                localizationsDelegates: [
+                  AL.delegate,
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate,
+                  GlobalCupertinoLocalizations.delegate,
+                ],
+                supportedLocales: LanguageHelper.getSupportedLocales(),
+                home: const HomePage(),
+                navigatorKey: GetIt.I<NavigationService>().navigatorKey,
+                navigatorObservers: <NavigatorObserver>[
+                  BotToastNavigatorObserver(),
+                ],
+                builder: (context, child) {
+                  ContextHelper.fallbackContext = context;
+                  return BotToastInit()(
+                    context,
+                    child ?? const SizedBox.shrink(),
+                  );
+                },
+                theme: ThemeHelper.instance.themes[ThemeKey.light],
+                darkTheme: ThemeHelper.instance.themes[ThemeKey.dark],
+                themeMode: snapshotData.theme.toThemeMode(),
+              );
+            },
+          ),
+        );
+      },
+    );
   }
 }
 

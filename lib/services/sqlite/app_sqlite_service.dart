@@ -23,7 +23,8 @@ class AppSqliteService extends SqliteService {
 
   @override
   String get dbPath => _dbPath ??= throw StateError(
-      'Unable to locate the database. Did you call SqliteService.setupAsync?');
+        'Unable to locate the database. Did you call SqliteService.setupAsync?',
+      );
 
   final Lock _useDatabaseLock = Lock();
 

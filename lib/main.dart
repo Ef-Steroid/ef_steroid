@@ -4,6 +4,7 @@ import 'dart:isolate';
 import 'package:async_task/async_task_extension.dart';
 import 'package:desktop_window/desktop_window.dart';
 import 'package:fast_dotnet_ef/app_settings.dart';
+import 'package:fast_dotnet_ef/helpers/darq_helper.dart';
 import 'package:fast_dotnet_ef/main.reflectable.dart';
 import 'package:fast_dotnet_ef/services/file/resource_group_key.dart';
 import 'package:fast_dotnet_ef/services/log/log_service.dart';
@@ -22,28 +23,32 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   initializeReflectable();
   await sl.configure();
-  await _handlerLogAsync();
-  final setupSqliteService = _setupSqliteService();
-  final setupAppSettings = AppSettings.instance.setup();
-  final setupWindowMetrics = _setupWindowMetrics();
-  await Future.wait([
-    setupSqliteService,
-    setupAppSettings,
-    setupWindowMetrics,
-  ]);
 
-  Isolate.current.addErrorListener(RawReceivePort((pair) async {
-    final List<dynamic> errorAndStacktrace = pair;
+  Isolate.current.addErrorListener(
+    RawReceivePort((pair) async {
+      final List<dynamic> errorAndStacktrace = pair;
 
-    GetIt.I<LogService>().severe(
-      'Error in isolate',
-      errorAndStacktrace.first,
-      errorAndStacktrace.last,
-    );
-  }).sendPort);
+      GetIt.I<LogService>().severe(
+        'Error in isolate',
+        errorAndStacktrace.first,
+        errorAndStacktrace.last,
+      );
+    }).sendPort,
+  );
 
-  runZonedGuarded(
-    () {
+  await runZonedGuarded(
+    () async {
+      await _handlerLogAsync();
+      final setupSqliteService = _setupSqliteService();
+      final setupAppSettings = AppSettings.instance.setup();
+      final setupWindowMetrics = _setupWindowMetrics();
+      await Future.wait([
+        setupSqliteService,
+        setupAppSettings,
+        setupWindowMetrics,
+      ]);
+
+      DarqHelper.registerEqualityComparer();
       runApp(const HomeView());
     },
     (ex, stackTrace) async {
@@ -63,19 +68,23 @@ Future<void> _setupWindowMetrics() {
 Future<void> _handlerLogAsync() async {
   final applicationSupportDirectory =
       await path_provider.getApplicationSupportDirectory();
-  final file = File(p.canonicalize(p.joinAll([
-    applicationSupportDirectory.path,
-    ResourceGroupKey.logs,
-    // Windows path does not accept ':'.
-    '${DateTime.now().toString().replaceAll(':', '')}_logs.txt',
-  ])));
+  final file = File(
+    p.canonicalize(
+      p.joinAll([
+        applicationSupportDirectory.path,
+        ResourceGroupKey.logs,
+        // Windows path does not accept ':'.
+        '${DateTime.now().toString().replaceAll(':', '')}_logs.txt',
+      ]),
+    ),
+  );
   await file.create(recursive: true);
   final ioSink = file.openWrite(mode: FileMode.append);
   GetIt.I<LogService>().onRecord.listen((event) {
-    var log =
-        '[${event.level}] ${event.loggerName}: ${event.message}';
+    var log = '[${event.level}] ${event.loggerName}: ${event.message}';
     if (event.error != null) {
       log += '\n ${event.error}';
+      log += '\n ${event.stackTrace}';
     }
     if (kDebugMode) {
       print(log);
