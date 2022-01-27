@@ -58,18 +58,22 @@ class HomeViewModel extends ViewModelBase {
   void changeTheme({
     required ThemeKey theme,
   }) {
-    _preferenceStreamCtrl.add(_currentPreference.copyWith(
-      theme: theme,
-    ));
+    _preferenceStreamCtrl.add(
+      _currentPreference.copyWith(
+        theme: theme,
+      ),
+    );
     AppSettings.setPrefTheme(theme);
   }
 
   void changeLanguage({
     required String locale,
   }) {
-    _preferenceStreamCtrl.add(_currentPreference.copyWith(
-      locale: locale,
-    ));
+    _preferenceStreamCtrl.add(
+      _currentPreference.copyWith(
+        locale: locale,
+      ),
+    );
     AppSettings.setPrefLocale(locale);
   }
 }

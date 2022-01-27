@@ -1,9 +1,5 @@
 {
-  "UpdateDatabase": "更新数据库",
-  "CollectLog": "收集日志",
-  "Database": "数据库",
   "Migrations": "迁移",
-  "Script": "脚本",
   "Migration": "迁移",
   "Applied": "已应用",
   "Refresh": "刷新",
@@ -32,5 +28,11 @@
   "DarkTheme": "深色主题",
   "LightTheme": "亮色主题",
   "Language": "语言",
-  "Close": "关闭"
+  "Close": "关闭",
+  "PleaseSelectAnEntityFrameworkType": "请选择一个实体框架类型",
+  "UnableToIdentifyProjectEfType": "无法识别项目的实体框架类型。您可以自行选择一个。",
+  "ConfigFile": "配置文件：",
+  "SelectConfigFile": "选择配置文件",
+  "NoConfigFileSelected": "配置文件未选择",
+  "PleaseSelectAConfigFileFirst": "请先选择一个配置文件"
 }

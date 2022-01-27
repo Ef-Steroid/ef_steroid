@@ -1,8 +1,9 @@
 import 'package:fast_dotnet_ef/helpers/theme_helper.dart';
 import 'package:fast_dotnet_ef/views/ef_panel/ef_add_panel.dart';
-import 'package:fast_dotnet_ef/views/ef_panel/ef_database_operation/ef_database_operation_view.dart';
+import 'package:fast_dotnet_ef/views/ef_panel/ef_project_operation/ef_project_operation_view.dart';
 import 'package:fast_dotnet_ef/views/ef_panel/tab_data_value.dart';
 import 'package:fast_dotnet_ef/views/root_tab_view_model.dart';
+import 'package:fast_dotnet_ef/views/view_model_base.dart';
 import 'package:fast_dotnet_ef/views/widgets/mvvm_binding_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -27,7 +28,9 @@ class _RootTabViewState extends State<RootTabView> {
   void initState() {
     super.initState();
     vm.tabbedViewController = widget.tabbedViewController;
-    vm.initViewModelAsync();
+    vm.initViewModelAsync(
+      initParam: const InitParam(),
+    );
   }
 
   @override
@@ -50,7 +53,9 @@ class _RootTabViewState extends State<RootTabView> {
               }
 
               if (tabDataValue is EfPanelTabDataValue) {
-                return EfDatabaseOperationView(efPanel: tabDataValue.efPanel);
+                return EfProjectOperationView(
+                  efPanelId: tabDataValue.efPanel.id!,
+                );
               }
 
               return const SizedBox.shrink();

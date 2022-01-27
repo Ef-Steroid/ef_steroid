@@ -44,7 +44,8 @@ class AppDialogService extends DialogService {
       pageBuilder: (context, _, __) {
         return AlertDialog(
           shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(8))),
+            borderRadius: BorderRadius.all(Radius.circular(8)),
+          ),
           title: Text(title ?? ''),
           content: Text(msg ?? ''),
           actions: [
@@ -153,12 +154,14 @@ class AppDialogService extends DialogService {
 
     final navigatorState = _navigationService.navigatorKey.currentState;
     if (navigatorState == null) return Future.value();
-    return navigatorState.push<T>(RawDialogRoute<T>(
-      pageBuilder: (context, _, __) => const PreferenceView(),
-      barrierDismissible: false,
-      transitionDuration: AnimationHelper.standardAnimationDuration,
-      transitionBuilder: AnimationHelper.dialogTransitionBuilder,
-    ));
+    return navigatorState.push<T>(
+      RawDialogRoute<T>(
+        pageBuilder: (context, _, __) => const PreferenceView(),
+        barrierDismissible: false,
+        transitionDuration: AnimationHelper.standardAnimationDuration,
+        transitionBuilder: AnimationHelper.dialogTransitionBuilder,
+      ),
+    );
   }
 }
 

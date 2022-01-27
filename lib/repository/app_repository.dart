@@ -1,4 +1,3 @@
-import 'package:collection/collection.dart' show IterableExtension;
 import 'package:fast_dotnet_ef/data/default_values.dart';
 import 'package:fast_dotnet_ef/domain/entity_dto.dart';
 import 'package:fast_dotnet_ef/repository/repository.dart';
@@ -9,6 +8,8 @@ import 'package:get_it/get_it.dart';
 import 'package:reflectable/reflectable.dart';
 
 class AppRepository<TEntity extends EntityDto> extends Repository<TEntity> {
+  static const String _whereTemplate = 'Id=?';
+
   final SqliteService _sqliteService = GetIt.I<SqliteService>();
   final LogService _logService = GetIt.I<LogService>();
 
@@ -23,7 +24,7 @@ class AppRepository<TEntity extends EntityDto> extends Repository<TEntity> {
           : db.update(
               getTableName(),
               entity.toUpdateJson(),
-              where: 'Id=?',
+              where: _whereTemplate,
               whereArgs: [entity.id],
             ),
       orDefault: () => DefaultValues.intDefaultValue,
@@ -51,8 +52,20 @@ class AppRepository<TEntity extends EntityDto> extends Repository<TEntity> {
     _logService.info(
       'Start getting entity: ${reflector.reflectType(TEntity).simpleName}',
     );
-    return getAllAsync()
-        .then((value) => value.firstWhereOrNull((element) => element.id == id));
+
+    return _sqliteService.useReadonlyDatabaseAsync<TEntity?>(
+      uow: (db) {
+        return db
+            .query(
+              getTableName(),
+              where: _whereTemplate,
+              whereArgs: [id],
+              limit: 1,
+            )
+            .then((value) => TEntity.fromJson<TEntity>(value.first));
+      },
+      orDefault: () => null,
+    );
   }
 
   @override
@@ -60,7 +73,7 @@ class AppRepository<TEntity extends EntityDto> extends Repository<TEntity> {
     return _sqliteService.useDatabaseAsync<void>(
       uow: (db) => db.delete(
         getTableName(),
-        where: 'Id=?',
+        where: _whereTemplate,
         whereArgs: [entity.id],
       ),
       orDefault: () {},

@@ -37,9 +37,11 @@ class AL {
         _loadI18nAsync(assetName),
       ]);
       _loadLocalizationsDelegate ??= Future(() async {
-        await Future.wait(LanguageHelper.languages.keys
-            .skipWhile((x) => _cachedLocalisedValues.keys.contains(x))
-            .map((x) => _loadI18nAsync(x)));
+        await Future.wait(
+          LanguageHelper.languages.keys
+              .skipWhile((x) => _cachedLocalisedValues.keys.contains(x))
+              .map((x) => _loadI18nAsync(x)),
+        );
       });
     }
     _localisedValues = _cachedLocalisedValues[assetName];
@@ -64,7 +66,9 @@ class AL {
   }
 
   String _assignArguments(
-      String value, Map<String, dynamic> interpolateParams) {
+    String value,
+    Map<String, dynamic> interpolateParams,
+  ) {
     for (final key in interpolateParams.keys) {
       value = value.replaceAll('{$key}', '${interpolateParams[key]}');
     }

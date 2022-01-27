@@ -50,8 +50,8 @@ class AppSettings {
   static ThemeKey get prefTheme {
     final prefThemeName = sp!.getString(prefThemeKey);
     return (prefThemeName == null
-        ? null
-        : ThemeKey.values.byName(prefThemeName)) ??
+            ? null
+            : ThemeKey.values.byName(prefThemeName)) ??
         ThemeKey.followSystem;
   }
 

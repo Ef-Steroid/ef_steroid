@@ -16,3 +16,6 @@ x86/
 # but keep track of directories ending in .cache
 !*.[Cc]ache/
 /cmake-build-debug/
+
+# Artifacts generated from tools/CsprojTool
+/artifacts/

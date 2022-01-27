@@ -4,6 +4,14 @@ import 'package:fast_dotnet_ef/services/log/log_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
+class InitParam {
+  final dynamic param;
+
+  const InitParam({
+    this.param,
+  });
+}
+
 class ViewModelBase extends ChangeNotifier {
   @protected
   final LogService logService = GetIt.I<LogService>();
@@ -36,7 +44,9 @@ class ViewModelBase extends ChangeNotifier {
     if (!hasDispose) super.notifyListeners();
   }
 
-  Future<void> initViewModelAsync() {
+  Future<void> initViewModelAsync({
+    required InitParam initParam,
+  }) {
     return Future.value();
   }
 
