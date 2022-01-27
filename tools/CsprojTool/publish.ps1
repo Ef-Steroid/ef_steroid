@@ -6,7 +6,7 @@ $ArtifactDirectory = "..\..\windows\artifacts\CsprojTool\win-x64\"
 
 # Create target directory
 New-Item $ArtifactDirectory -ItemType Directory -Force
-mv bin\Release\net6.0\win-x64\publish\ $ArtifactDirectory
+mv bin\Release\net6.0\win-x64\publish\ $ArtifactDirectory -Force
 echo "Done moving artifact to Flutter Windows"
 
 echo "Done..."
