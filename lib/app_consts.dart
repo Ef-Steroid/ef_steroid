@@ -12,5 +12,5 @@ class AppConsts {
   ///
   /// This is typically used in:
   /// - [MethodChannel]
-  static const String appPackageName = 'com.techcreator.FastDotnetEf';
+  static const String appPackageName = 'com.techcreator.EfSteroid';
 }
