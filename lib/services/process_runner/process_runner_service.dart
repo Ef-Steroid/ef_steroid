@@ -1,4 +1,4 @@
-import 'package:fast_dotnet_ef/services/process_runner/model/process_runner_result.dart';
+import 'package:ef_steroid/services/process_runner/model/process_runner_result.dart';
 
 abstract class ProcessRunnerService {
   /// Combine the [executable] and [args] as a string that is ordinary run in terminal.

@@ -1,11 +1,11 @@
 import 'dart:async';
 
 import 'package:bot_toast/bot_toast.dart';
-import 'package:fast_dotnet_ef/domain/migration_history.dart';
-import 'package:fast_dotnet_ef/exceptions/dotnet_ef_exception.dart';
-import 'package:fast_dotnet_ef/localization/localizations.dart';
-import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef_core/dotnet_ef_core_service.dart';
-import 'package:fast_dotnet_ef/views/ef_panel/ef_operation/ef_operation_view_model_base.dart';
+import 'package:ef_steroid/domain/migration_history.dart';
+import 'package:ef_steroid/exceptions/dotnet_ef_exception.dart';
+import 'package:ef_steroid/localization/localizations.dart';
+import 'package:ef_steroid/services/dotnet_ef/dotnet_ef_core/dotnet_ef_core_service.dart';
+import 'package:ef_steroid/views/ef_panel/ef_operation/ef_operation_view_model_base.dart';
 import 'package:flutter/material.dart';
 
 class EfCoreOperationViewModel extends EfOperationViewModelBase {
@@ -150,7 +150,7 @@ class EfCoreOperationViewModel extends EfOperationViewModelBase {
   }
 
   @override
-  bool showRemoveMigrationButton({
+  bool canShowRemoveMigrationButton({
     required MigrationHistory migrationHistory,
   }) {
     return (sortMigrationAscending

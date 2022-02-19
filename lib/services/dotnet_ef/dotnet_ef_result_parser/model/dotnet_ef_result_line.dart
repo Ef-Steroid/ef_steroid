@@ -1,4 +1,4 @@
-import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef_result_parser/data/dotnet_ef_result_type.dart';
+import 'package:ef_steroid/services/dotnet_ef/dotnet_ef_result_parser/data/dotnet_ef_result_type.dart';
 
 class DotnetEfResultLine {
   final DotnetEfResultType dotnetEfResultType;

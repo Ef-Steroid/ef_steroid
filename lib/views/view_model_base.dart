@@ -1,6 +1,6 @@
-import 'package:fast_dotnet_ef/helpers/context_helper.dart';
-import 'package:fast_dotnet_ef/services/dialog/dialog_service.dart';
-import 'package:fast_dotnet_ef/services/log/log_service.dart';
+import 'package:ef_steroid/helpers/context_helper.dart';
+import 'package:ef_steroid/services/dialog/dialog_service.dart';
+import 'package:ef_steroid/services/log/log_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 

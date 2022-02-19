@@ -1,13 +1,13 @@
-import 'package:fast_dotnet_ef/helpers/theme_helper.dart';
-import 'package:fast_dotnet_ef/localization/localizations.dart';
-import 'package:fast_dotnet_ef/shared/project_ef_type.dart';
-import 'package:fast_dotnet_ef/views/ef_panel/ef_operation/ef6_operation/ef6_operation_view.dart';
-import 'package:fast_dotnet_ef/views/ef_panel/ef_operation/ef_core_operation/ef_core_operation_view.dart';
-import 'package:fast_dotnet_ef/views/ef_panel/ef_project_operation/ef_project_operation_view_model.dart';
-import 'package:fast_dotnet_ef/views/ef_panel/ef_project_operation/ef_project_operation_view_model_data.dart';
-import 'package:fast_dotnet_ef/views/ef_panel/widgets/project_ef_type_toolbar.dart';
-import 'package:fast_dotnet_ef/views/view_model_base.dart';
-import 'package:fast_dotnet_ef/views/widgets/mvvm_binding_widget.dart';
+import 'package:ef_steroid/helpers/theme_helper.dart';
+import 'package:ef_steroid/localization/localizations.dart';
+import 'package:ef_steroid/shared/project_ef_type.dart';
+import 'package:ef_steroid/views/ef_panel/ef_operation/ef6_operation/ef6_operation_view.dart';
+import 'package:ef_steroid/views/ef_panel/ef_operation/ef_core_operation/ef_core_operation_view.dart';
+import 'package:ef_steroid/views/ef_panel/ef_project_operation/ef_project_operation_view_model.dart';
+import 'package:ef_steroid/views/ef_panel/ef_project_operation/ef_project_operation_view_model_data.dart';
+import 'package:ef_steroid/views/ef_panel/widgets/project_ef_type_toolbar.dart';
+import 'package:ef_steroid/views/view_model_base.dart';
+import 'package:ef_steroid/views/widgets/mvvm_binding_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 

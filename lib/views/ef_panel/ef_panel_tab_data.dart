@@ -1,4 +1,4 @@
-import 'package:fast_dotnet_ef/views/ef_panel/tab_data_value.dart';
+import 'package:ef_steroid/views/ef_panel/tab_data_value.dart';
 import 'package:flutter/material.dart';
 import 'package:tabbed_view/tabbed_view.dart';
 

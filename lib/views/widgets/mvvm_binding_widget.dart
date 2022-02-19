@@ -1,4 +1,4 @@
-import 'package:fast_dotnet_ef/views/view_model_base.dart';
+import 'package:ef_steroid/views/view_model_base.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

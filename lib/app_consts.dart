@@ -1,4 +1,4 @@
-import 'package:fast_dotnet_ef/app_settings.dart';
+import 'package:ef_steroid/app_settings.dart';
 
 class AppConsts {
   /// This is used to record the current version of [AppSettings]. If
@@ -12,5 +12,5 @@ class AppConsts {
   ///
   /// This is typically used in:
   /// - [MethodChannel]
-  static const String appPackageName = 'com.techcreator.FastDotnetEf';
+  static const String appPackageName = 'com.techcreator.EfSteroid';
 }

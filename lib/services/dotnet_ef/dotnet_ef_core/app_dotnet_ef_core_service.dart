@@ -1,15 +1,15 @@
 import 'dart:convert';
 
-import 'package:fast_dotnet_ef/domain/migration_history.dart';
-import 'package:fast_dotnet_ef/exceptions/dotnet_ef_exception.dart';
-import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef_core/dotnet_ef_core_service.dart';
-import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef_result_parser/data/dotnet_ef_result_type.dart';
-import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef_result_parser/dotnet_ef_result_parser_service.dart';
-import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef_result_parser/model/dotnet_ef_result_line.dart';
-import 'package:fast_dotnet_ef/services/file/file_service.dart';
-import 'package:fast_dotnet_ef/services/log/log_service.dart';
-import 'package:fast_dotnet_ef/services/process_runner/model/process_runner_result.dart';
-import 'package:fast_dotnet_ef/services/process_runner/process_runner_service.dart';
+import 'package:ef_steroid/domain/migration_history.dart';
+import 'package:ef_steroid/exceptions/dotnet_ef_exception.dart';
+import 'package:ef_steroid/services/dotnet_ef/dotnet_ef_core/dotnet_ef_core_service.dart';
+import 'package:ef_steroid/services/dotnet_ef/dotnet_ef_result_parser/data/dotnet_ef_result_type.dart';
+import 'package:ef_steroid/services/dotnet_ef/dotnet_ef_result_parser/dotnet_ef_result_parser_service.dart';
+import 'package:ef_steroid/services/dotnet_ef/dotnet_ef_result_parser/model/dotnet_ef_result_line.dart';
+import 'package:ef_steroid/services/file/file_service.dart';
+import 'package:ef_steroid/services/log/log_service.dart';
+import 'package:ef_steroid/services/process_runner/model/process_runner_result.dart';
+import 'package:ef_steroid/services/process_runner/process_runner_service.dart';
 import 'package:injectable/injectable.dart';
 import 'package:quiver/strings.dart';
 
@@ -116,8 +116,9 @@ class AppDotnetEfCoreService extends DotnetEfCoreService {
     var migrations = <MigrationHistory>[];
     switch (processRunnerResult.type) {
       case ProcessRunnerResultType.successful:
-        final extractedJsonOutput = _extractJsonOutput(
-          (processRunnerResult as SuccessfulProcessRunnerResult).stdout,
+        final extractedJsonOutput =
+            _dotnetEfResultParserService.extractJsonOutput(
+          stdout: (processRunnerResult as SuccessfulProcessRunnerResult).stdout,
         );
         final decodedJson =
             isBlank(extractedJsonOutput) ? [] : jsonDecode(extractedJsonOutput);
@@ -239,17 +240,6 @@ class AppDotnetEfCoreService extends DotnetEfCoreService {
     projectPath = _fileService.stripMacDiscFromPath(path: projectPath);
 
     args.add(projectPath);
-  }
-
-  String _extractJsonOutput(String? stdout) {
-    if (stdout == null) return '';
-
-    final dotnetEfResultLines =
-        _dotnetEfResultParserService.parseDotnetEfResult(stdout: stdout);
-
-    return dotnetEfResultLines
-        .where((x) => x.dotnetEfResultType == DotnetEfResultType.data)
-        .join('');
   }
 
   String _getFullCommand(List<String> args) {

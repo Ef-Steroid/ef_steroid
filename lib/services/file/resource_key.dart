@@ -1,3 +1,3 @@
 class ResourceKey {
-  static const String fastDotnetEf = 'FastDotnetEf.db';
+  static const String efSteroid = 'EfSteroid.db';
 }

@@ -1,6 +1,6 @@
-import 'package:fast_dotnet_ef/views/widgets/shake_widget.dart';
+import 'package:ef_steroid/views/widgets/shake_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:fast_dotnet_ef/models/disposable.dart';
+import 'package:ef_steroid/models/disposable.dart';
 
 abstract class FormFieldModel extends Disposable {
   final GlobalKey<FormFieldState> fieldKey = GlobalKey();

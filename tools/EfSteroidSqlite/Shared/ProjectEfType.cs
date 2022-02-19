@@ -1,4 +1,4 @@
-namespace FastDotnetEfSqlite.Shared;
+namespace EfSteroidSqlite.Shared;
 
 /// <summary>
 /// The entity framework project type.

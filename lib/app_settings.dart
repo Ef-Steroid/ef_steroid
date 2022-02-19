@@ -1,6 +1,6 @@
-import 'package:fast_dotnet_ef/app_consts.dart';
-import 'package:fast_dotnet_ef/helpers/intl/language_helper.dart';
-import 'package:fast_dotnet_ef/helpers/theme_helper.dart';
+import 'package:ef_steroid/app_consts.dart';
+import 'package:ef_steroid/helpers/intl/language_helper.dart';
+import 'package:ef_steroid/helpers/theme_helper.dart';
 import 'package:quiver/strings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

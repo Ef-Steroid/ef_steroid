@@ -1,4 +1,4 @@
-import 'package:fast_dotnet_ef/services/navigation/navigation_service.dart';
+import 'package:ef_steroid/services/navigation/navigation_service.dart';
 import 'package:flutter/material.dart';
 import 'package:injectable/injectable.dart';
 

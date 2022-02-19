@@ -1,19 +1,19 @@
-using FastDotnetEfSqlite.Entity;
+using EfSteroidSqlite.Entity;
 using Microsoft.EntityFrameworkCore;
 
-namespace FastDotnetEfSqlite.EntityFrameworkCore;
+namespace EfSteroidSqlite.EntityFrameworkCore;
 
-public class FastDotnetEfDbContext : DbContext
+public class EfSteroidDbContext : DbContext
 {
     public DbSet<EfPanel> EfPanels { get; set; } = null!;
 
     public string DbPath { get; set; }
 
-    public FastDotnetEfDbContext()
+    public EfSteroidDbContext()
     {
         const Environment.SpecialFolder folder = Environment.SpecialFolder.LocalApplicationData;
         var path = Environment.GetFolderPath(folder);
-        DbPath = Path.Join(path, "FastDotnetEfSqlite", "FastDotnetEf.db");
+        DbPath = Path.Join(path, "EfSteroidSqlite", "EfSteroidSqlite.db");
         Directory.CreateDirectory(Directory.GetParent(DbPath)!.ToString());
     }
 

@@ -1,11 +1,10 @@
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace FastDotnetEfSqlite.Entity.EntityBase;
+namespace EfSteroidSqlite.Entity.EntityBase;
 
 public class EntityDto<TKey>
 {
-
-    public TKey Id { get; protected set; }
+    public TKey Id { get; protected set; } = default!;
 
     protected EntityDto()
     {

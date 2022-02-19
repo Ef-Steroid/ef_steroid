@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace FastDotnetEfSqlite.Migrations
+namespace EfSteroidSqlite.Migrations
 {
     public partial class InitialMigration : Migration
     {

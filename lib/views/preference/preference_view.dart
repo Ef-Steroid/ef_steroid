@@ -1,9 +1,9 @@
-import 'package:fast_dotnet_ef/app_settings.dart';
-import 'package:fast_dotnet_ef/helpers/intl/language_helper.dart';
-import 'package:fast_dotnet_ef/helpers/theme_helper.dart';
-import 'package:fast_dotnet_ef/localization/localizations.dart';
-import 'package:fast_dotnet_ef/views/preference/preference_view_model.dart';
-import 'package:fast_dotnet_ef/views/view_model_base.dart';
+import 'package:ef_steroid/app_settings.dart';
+import 'package:ef_steroid/helpers/intl/language_helper.dart';
+import 'package:ef_steroid/helpers/theme_helper.dart';
+import 'package:ef_steroid/localization/localizations.dart';
+import 'package:ef_steroid/views/preference/preference_view_model.dart';
+import 'package:ef_steroid/views/view_model_base.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 

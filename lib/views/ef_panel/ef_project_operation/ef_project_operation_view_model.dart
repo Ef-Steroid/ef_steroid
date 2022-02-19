@@ -1,11 +1,11 @@
 import 'dart:async';
 
-import 'package:fast_dotnet_ef/domain/ef_panel.dart';
-import 'package:fast_dotnet_ef/repository/repository.dart';
-import 'package:fast_dotnet_ef/services/cs_project_resolver/cs_project_resolver.dart';
-import 'package:fast_dotnet_ef/shared/project_ef_type.dart';
-import 'package:fast_dotnet_ef/views/ef_panel/ef_project_operation/ef_project_operation_view_model_data.dart';
-import 'package:fast_dotnet_ef/views/view_model_base.dart';
+import 'package:ef_steroid/domain/ef_panel.dart';
+import 'package:ef_steroid/repository/repository.dart';
+import 'package:ef_steroid/services/cs_project_resolver/cs_project_resolver.dart';
+import 'package:ef_steroid/shared/project_ef_type.dart';
+import 'package:ef_steroid/views/ef_panel/ef_project_operation/ef_project_operation_view_model_data.dart';
+import 'package:ef_steroid/views/view_model_base.dart';
 import 'package:get_it/get_it.dart';
 
 class EfProjectOperationViewModel extends ViewModelBase {

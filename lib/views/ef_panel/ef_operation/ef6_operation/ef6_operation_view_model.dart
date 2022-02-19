@@ -1,11 +1,11 @@
 import 'package:bot_toast/bot_toast.dart';
-import 'package:fast_dotnet_ef/domain/ef_panel.dart';
-import 'package:fast_dotnet_ef/domain/migration_history.dart';
-import 'package:fast_dotnet_ef/localization/localizations.dart';
-import 'package:fast_dotnet_ef/repository/repository.dart';
-import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef6/dotnet_ef6_service.dart';
-import 'package:fast_dotnet_ef/views/ef_panel/ef_operation/ef_operation_view_model_base.dart';
-import 'package:fast_dotnet_ef/views/ef_panel/ef_project_operation/ef_project_operation_view.dart';
+import 'package:ef_steroid/domain/ef_panel.dart';
+import 'package:ef_steroid/domain/migration_history.dart';
+import 'package:ef_steroid/localization/localizations.dart';
+import 'package:ef_steroid/repository/repository.dart';
+import 'package:ef_steroid/services/dotnet_ef/dotnet_ef6/dotnet_ef6_service.dart';
+import 'package:ef_steroid/views/ef_panel/ef_operation/ef_operation_view_model_base.dart';
+import 'package:ef_steroid/views/ef_panel/ef_project_operation/ef_project_operation_view.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -161,7 +161,7 @@ class Ef6OperationViewModel extends EfOperationViewModelBase {
   }
 
   @override
-  bool showRemoveMigrationButton({
+  bool canShowRemoveMigrationButton({
     required MigrationHistory migrationHistory,
   }) {
     return true;

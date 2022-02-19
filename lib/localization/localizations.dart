@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:fast_dotnet_ef/helpers/context_helper.dart';
-import 'package:fast_dotnet_ef/helpers/intl/language_helper.dart';
+import 'package:ef_steroid/helpers/context_helper.dart';
+import 'package:ef_steroid/helpers/intl/language_helper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:quiver/strings.dart';

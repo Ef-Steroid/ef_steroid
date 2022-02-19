@@ -1,7 +1,7 @@
-using FastDotnetEfSqlite.Entity.EntityBase;
-using FastDotnetEfSqlite.Shared;
+using EfSteroidSqlite.Entity.EntityBase;
+using EfSteroidSqlite.Shared;
 
-namespace FastDotnetEfSqlite.Entity;
+namespace EfSteroidSqlite.Entity;
 
 public class EfPanel : EntityDto<int>
 {

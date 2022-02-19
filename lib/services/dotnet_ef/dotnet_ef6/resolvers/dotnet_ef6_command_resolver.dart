@@ -1,9 +1,9 @@
 import 'dart:io';
 
-import 'package:fast_dotnet_ef/exceptions/resolve_dotnet_ef6_command_name_exception.dart';
-import 'package:fast_dotnet_ef/services/cs_project_resolver/cs_project_resolver.dart';
-import 'package:fast_dotnet_ef/services/dotnet_ef/dotnet_ef6/data/cs_project_type.dart';
-import 'package:fast_dotnet_ef/services/dotnet_ef/model/cs_project_asset.dart';
+import 'package:ef_steroid/exceptions/resolve_dotnet_ef6_command_name_exception.dart';
+import 'package:ef_steroid/services/cs_project_resolver/cs_project_resolver.dart';
+import 'package:ef_steroid/services/dotnet_ef/dotnet_ef6/data/cs_project_type.dart';
+import 'package:ef_steroid/services/dotnet_ef/model/cs_project_asset.dart';
 import 'package:injectable/injectable.dart';
 import 'package:path/path.dart' as p;
 import 'package:xml/xml.dart';

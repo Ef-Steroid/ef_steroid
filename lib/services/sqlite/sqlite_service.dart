@@ -1,4 +1,4 @@
-import 'package:fast_dotnet_ef/services/sqlite/unit_of_work.dart';
+import 'package:ef_steroid/services/sqlite/unit_of_work.dart';
 
 abstract class SqliteService {
   /// The path to the database.
