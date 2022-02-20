@@ -1,16 +1,19 @@
-# ef_steroid
+# Ef Steroid
 
-A new Flutter project.
+---
 
-## Getting Started
+Ef Steroid is a GUI application for [Entity Framework](https://docs.microsoft.com/en-us/ef/).
 
-This project is a starting point for a Flutter application.
+## Features
 
-A few resources to get you started if this is your first Flutter project:
+- [x] Support EFCore 6.0
+- [x] Support EF6 (Windows only, please file an issue for macOS support, we will work on it if it is up-voted)
+- [ ] Other EF versions (please file an issue if you need it)
+- [ ] Linux support (please file an issue if you need it)
+- [x] View migrations in table format
+- [x] Select migration in the table to update database to the targeted migration
+- [x] Select migration in the table to delete the targeted migration (may vary depending on EF Core/Ef6)
+- [x] Add migration
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+![image](README/assets/ef_steroid_main_view.png)
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
