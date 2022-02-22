@@ -19,3 +19,6 @@ x86/
 
 # Artifacts generated from tools/CsprojTool
 /artifacts/
+.vs/
+/cmake-build-release/
+/out/
