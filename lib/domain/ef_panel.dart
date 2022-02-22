@@ -24,11 +24,15 @@ class EfPanel extends EntityDto {
   @JsonKey(unknownEnumValue: ProjectEfType.defaultValue)
   final ProjectEfType? projectEfType;
 
+  /// The DbContext name.
+  final String? dbContextName;
+
   EfPanel({
     int? id,
     required this.directoryUri,
     this.configFileUri,
     this.projectEfType = ProjectEfType.defaultValue,
+    this.dbContextName,
   }) : super(id: id);
 
   factory EfPanel.fromJson(Map<String, dynamic> json) =>
@@ -42,12 +46,14 @@ class EfPanel extends EntityDto {
     Uri? directoryUri,
     Uri? configFileUri,
     ProjectEfType? projectEfType,
+    String? dbContextName,
   }) {
     return EfPanel(
       id: id ?? this.id,
       directoryUri: directoryUri ?? this.directoryUri,
       configFileUri: configFileUri ?? this.configFileUri,
       projectEfType: projectEfType ?? this.projectEfType,
+      dbContextName: dbContextName ?? this.dbContextName,
     );
   }
 }

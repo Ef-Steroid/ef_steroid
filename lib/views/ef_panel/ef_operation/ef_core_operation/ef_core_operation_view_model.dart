@@ -1,15 +1,20 @@
 import 'dart:async';
 
 import 'package:bot_toast/bot_toast.dart';
+import 'package:ef_steroid/domain/ef_panel.dart';
 import 'package:ef_steroid/domain/migration_history.dart';
 import 'package:ef_steroid/exceptions/dotnet_ef_exception.dart';
 import 'package:ef_steroid/localization/localizations.dart';
+import 'package:ef_steroid/repository/repository.dart';
 import 'package:ef_steroid/services/dotnet_ef/dotnet_ef_core/dotnet_ef_core_service.dart';
+import 'package:ef_steroid/services/dotnet_ef/model/db_context.dart';
 import 'package:ef_steroid/views/ef_panel/ef_operation/ef_operation_view_model_base.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 class EfCoreOperationViewModel extends EfOperationViewModelBase {
   final DotnetEfCoreService _dotnetEfService;
+  final Repository<EfPanel> _efPanelRepository = GetIt.I<Repository<EfPanel>>();
 
   EfCoreOperationViewModel(
     this._dotnetEfService,
@@ -23,6 +28,7 @@ class EfCoreOperationViewModel extends EfOperationViewModelBase {
     try {
       migrationHistories = await _dotnetEfService.listMigrationsAsync(
         projectUri: efPanel.directoryUri,
+        dbContextName: efPanel.dbContextName,
       );
 
       sortMigrationHistory();
@@ -128,6 +134,48 @@ class EfCoreOperationViewModel extends EfOperationViewModelBase {
     }
   }
 
+  @override
+  Future<void> fetchDbContextsAsync() async {
+    try {
+      if (isBusy) return;
+      notifyListeners(isBusy: true);
+
+      dbContexts = await _dotnetEfService.listDbContextsAsync(
+        projectUri: efPanel.directoryUri,
+      );
+
+      // TODO: Store the DbContexts to the EF Panel
+
+    } catch (ex, stackTrace) {
+      await dialogService.showErrorDialog(
+        context,
+        ex,
+        stackTrace,
+      );
+    } finally {
+      notifyListeners(isBusy: false);
+    }
+  }
+
+  @override
+  Future<void> storeDbContextAsync({
+    required DbContext dbContext,
+  }) async {
+    try {
+      await _efPanelRepository.insertOrUpdateAsync(
+        efPanel.copyWith(
+          dbContextName: dbContext.name,
+        ),
+      );
+    } catch (ex, stackTrace) {
+      await dialogService.showErrorDialog(
+        context,
+        ex,
+        stackTrace,
+      );
+    }
+  }
+
   Future<void> _promptRerunRemoveMigrationWithForceAsync({
     String? errorMessage,
     required MigrationHistory migrationHistory,
@@ -153,7 +201,7 @@ class EfCoreOperationViewModel extends EfOperationViewModelBase {
   bool canShowRemoveMigrationButton({
     required MigrationHistory migrationHistory,
   }) {
-    return (sortMigrationAscending
+    return (sortMigrationByAscending
             ? migrationHistories.last.id
             : migrationHistories.first.id) ==
         migrationHistory.id;

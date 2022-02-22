@@ -11,6 +11,7 @@ import 'package:ef_steroid/models/form/single_value_form_field_model.dart';
 import 'package:ef_steroid/models/form/text_editing_form_field_model.dart';
 import 'package:ef_steroid/repository/repository.dart';
 import 'package:ef_steroid/services/dotnet_ef/dotnet_ef_migration/dotnet_ef_migration_service.dart';
+import 'package:ef_steroid/services/dotnet_ef/model/db_context.dart';
 import 'package:ef_steroid/shared/project_ef_type.dart';
 import 'package:ef_steroid/views/ef_panel/ef_operation/ef_operation_view_model_data.dart';
 import 'package:ef_steroid/views/ef_panel/ef_project_operation/ef_project_operation_view.dart';
@@ -56,19 +57,28 @@ abstract class EfOperationViewModelBase extends ViewModelBase
   set migrationHistories(List<MigrationHistory> value) =>
       _migrationHistories = value;
 
-  bool _sortMigrationAscending = true;
+  bool _sortMigrationByAscending = false;
 
   /// Indicate if we should sort the migration column in ascending order.
   @nonVirtual
-  bool get sortMigrationAscending => _sortMigrationAscending;
+  bool get sortMigrationByAscending => _sortMigrationByAscending;
 
   @nonVirtual
-  set sortMigrationAscending(bool sortMigrationAscending) {
-    if (sortMigrationAscending == _sortMigrationAscending) return;
-    _sortMigrationAscending = sortMigrationAscending;
+  set sortMigrationByAscending(bool sortMigrationByAscending) {
+    if (sortMigrationByAscending == _sortMigrationByAscending) return;
+    _sortMigrationByAscending = sortMigrationByAscending;
     sortMigrationHistory();
     notifyListeners();
   }
+
+  List<DbContext> _dbContexts = [];
+
+  @nonVirtual
+  List<DbContext> get dbContexts => _dbContexts;
+
+  @protected
+  @nonVirtual
+  set dbContexts(List<DbContext> dbContexts) => _dbContexts = dbContexts;
 
   late RootTabView _rootTabView;
 
@@ -180,7 +190,7 @@ abstract class EfOperationViewModelBase extends ViewModelBase
   @protected
   @nonVirtual
   void sortMigrationHistory() {
-    migrationHistories = sortMigrationAscending
+    migrationHistories = sortMigrationByAscending
         ? migrationHistories.orderBy((x) => x.id).toList(growable: false)
         : migrationHistories
             .orderByDescending((x) => x.id)
@@ -216,6 +226,14 @@ abstract class EfOperationViewModelBase extends ViewModelBase
 
   bool canShowRemoveMigrationButton({
     required MigrationHistory migrationHistory,
+  });
+
+  /// Fetch the DbContexts.
+  Future<void> fetchDbContextsAsync();
+
+  /// Store the DbContext.
+  Future<void> storeDbContextAsync({
+    required DbContext dbContext,
   });
 
   @override

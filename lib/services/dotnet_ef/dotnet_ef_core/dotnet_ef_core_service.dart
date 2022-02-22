@@ -16,12 +16,14 @@ abstract class DotnetEfCoreService {
   /// List all the migrations.
   Future<List<MigrationHistory>> listMigrationsAsync({
     required Uri projectUri,
+    required String? dbContextName,
   });
 
   /// Add new migration.
   Future<void> addMigrationAsync({
     required Uri projectUri,
     required String migrationName,
+    required String? dbContextName,
   });
 
   /// Remove the last migration.

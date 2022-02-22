@@ -11,6 +11,8 @@ public class EfPanel : EntityDto<int>
 
     public ProjectEfType? ProjectEfType { get; set; }
 
+    public string? DbContextName { get; set; }
+
     protected EfPanel() : base()
     {
     }

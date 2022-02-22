@@ -31,6 +31,7 @@ class AppDotnetEfCoreService extends DotnetEfCoreService {
 
   static const String _dotnetEfJsonKey = '--json';
   static const String _dotnetEfPrefixOutputKey = '--prefix-output';
+  static const String _dotnetEfContextKey = '--context';
 
   AppDotnetEfCoreService(
     this._fileService,
@@ -91,6 +92,7 @@ class AppDotnetEfCoreService extends DotnetEfCoreService {
   @override
   Future<List<MigrationHistory>> listMigrationsAsync({
     required Uri projectUri,
+    required String? dbContextName,
   }) async {
     final args = <String>[];
 
@@ -99,6 +101,12 @@ class AppDotnetEfCoreService extends DotnetEfCoreService {
 
     // Add list command.
     args.add('list');
+
+    // Add context command.
+    _addDbContext(
+      args: args,
+      dbContextName: dbContextName,
+    );
 
     // Add project option.
     _addProjectOption(
@@ -162,6 +170,7 @@ class AppDotnetEfCoreService extends DotnetEfCoreService {
   Future<void> addMigrationAsync({
     required Uri projectUri,
     required String migrationName,
+    required String? dbContextName,
   }) async {
     final args = <String>[];
 
@@ -173,6 +182,12 @@ class AppDotnetEfCoreService extends DotnetEfCoreService {
 
     // Add migration id.
     args.add(migrationName);
+
+    // Add context command.
+    _addDbContext(
+      args: args,
+      dbContextName: dbContextName,
+    );
 
     // Add project option.
     _addProjectOption(
@@ -189,6 +204,17 @@ class AppDotnetEfCoreService extends DotnetEfCoreService {
       arguments: args,
     );
     processRunnerResult.logResult();
+  }
+
+  void _addDbContext({
+    required List<String> args,
+    required String? dbContextName,
+  }) {
+    if (isBlank(dbContextName)) {
+      return;
+    }
+    args.add(_dotnetEfContextKey);
+    args.add(dbContextName!);
   }
 
   @override

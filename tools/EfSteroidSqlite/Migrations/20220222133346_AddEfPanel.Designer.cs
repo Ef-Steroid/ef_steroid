@@ -2,6 +2,7 @@
 using EfSteroidSqlite.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -9,9 +10,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EfSteroidSqlite.Migrations
 {
     [DbContext(typeof(EfSteroidDbContext))]
-    partial class EfSteroidDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220222133346_AddEfPanel")]
+    partial class AddEfPanel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.0");

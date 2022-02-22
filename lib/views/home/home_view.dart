@@ -48,7 +48,7 @@ class _HomeViewState extends State<HomeView> {
             builder: (context, snapshot) {
               final snapshotData = snapshot.data!;
               return MaterialApp(
-                title: 'Fast Dotnet Ef',
+                title: 'Ef Steroid',
                 locale: LanguageHelper.languages[snapshotData.locale]?.locale ??
                     LanguageHelper.getSystemLocale(),
                 localizationsDelegates: [

@@ -36,8 +36,25 @@ class _EfOperationViewState extends State<EfOperationView> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
+                  /*DropdownButton<ProjectEfType?>(
+                    value: _projectEfType,
+                    onChanged: _onProjectTypeChanged,
+                    items: _efProjectTypes
+                        .map(
+                          (efProjectType) => DropdownMenuItem<ProjectEfType?>(
+                        value: efProjectType,
+                        enabled: efProjectType != null || _projectEfType == null,
+                        child: Text(
+                          efProjectType == null
+                              ? l('PleaseSelectAnEntityFrameworkType')
+                              : efProjectType.toDisplayString(),
+                        ),
+                      ),
+                    )
+                        .toList(growable: false),
+                  ),*/
+                  const Spacer(),
                   OutlinedButton.icon(
                     icon: const Icon(Icons.autorenew_outlined),
                     label: Text(l('RevertAllMigrations')),
@@ -61,6 +78,7 @@ class _EfOperationViewState extends State<EfOperationView> {
     );
   }
 }
+
 
 class _MigrationsTable extends StatefulWidget {
   final EfOperationViewModelBase vm;
@@ -89,13 +107,13 @@ class _MigrationsTableState extends State<_MigrationsTable> {
         child: SizedBox(
           width: double.infinity,
           child: DataTable(
-            sortAscending: vm.sortMigrationAscending,
+            sortAscending: vm.sortMigrationByAscending,
             sortColumnIndex: 0,
             columns: <DataColumn>[
               DataColumn(
                 label: Text(l('Migration')),
                 onSort: (value, ascending) {
-                  vm.sortMigrationAscending = ascending;
+                  vm.sortMigrationByAscending = ascending;
                 },
               ),
               DataColumn(
