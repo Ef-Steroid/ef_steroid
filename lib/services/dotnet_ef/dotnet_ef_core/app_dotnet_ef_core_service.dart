@@ -2,10 +2,11 @@ import 'dart:convert';
 
 import 'package:ef_steroid/domain/migration_history.dart';
 import 'package:ef_steroid/exceptions/dotnet_ef_exception.dart';
+import 'package:ef_steroid/exceptions/process_runner_exception.dart';
 import 'package:ef_steroid/services/dotnet_ef/dotnet_ef_core/dotnet_ef_core_service.dart';
-import 'package:ef_steroid/services/dotnet_ef/dotnet_ef_result_parser/data/dotnet_ef_result_type.dart';
 import 'package:ef_steroid/services/dotnet_ef/dotnet_ef_result_parser/dotnet_ef_result_parser_service.dart';
 import 'package:ef_steroid/services/dotnet_ef/dotnet_ef_result_parser/model/dotnet_ef_result_line.dart';
+import 'package:ef_steroid/services/dotnet_ef/model/db_context.dart';
 import 'package:ef_steroid/services/file/file_service.dart';
 import 'package:ef_steroid/services/log/log_service.dart';
 import 'package:ef_steroid/services/process_runner/model/process_runner_result.dart';
@@ -21,8 +22,10 @@ class AppDotnetEfCoreService extends DotnetEfCoreService {
   final DotnetEfResultParserService _dotnetEfResultParserService;
 
   static const String _dotnetEfCommandName = 'dotnet-ef';
+
   static const String _migrationsCommandName = 'migrations';
   static const String _databaseCommandName = 'database';
+  static const String _dbContextCommandName = 'dbcontext';
 
   static const String _dotnetEfProjectKey = '-p';
 
@@ -76,7 +79,10 @@ class AppDotnetEfCoreService extends DotnetEfCoreService {
             (processRunnerResult as SuccessfulProcessRunnerResult).stdout ?? '';
         break;
       case ProcessRunnerResultType.failure:
-        break;
+        throw ProcessRunnerException.fromFailureProcessRunnerResult(
+          failureProcessRunnerResult:
+              processRunnerResult as FailureProcessRunnerResult,
+        );
     }
 
     return result;
@@ -100,8 +106,7 @@ class AppDotnetEfCoreService extends DotnetEfCoreService {
       projectUri: projectUri,
     );
 
-    args.add(_dotnetEfJsonKey);
-    args.add(_dotnetEfPrefixOutputKey);
+    _requestJsonOutput(args: args);
 
     _logService.info(
       'Start listing migration with command: ${_getFullCommand(args)}',
@@ -127,7 +132,10 @@ class AppDotnetEfCoreService extends DotnetEfCoreService {
             .toList(growable: false);
         break;
       case ProcessRunnerResultType.failure:
-        break;
+        throw ProcessRunnerException.fromFailureProcessRunnerResult(
+          failureProcessRunnerResult:
+              processRunnerResult as FailureProcessRunnerResult,
+        );
     }
 
     return migrations;
@@ -189,8 +197,7 @@ class AppDotnetEfCoreService extends DotnetEfCoreService {
       args.add('--force');
     }
 
-    args.add(_dotnetEfJsonKey);
-    args.add(_dotnetEfPrefixOutputKey);
+    _requestJsonOutput(args: args);
 
     _logService.info(
       'Start removing migration with command: ${_getFullCommand(args)}',
@@ -202,22 +209,18 @@ class AppDotnetEfCoreService extends DotnetEfCoreService {
     );
     processRunnerResult.logResult();
 
-    final successfulProcessRunnerResult =
-        (processRunnerResult as SuccessfulProcessRunnerResult);
-    final stdout = successfulProcessRunnerResult.stdout;
     switch (processRunnerResult.type) {
       case ProcessRunnerResultType.successful:
+        final successfulProcessRunnerResult =
+            (processRunnerResult as SuccessfulProcessRunnerResult);
+        final stdout = successfulProcessRunnerResult.stdout;
         if (stdout != null) {
           final dotnetEfResultLines =
               _dotnetEfResultParserService.parseDotnetEfResult(stdout: stdout);
 
-          bool testError(DotnetEfResultLine x) =>
-              x.dotnetEfResultType == DotnetEfResultType.error;
-
-          if (dotnetEfResultLines.any(testError)) {
+          if (dotnetEfResultLines.hasError) {
             throw RemoveMigrationDotnetEfException(
-              errorMessage: dotnetEfResultLines
-                  .where(testError)
+              errorMessage: dotnetEfResultLines.errorLines
                   .map((e) => e.line)
                   .join('')
                   .trim(),
@@ -226,8 +229,86 @@ class AppDotnetEfCoreService extends DotnetEfCoreService {
         }
         break;
       case ProcessRunnerResultType.failure:
-        break;
+        throw ProcessRunnerException.fromFailureProcessRunnerResult(
+          failureProcessRunnerResult:
+              processRunnerResult as FailureProcessRunnerResult,
+        );
     }
+  }
+
+  @override
+  Future<List<DbContext>> listDbContextsAsync({
+    required Uri projectUri,
+  }) async {
+    final args = <String>[];
+
+    // Add dbcontext command.
+    args.add(_dbContextCommandName);
+
+    // Add list command.
+    args.add('list');
+
+    // Add project option.
+    _addProjectOption(
+      args: args,
+      projectUri: projectUri,
+    );
+
+    _requestJsonOutput(args: args);
+
+    _logService.info(
+      'Start listing dbcontexts with command: ${_getFullCommand(args)}',
+    );
+
+    final processRunnerResult = await _processRunnerService.runAsync(
+      executable: _dotnetEfCommandName,
+      arguments: args,
+    );
+    processRunnerResult.logResult();
+
+    var dbContexts = <DbContext>[];
+    switch (processRunnerResult.type) {
+      case ProcessRunnerResultType.successful:
+        final successfulProcessRunnerResult =
+            (processRunnerResult as SuccessfulProcessRunnerResult);
+        final stdout = successfulProcessRunnerResult.stdout;
+        if (stdout != null) {
+          final dotnetEfResultLines =
+              _dotnetEfResultParserService.parseDotnetEfResult(stdout: stdout);
+
+          if (dotnetEfResultLines.hasError) {
+            throw ListDbContextsDotnetEfException(
+              errorMessage: dotnetEfResultLines.errorLines
+                  .map((e) => e.line)
+                  .join('')
+                  .trim(),
+            );
+          }
+          final extractedJsonOutput =
+              _dotnetEfResultParserService.extractJsonOutput(
+            stdout: successfulProcessRunnerResult.stdout,
+          );
+          final decodedJson = isBlank(extractedJsonOutput)
+              ? []
+              : jsonDecode(extractedJsonOutput);
+          dbContexts =
+              (decodedJson as List).map((e) => DbContext.fromJson(e)).toList();
+        }
+        break;
+
+      case ProcessRunnerResultType.failure:
+        throw ProcessRunnerException.fromFailureProcessRunnerResult(
+          failureProcessRunnerResult:
+              processRunnerResult as FailureProcessRunnerResult,
+        );
+    }
+
+    return dbContexts;
+  }
+
+  void _requestJsonOutput({required List<String> args}) {
+    args.add(_dotnetEfJsonKey);
+    args.add(_dotnetEfPrefixOutputKey);
   }
 
   void _addProjectOption({

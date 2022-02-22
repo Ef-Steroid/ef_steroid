@@ -5,10 +5,6 @@ import 'package:ef_steroid/util/reflector.dart';
 import 'package:get_it/get_it.dart';
 
 abstract class Repository<TEntity extends EntityDto> {
-  static const Map<Type, String> tables = {
-    // EfPanel: EfPanel.tableName,
-  };
-
   static void registerRepositories() {
     GetIt.I.registerFactory<Repository<EfPanel>>(
       () => AppRepository<EfPanel>(),

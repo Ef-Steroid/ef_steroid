@@ -1,4 +1,5 @@
 import 'package:ef_steroid/domain/migration_history.dart';
+import 'package:ef_steroid/services/dotnet_ef/model/db_context.dart';
 
 abstract class DotnetEfCoreService {
   /// Update the database.
@@ -33,5 +34,13 @@ abstract class DotnetEfCoreService {
   Future<void> removeMigrationAsync({
     required Uri projectUri,
     required bool force,
+  });
+
+  /// List all the DB contexts.
+  ///
+  /// **Arguments:**
+  /// - [projectUri] -> The project uri.
+  Future<List<DbContext>> listDbContextsAsync({
+    required Uri projectUri,
   });
 }

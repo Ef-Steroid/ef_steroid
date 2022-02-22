@@ -1,20 +1,20 @@
 abstract class DotnetEfMigrationService {
-  static const String ef6MigrationFileExtension = 'cs';
-  static const String ef6DesignerFileExtension = 'Designer.cs';
-  static const String efResourcesFileExtension = 'resx';
+  static const String efMigrationFileExtension = 'cs';
+  static const String efDesignerFileExtension = 'Designer.cs';
+  static const String ef6ResourcesFileExtension = 'resx';
 
   static const List<String> ef6GeneratedMigrationFileExtensions = [
-    ef6MigrationFileExtension,
-    ef6DesignerFileExtension,
-    efResourcesFileExtension,
+    efMigrationFileExtension,
+    efDesignerFileExtension,
+    ef6ResourcesFileExtension,
   ];
 
   static final RegExp migrationDesignerFileRegex = RegExp(
-    r'\.' + ef6DesignerFileExtension + r'$',
+    r'\.' + efDesignerFileExtension + r'$',
     caseSensitive: false,
   );
   static final RegExp migrationResourcesFileRegex = RegExp(
-    r'\.' + efResourcesFileExtension + r'$',
+    r'\.' + ef6ResourcesFileExtension + r'$',
     caseSensitive: false,
   );
 

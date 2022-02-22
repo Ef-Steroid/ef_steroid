@@ -424,13 +424,13 @@ class AppDotnetEf6Service extends DotnetEf6Service {
 
     final ef6MigrationDto = Ef6MigrationDto(
       migration: joinGeneratedMigrationFilePath(
-        fileExtension: DotnetEfMigrationService.ef6MigrationFileExtension,
+        fileExtension: DotnetEfMigrationService.efMigrationFileExtension,
       ),
       migrationResources: joinGeneratedMigrationFilePath(
-        fileExtension: DotnetEfMigrationService.efResourcesFileExtension,
+        fileExtension: DotnetEfMigrationService.ef6ResourcesFileExtension,
       ),
       migrationDesigner: joinGeneratedMigrationFilePath(
-        fileExtension: DotnetEfMigrationService.ef6DesignerFileExtension,
+        fileExtension: DotnetEfMigrationService.efDesignerFileExtension,
       ),
     );
 

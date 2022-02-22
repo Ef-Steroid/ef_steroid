@@ -20,3 +20,12 @@ class DotnetEfResultLine {
     );
   }
 }
+
+extension DotnetEfResultLineListExt on List<DotnetEfResultLine> {
+  bool get hasError => any(_testError);
+
+  Iterable<DotnetEfResultLine> get errorLines => where(_testError);
+
+  bool _testError(DotnetEfResultLine line) =>
+      line.dotnetEfResultType == DotnetEfResultType.error;
+}

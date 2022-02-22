@@ -1,6 +1,7 @@
 enum DotnetEfExceptionType {
   removeMigration,
   addMigration,
+  listDbContext,
 }
 
 abstract class DotnetEfException implements Exception {
@@ -18,6 +19,7 @@ abstract class DotnetEfException implements Exception {
     switch (dotnetEfExceptionType) {
       case DotnetEfExceptionType.removeMigration:
       case DotnetEfExceptionType.addMigration:
+      case DotnetEfExceptionType.listDbContext:
         return _parseGeneralErrorMessage();
     }
   }
@@ -52,6 +54,15 @@ class AddMigrationDotnetEf6Exception extends DotnetEfException {
     String? errorMessage,
   }) : super(
           dotnetEfExceptionType: DotnetEfExceptionType.addMigration,
+          errorMessage: errorMessage,
+        );
+}
+
+class ListDbContextsDotnetEfException extends DotnetEfException {
+  ListDbContextsDotnetEfException({
+    String? errorMessage,
+  }) : super(
+          dotnetEfExceptionType: DotnetEfExceptionType.listDbContext,
           errorMessage: errorMessage,
         );
 }
