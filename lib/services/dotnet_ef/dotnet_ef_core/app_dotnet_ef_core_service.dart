@@ -121,15 +121,32 @@ class AppDotnetEfCoreService extends DotnetEfCoreService {
     var migrations = <MigrationHistory>[];
     switch (processRunnerResult.type) {
       case ProcessRunnerResultType.successful:
-        final extractedJsonOutput =
-            _dotnetEfResultParserService.extractJsonOutput(
-          stdout: (processRunnerResult as SuccessfulProcessRunnerResult).stdout,
-        );
-        final decodedJson =
-            isBlank(extractedJsonOutput) ? [] : jsonDecode(extractedJsonOutput);
-        migrations = (decodedJson as List)
-            .map((x) => MigrationHistory.fromJson(x))
-            .toList(growable: false);
+        final stdout =
+            (processRunnerResult as SuccessfulProcessRunnerResult).stdout;
+        if (stdout != null) {
+          final dotnetEfResultLines =
+              _dotnetEfResultParserService.parseDotnetEfResult(
+            stdout: stdout,
+          );
+          if (dotnetEfResultLines.hasError) {
+            throw RemoveMigrationDotnetEfException(
+              errorMessage: dotnetEfResultLines.errorLines
+                  .map((e) => e.line)
+                  .join('')
+                  .trim(),
+            );
+          }
+          final extractedJsonOutput = _dotnetEfResultParserService
+              .extractJsonOutputFromDotnetEfResultLines(
+            dotnetEfResultLines: dotnetEfResultLines,
+          );
+          final decodedJson = isBlank(extractedJsonOutput)
+              ? []
+              : jsonDecode(extractedJsonOutput);
+          migrations = (decodedJson as List)
+              .map((x) => MigrationHistory.fromJson(x))
+              .toList(growable: false);
+        }
         break;
       case ProcessRunnerResultType.failure:
         throw ProcessRunnerException.fromFailureProcessRunnerResult(

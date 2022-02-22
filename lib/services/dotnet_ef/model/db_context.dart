@@ -11,7 +11,7 @@ class DbContext {
   /// The db context safe name.
   ///
   /// We use this name for passing to `dotnet-ef`.
-  final bool safeName;
+  final String safeName;
 
   /// The db context name.
   final String name;
