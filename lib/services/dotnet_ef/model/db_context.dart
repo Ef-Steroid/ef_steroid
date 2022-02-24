@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'db_context.g.dart';
@@ -30,4 +31,15 @@ class DbContext {
       _$DbContextFromJson(json);
 
   Map<String, dynamic> toJson() => _$DbContextToJson(this);
+}
+
+extension DbContextListExt on List<DbContext> {
+  DbContext? findDbContextBySafeName(String? safeName) {
+    if (safeName == null) {
+      return null;
+    }
+    return firstWhereOrNull(
+      (x) => x.safeName == safeName,
+    );
+  }
 }

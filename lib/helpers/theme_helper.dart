@@ -83,6 +83,7 @@ class ThemeHelper {
     style: ElevatedButton.styleFrom(
       shape: const StadiumBorder(),
       shadowColor: Colors.transparent,
+      primary: ColorConst.primaryColor,
     ),
   );
 

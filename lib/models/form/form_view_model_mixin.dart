@@ -63,6 +63,7 @@ mixin FormViewModelMixin<TFormModel extends FormModel> on ViewModelBase {
     if (!form!.formKey.currentState!.validate()) {
       return getDefaultFormExceptionMessage();
     }
+    return null;
   }
 
   @nonVirtual

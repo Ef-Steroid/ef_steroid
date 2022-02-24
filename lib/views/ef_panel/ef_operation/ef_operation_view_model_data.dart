@@ -1,9 +1,7 @@
-import 'package:ef_steroid/domain/ef_panel.dart';
-
 class EfOperationViewModelData {
-  final EfPanel efPanel;
+  final int efPanelId;
 
   EfOperationViewModelData({
-    required this.efPanel,
+    required this.efPanelId,
   });
 }

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:collection/collection.dart';
 import 'package:ef_steroid/services/dotnet_ef/dotnet_ef_core/dotnet_ef_core_service.dart';
 import 'package:ef_steroid/services/dotnet_ef/dotnet_ef_migration/dotnet_ef_migration_service.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -14,22 +15,21 @@ Future<void> main() async {
   const migrationsDirectoryPath = '$netCoreWebProjectPath/Migrations';
   //endregion
 
-  // This implementation takes advantage of the fact that Platform.script
-  // returns `<Project root>/main.dart`.
-  final rootProjectDirectory = File.fromUri(Platform.script).parent;
+  final rootProjectDirectory = TestBootstrap.getProjectRootDirectory();
 
   await TestBootstrap.runAsync();
   test(
     'AppDotnetEfCoreService.listMigrationAsync returns all migrations',
-        () async {
-      final dotnetEf6Service = GetIt.I<DotnetEfCoreService>();
-      final migrations = await dotnetEf6Service.listMigrationsAsync(
+    () async {
+      final dotnetEfCoreService = GetIt.I<DotnetEfCoreService>();
+      final migrations = await dotnetEfCoreService.listMigrationsAsync(
         projectUri: Directory(
           p.joinAll([
             rootProjectDirectory.path,
             netCoreWebProjectPath,
           ]),
         ).uri,
+        dbContextName: 'SchoolDbContext',
       );
 
       final migrationsDirectory = Directory(migrationsDirectoryPath);
@@ -39,10 +39,10 @@ Future<void> main() async {
           .listSync()
           .where(
             (x) =>
-        x.statSync().type == FileSystemEntityType.file &&
-            DotnetEfMigrationService.migrationDesignerFileRegex
-                .hasMatch(x.path),
-      )
+                x.statSync().type == FileSystemEntityType.file &&
+                DotnetEfMigrationService.migrationDesignerFileRegex
+                    .hasMatch(x.path),
+          )
           .length;
 
       expect(
@@ -54,7 +54,7 @@ Future<void> main() async {
 
   test(
     'AppDotnetEfCoreService.listDbContextsAsync returns all DbContexts',
-        () async {
+    () async {
       final dotnetEf6Service = GetIt.I<DotnetEfCoreService>();
       final dbContexts = await dotnetEf6Service.listDbContextsAsync(
         projectUri: Directory(
@@ -68,6 +68,16 @@ Future<void> main() async {
       expect(
         dbContexts.length,
         2,
+      );
+      expect(
+        const ListEquality().equals(
+          dbContexts.map((x) => x.safeName).toList(),
+          [
+            'SchoolDbContext',
+            'LibraryDbContext',
+          ],
+        ),
+        true,
       );
     },
   );

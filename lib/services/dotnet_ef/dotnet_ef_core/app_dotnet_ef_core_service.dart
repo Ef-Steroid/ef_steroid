@@ -92,7 +92,7 @@ class AppDotnetEfCoreService extends DotnetEfCoreService {
   @override
   Future<List<MigrationHistory>> listMigrationsAsync({
     required Uri projectUri,
-    required String? dbContextName,
+    String? dbContextName,
   }) async {
     final args = <String>[];
 
@@ -170,7 +170,7 @@ class AppDotnetEfCoreService extends DotnetEfCoreService {
   Future<void> addMigrationAsync({
     required Uri projectUri,
     required String migrationName,
-    required String? dbContextName,
+    String? dbContextName,
   }) async {
     final args = <String>[];
 

@@ -18,9 +18,7 @@ Future<void> main() async {
       '$netFrameworkWebProjectPath/Web.config';
   //endregion
 
-  // This implementation takes advantage of the fact that Platform.script
-  // returns `<Project root>/main.dart`.
-  final rootProjectDirectory = File.fromUri(Platform.script).parent;
+  final rootProjectDirectory = TestBootstrap.getProjectRootDirectory();
 
   await TestBootstrap.runAsync();
 

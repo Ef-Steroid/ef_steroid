@@ -19,6 +19,7 @@ mixin FormStateMixin<T extends StatefulWidget, TFormModel extends FormModel>
     if (!form!.formKey.currentState!.validate()) {
       return getDefaultFormExceptionMessage();
     }
+    return null;
   }
 
   @nonVirtual

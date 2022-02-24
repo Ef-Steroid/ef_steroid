@@ -1,11 +1,14 @@
+import 'package:ef_steroid/domain/ef_panel.dart';
 import 'package:ef_steroid/helpers/theme_helper.dart';
 import 'package:ef_steroid/localization/localizations.dart';
+import 'package:ef_steroid/repository_cache/repository_cache.dart';
 import 'package:ef_steroid/shared/project_ef_type.dart';
 import 'package:ef_steroid/views/ef_panel/ef_operation/ef_operation_view_model_base.dart';
 import 'package:ef_steroid/views/widgets/form_fields/custom_text_form_field.dart';
 import 'package:ef_steroid/views/widgets/loading_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 import 'package:quiver/strings.dart';
 
 class AddMigrationForm extends StatefulWidget {
@@ -21,6 +24,8 @@ class AddMigrationForm extends StatefulWidget {
 }
 
 class _AddMigrationFormState extends State<AddMigrationForm> {
+  final RepositoryCache<EfPanel> _efPanelRepositoryCache = GetIt.I<RepositoryCache<EfPanel>>();
+
   bool _isBusy = false;
 
   final FocusScopeNode _focusScopeNode = FocusScopeNode();
@@ -59,86 +64,93 @@ class _AddMigrationFormState extends State<AddMigrationForm> {
     final l = AL.of(context).text;
     return LoadingWidget(
       isBusy: _isBusy,
-      child: Dialog(
-        insetPadding: const EdgeInsets.all(40.0),
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(8.0)),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(32.0),
-          child: FocusScope(
-            node: _focusScopeNode,
-            onKeyEvent: _onKeyEvent,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Form(
-                  key: form.formKey,
-                  child: CustomTextFormField(
-                    focusNode: _migrationFieldFocusNode,
-                    formField: form.migrationFormField,
-                    autofocus: true,
-                    inputDecoration: InputDecoration(
-                      label: Text.rich(
-                        TextSpan(
-                          text: l('MigrationName'),
-                          children: const [
+      child: FutureBuilder<EfPanel?>(
+        future: _efPanelRepositoryCache.getAsync(id: vm.efPanelId),
+        builder: (context, snapshot) {
+          final efPanel = snapshot.data;
+          return Dialog(
+            insetPadding: const EdgeInsets.all(40.0),
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(8.0)),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(32.0),
+              child: FocusScope(
+                node: _focusScopeNode,
+                onKeyEvent: _onKeyEvent,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Form(
+                      key: form.formKey,
+                      child: CustomTextFormField(
+                        focusNode: _migrationFieldFocusNode,
+                        formField: form.migrationFormField,
+                        autofocus: true,
+                        inputDecoration: InputDecoration(
+                          label: Text.rich(
                             TextSpan(
-                              text: '*',
-                              style: TextStyle(color: ColorConst.dangerColor),
-                            )
-                          ],
+                              text: l('MigrationName'),
+                              children: const [
+                                TextSpan(
+                                  text: '*',
+                                  style: TextStyle(color: ColorConst.dangerColor),
+                                )
+                              ],
+                            ),
+                          ),
+                          hintText: l('EnterMigrationName'),
                         ),
+                        validator: (value) {
+                          if (isBlank(value)) {
+                            return vm.getDefaultFormExceptionMessage();
+                          }
+                          return null;
+                        },
                       ),
-                      hintText: l('EnterMigrationName'),
                     ),
-                    validator: (value) {
-                      if (isBlank(value)) {
-                        return vm.getDefaultFormExceptionMessage();
-                      }
-                    },
-                  ),
-                ),
-                if (vm.efPanel.projectEfType == ProjectEfType.ef6) ...[
-                  const SizedBox(height: 8),
-                  CheckboxListTile(
-                    value: form.forceFormField.valueNotifier.value,
-                    focusNode: _forceCheckboxFocusNode,
-                    title: const Text('Force'),
-                    onChanged: (value) {
-                      form.forceFormField.valueNotifier.value = value!;
-                      setState(() {});
-                    },
-                  ),
-                  CheckboxListTile(
-                    value: form.ignoreChangesFormField.valueNotifier.value,
-                    focusNode: _ignoreChangesCheckboxFocusNode,
-                    title: const Text('Ignore Changes'),
-                    onChanged: (value) {
-                      form.ignoreChangesFormField.valueNotifier.value = value!;
-                      setState(() {});
-                    },
-                  ),
-                ],
-                const SizedBox(height: 16),
-                ButtonBar(
-                  children: <Widget>[
-                    OutlinedButton(
-                      focusNode: _cancelButtonFocusNode,
-                      onPressed: _onCancelButtonPressed,
-                      child: Text(l('Cancel')),
-                    ),
-                    OutlinedButton(
-                      focusNode: _addMigrationButtonFocusNode,
-                      onPressed: _onAddMigrationPressedAsync,
-                      child: Text(l('AddMigration')),
+                    if (efPanel?.projectEfType == ProjectEfType.ef6) ...[
+                      const SizedBox(height: 8),
+                      CheckboxListTile(
+                        value: form.forceFormField.valueNotifier.value,
+                        focusNode: _forceCheckboxFocusNode,
+                        title: const Text('Force'),
+                        onChanged: (value) {
+                          form.forceFormField.valueNotifier.value = value!;
+                          setState(() {});
+                        },
+                      ),
+                      CheckboxListTile(
+                        value: form.ignoreChangesFormField.valueNotifier.value,
+                        focusNode: _ignoreChangesCheckboxFocusNode,
+                        title: const Text('Ignore Changes'),
+                        onChanged: (value) {
+                          form.ignoreChangesFormField.valueNotifier.value = value!;
+                          setState(() {});
+                        },
+                      ),
+                    ],
+                    const SizedBox(height: 16),
+                    ButtonBar(
+                      children: <Widget>[
+                        OutlinedButton(
+                          focusNode: _cancelButtonFocusNode,
+                          onPressed: _onCancelButtonPressed,
+                          child: Text(l('Cancel')),
+                        ),
+                        OutlinedButton(
+                          focusNode: _addMigrationButtonFocusNode,
+                          onPressed: _onAddMigrationPressedAsync,
+                          child: Text(l('AddMigration')),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }

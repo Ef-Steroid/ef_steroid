@@ -26,6 +26,7 @@ class EfCoreOperationViewModel extends EfOperationViewModelBase {
 
     notifyListeners(isBusy: true);
     try {
+      final efPanel = await efPanelRepositoryCache.getAsync(id: efPanelId);
       migrationHistories = await _dotnetEfService.listMigrationsAsync(
         projectUri: efPanel.directoryUri,
         dbContextName: efPanel.dbContextName,
@@ -53,6 +54,7 @@ class EfCoreOperationViewModel extends EfOperationViewModelBase {
       if (isBusy) return;
 
       notifyListeners(isBusy: true);
+      final efPanel = await efPanelRepositoryCache.getAsync(id: efPanelId);
       await _dotnetEfService.updateDatabaseAsync(
         projectUri: efPanel.directoryUri,
         migrationHistory: migrationHistory,
@@ -80,9 +82,11 @@ class EfCoreOperationViewModel extends EfOperationViewModelBase {
     try {
       checkInput();
 
+      final efPanel = await efPanelRepositoryCache.getAsync(id: efPanelId);
       await _dotnetEfService.addMigrationAsync(
         projectUri: efPanel.directoryUri,
         migrationName: form.migrationFormField.toText(),
+        dbContextName: efPanel.dbContextName,
       );
 
       Navigator.pop(context);
@@ -104,6 +108,7 @@ class EfCoreOperationViewModel extends EfOperationViewModelBase {
       if (isBusy) return;
       notifyListeners(isBusy: true);
 
+      final efPanel = await efPanelRepositoryCache.getAsync(id: efPanelId);
       await _dotnetEfService.removeMigrationAsync(
         projectUri: efPanel.directoryUri,
         force: force,
@@ -137,36 +142,43 @@ class EfCoreOperationViewModel extends EfOperationViewModelBase {
   @override
   Future<void> fetchDbContextsAsync() async {
     try {
-      if (isBusy) return;
-      notifyListeners(isBusy: true);
-
+      final efPanel = await efPanelRepositoryCache.getAsync(id: efPanelId);
       dbContexts = await _dotnetEfService.listDbContextsAsync(
         projectUri: efPanel.directoryUri,
       );
-
-      // TODO: Store the DbContexts to the EF Panel
-
     } catch (ex, stackTrace) {
       await dialogService.showErrorDialog(
         context,
         ex,
         stackTrace,
       );
-    } finally {
-      notifyListeners(isBusy: false);
     }
   }
 
   @override
-  Future<void> storeDbContextAsync({
-    required DbContext dbContext,
+  Future<void> configureDbContextAsync({
+    DbContext? dbContext,
   }) async {
     try {
+      final dbContexts = this.dbContexts;
+      if (dbContexts.isEmpty) {
+        throw Exception(AL.of(context).text('NoDbContextFound'));
+      }
+
+      final efPanel = await efPanelRepositoryCache.getAsync(id: efPanelId);
+      var dbContextName = (dbContext?.safeName ?? efPanel.dbContextName);
+      dbContextName ??= dbContexts.first.safeName;
+
+      logService.info('Using dbContextName: $dbContextName');
+
       await _efPanelRepository.insertOrUpdateAsync(
         efPanel.copyWith(
-          dbContextName: dbContext.name,
+          dbContextName: dbContextName,
         ),
       );
+
+      efPanelRepositoryCache.delete(id: efPanelId);
+      notifyListeners();
     } catch (ex, stackTrace) {
       await dialogService.showErrorDialog(
         context,

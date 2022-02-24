@@ -32,7 +32,7 @@ class _EfCoreOperationViewState extends State<EfCoreOperationView> {
     super.initState();
     vm.initViewModelAsync(
       initParam: InitParam(
-        param: EfOperationViewModelData(efPanel: widget.efPanel),
+        param: EfOperationViewModelData(efPanelId: widget.efPanel.id!),
       ),
     );
   }
