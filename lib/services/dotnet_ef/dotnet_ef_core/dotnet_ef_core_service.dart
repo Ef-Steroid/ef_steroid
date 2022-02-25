@@ -11,6 +11,7 @@ abstract class DotnetEfCoreService {
   Future<String> updateDatabaseAsync({
     required Uri projectUri,
     MigrationHistory? migrationHistory,
+    String? dbContextName,
   });
 
   /// List all the migrations.

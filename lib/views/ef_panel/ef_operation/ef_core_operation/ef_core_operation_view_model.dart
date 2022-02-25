@@ -58,6 +58,7 @@ class EfCoreOperationViewModel extends EfOperationViewModelBase {
       await _dotnetEfService.updateDatabaseAsync(
         projectUri: efPanel.directoryUri,
         migrationHistory: migrationHistory,
+        dbContextName: efPanel.dbContextName,
       );
 
       notifyListeners(isBusy: false);

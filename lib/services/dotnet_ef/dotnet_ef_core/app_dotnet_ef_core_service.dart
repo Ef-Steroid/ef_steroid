@@ -44,6 +44,7 @@ class AppDotnetEfCoreService extends DotnetEfCoreService {
   Future<String> updateDatabaseAsync({
     required Uri projectUri,
     MigrationHistory? migrationHistory,
+    String? dbContextName,
   }) async {
     final args = <String>[];
 
@@ -61,6 +62,11 @@ class AppDotnetEfCoreService extends DotnetEfCoreService {
     _addProjectOption(
       args: args,
       projectUri: projectUri,
+    );
+
+    _addDbContext(
+      args: args,
+      dbContextName: dbContextName,
     );
 
     _logService.info(

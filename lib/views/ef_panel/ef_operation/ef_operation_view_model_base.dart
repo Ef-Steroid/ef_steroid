@@ -127,9 +127,7 @@ abstract class EfOperationViewModelBase extends ViewModelBase
     final efPanel = await efPanelRepositoryCache.getAsync(id: efPanelId);
     final dbContextName = efPanel.dbContextName;
 
-    if (isNotBlank(dbContextName)) {
-      await listMigrationsAsync();
-    }
+    await listMigrationsAsync();
     await fetchDbContextsAsync();
     await configureDbContextAsync();
     if (isBlank(dbContextName)) {
@@ -214,7 +212,7 @@ abstract class EfOperationViewModelBase extends ViewModelBase
       MessageKey.onEfProjectTypeChanged,
       this,
     );
-    await listMigrationsAsync();
+    await _loadViewInitially();
   }
 
   Future<void> _storeEfProjectTypeAsync({
