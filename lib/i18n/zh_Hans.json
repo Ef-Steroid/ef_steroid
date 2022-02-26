@@ -35,5 +35,6 @@
   "SelectConfigFile": "选择配置文件",
   "NoConfigFileSelected": "配置文件未选择",
   "PleaseSelectAConfigFileFirst": "请先选择一个配置文件",
-  "NoDbContextFound": "查无DbContext。请确保你已添加。"
+  "NoDbContextFound": "查无数据库上下文。请确保你已添加。",
+  "NoDbContextSelected": "未选中数据库上下文"
 }

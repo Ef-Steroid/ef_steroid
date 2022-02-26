@@ -56,7 +56,7 @@ class _EfProjectOperationViewState extends State<EfProjectOperationView> {
             Widget widget;
             switch (efPanel.projectEfType) {
               case ProjectEfType.efCore:
-                widget = EfCoreOperationView(efPanel: efPanel);
+                widget = EfCoreOperationView(efPanelId: efPanel.id!);
                 break;
               case ProjectEfType.ef6:
                 widget = Ef6OperationView(efPanel: efPanel);
@@ -69,10 +69,7 @@ class _EfProjectOperationViewState extends State<EfProjectOperationView> {
                 break;
             }
 
-            return EfProjectOperation(
-              efProjectOperationViewModel: vm,
-              child: widget,
-            );
+            return widget;
           },
         );
       },
@@ -117,27 +114,4 @@ class _EfProjectTypeSelectorState extends State<_EfProjectTypeSelector> {
   void _onProjectEfTypeSaved(ProjectEfType value) {
     widget.vm.switchEfProjectTypeAsync(projectEfType: value);
   }
-}
-
-@deprecated
-class EfProjectOperation extends InheritedWidget {
-  @protected
-  final EfProjectOperationViewModel efProjectOperationViewModel;
-
-  const EfProjectOperation({
-    Key? key,
-    required this.efProjectOperationViewModel,
-    required Widget child,
-  }) : super(
-          key: key,
-          child: child,
-        );
-
-  @override
-  bool updateShouldNotify(covariant EfProjectOperation oldWidget) {
-    return oldWidget.efProjectOperationViewModel != efProjectOperationViewModel;
-  }
-
-  static EfProjectOperation? of(BuildContext context) =>
-      context.dependOnInheritedWidgetOfExactType<EfProjectOperation>();
 }

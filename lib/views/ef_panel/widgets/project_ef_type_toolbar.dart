@@ -35,6 +35,14 @@ class _ProjectEfTypeToolbarState extends State<ProjectEfTypeToolbar> {
   }
 
   @override
+  void didUpdateWidget(covariant ProjectEfTypeToolbar oldWidget) {
+    if (widget.projectEfType != oldWidget.projectEfType) {
+      _projectEfType = widget.projectEfType;
+    }
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
   Widget build(BuildContext context) {
     final l = AL.of(context).text;
     return Row(

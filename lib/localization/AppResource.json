@@ -256,9 +256,15 @@
       "name": "NoDbContextFound",
       "values": {
         "en": "No DbContext found. Make sure you have added one.",
-        "zh_Hans": "查无DbContext。请确保你已添加。"
-      },
-      "isReferenced": false
+        "zh_Hans": "查无数据库上下文。请确保你已添加。"
+      }
+    },
+    {
+      "name": "NoDbContextSelected",
+      "values": {
+        "en": "No DbContext selected",
+        "zh_Hans": "未选中数据库上下文"
+      }
     }
   ]
 }

@@ -1,23 +1,21 @@
-import 'package:ef_steroid/domain/ef_panel.dart';
+import 'package:darq/darq.dart';
 import 'package:ef_steroid/helpers/theme_helper.dart';
 import 'package:ef_steroid/localization/localizations.dart';
-import 'package:ef_steroid/repository_cache/repository_cache.dart';
 import 'package:ef_steroid/services/dotnet_ef/model/db_context.dart';
 import 'package:ef_steroid/views/ef_panel/ef_operation/ef6_operation/ef6_operation_view_model.dart';
 import 'package:ef_steroid/views/ef_panel/ef_operation/ef_operation_view_model_base.dart';
 import 'package:ef_steroid/views/widgets/loading_widget.dart';
 import 'package:ef_steroid/views/widgets/mvvm_binding_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 
 class EfOperationView extends StatefulWidget {
   final EfOperationViewModelBase vm;
 
-  final EfPanel efPanel;
+  final int efPanelId;
 
   const EfOperationView({
     Key? key,
-    required this.efPanel,
+    required this.efPanelId,
     required this.vm,
   }) : super(key: key);
 
@@ -35,32 +33,36 @@ class _EfOperationViewState extends State<EfOperationView> {
       viewModel: vm,
       isReuse: true,
       builder: (context, vm, child) {
-        return Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  _DbContextSelector(vm: vm),
-                  const Spacer(),
-                  OutlinedButton.icon(
-                    icon: const Icon(Icons.autorenew_outlined),
-                    label: Text(l('RevertAllMigrations')),
-                    onPressed: vm.revertAllMigrationsAsync,
+        return Builder(
+          builder: (context) {
+            return Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    children: [
+                      _DbContextSelector(vm: vm),
+                      const Spacer(),
+                      OutlinedButton.icon(
+                        icon: const Icon(Icons.autorenew_outlined),
+                        label: Text(l('RevertAllMigrations')),
+                        onPressed: vm.revertAllMigrationsAsync,
+                      ),
+                      const SizedBox(width: 8.0),
+                      OutlinedButton.icon(
+                        icon: const Icon(Icons.refresh),
+                        label: Text(l('Refresh')),
+                        onPressed: vm.listMigrationsAsync,
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 8.0),
-                  OutlinedButton.icon(
-                    icon: const Icon(Icons.refresh),
-                    label: Text(l('Refresh')),
-                    onPressed: vm.listMigrationsAsync,
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: _MigrationsTable(vm: vm),
-            ),
-          ],
+                ),
+                Expanded(
+                  child: _MigrationsTable(vm: vm),
+                ),
+              ],
+            );
+          },
         );
       },
     );
@@ -69,9 +71,8 @@ class _EfOperationViewState extends State<EfOperationView> {
 
 class _DbContextSelector extends StatelessWidget {
   final EfOperationViewModelBase vm;
-  final RepositoryCache<EfPanel> _efPanelRepositoryCache = GetIt.I<RepositoryCache<EfPanel>>();
 
-  _DbContextSelector({
+  const _DbContextSelector({
     Key? key,
     required this.vm,
   }) : super(key: key);
@@ -82,64 +83,67 @@ class _DbContextSelector extends StatelessWidget {
 
     final l = AL.of(context).text;
 
-    return FutureBuilder<EfPanel?>(
-      future: _efPanelRepositoryCache.getAsync(id: vm.efPanelId),
-      builder: (context, snapshot) {
-        final efPanel = snapshot.data;
-        if (efPanel == null) return const SizedBox.shrink();
-        final dbContextName = efPanel.dbContextName;
-        final dbContexts = vm.dbContexts;
-        return Row(
-          mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
-            Container(
-              padding: const EdgeInsets.all(8.0),
-              decoration: const BoxDecoration(
-                border: Border.fromBorderSide(
-                  BorderSide(
-                    color: ColorConst.primaryColor,
-                    width: 1.0,
-                  ),
-                ),
-                borderRadius: BorderRadius.all(Radius.circular(8.0)),
-              ),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  value: dbContextName,
-                  onChanged: dbContexts.isEmpty ? null : _onDbContextChangedAsync,
-                  items: dbContexts
-                      .map(
-                        (dbContext) => DropdownMenuItem<String>(
-                          value: dbContext.safeName,
-                          child: Text(
-                            dbContext.safeName,
-                          ),
-                        ),
-                      )
-                      .toList(growable: false),
-                  isDense: true,
-                ),
+    final efPanel = vm.efPanel;
+    final dbContextName = efPanel?.dbContextName;
+    final dbContexts = vm.dbContexts;
+    final dbContext = dbContexts.findDbContextBySafeName(dbContextName) ?? const DbContext.dummy();
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+        Container(
+          padding: const EdgeInsets.all(8.0),
+          decoration: const BoxDecoration(
+            border: Border.fromBorderSide(
+              BorderSide(
+                color: ColorConst.primaryColor,
+                width: 1.0,
               ),
             ),
-            IconButton(
-              icon: const Icon(Icons.refresh),
-              tooltip: l('Refresh'),
-              color: ColorConst.primaryColor,
-              onPressed: vm.fetchDbContextsAsync,
+            borderRadius: BorderRadius.all(Radius.circular(8.0)),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<DbContext>(
+              value: dbContext,
+              onChanged: dbContexts.isEmpty ? null : _onDbContextChangedAsync,
+              items: dbContexts
+                  .map(
+                    (dbContext) => DropdownMenuItem<DbContext>(
+                      value: dbContext,
+                      child: Text(
+                        dbContext.safeName,
+                      ),
+                    ),
+                  )
+                  .prepend(
+                    DropdownMenuItem<DbContext>(
+                      enabled: false,
+                      value: const DbContext.dummy(),
+                      child: Text('<${l('NoDbContextSelected')}>'),
+                    ),
+                  )
+                  .toList(growable: false),
+              isDense: true,
             ),
-          ],
-        );
-      },
+          ),
+        ),
+        IconButton(
+          icon: const Icon(Icons.refresh),
+          tooltip: l('Refresh'),
+          color: ColorConst.primaryColor,
+          onPressed: vm.fetchDbContextsAsync,
+        ),
+      ],
     );
   }
 
-  Future<void> _onDbContextChangedAsync(String? dbContextName) {
-    if (dbContextName == null) {
-      throw ArgumentError.notNull('dbContextName');
+  Future<void> _onDbContextChangedAsync(DbContext? dbContext) {
+    if (dbContext == null) {
+      throw ArgumentError.notNull('dbContext');
     }
 
     return vm.configureDbContextAsync(
-      dbContext: vm.dbContexts.findDbContextBySafeName(dbContextName),
+      dbContext: dbContext,
     );
   }
 }
@@ -164,6 +168,11 @@ class _MigrationsTableState extends State<_MigrationsTable> {
     const boxDiameter = 24.0;
     final l = AL.of(context).text;
     final vm = widget.vm;
+    final efPanel = vm.efPanel;
+    final dbContextName = efPanel?.dbContextName;
+    final dbContext = vm.dbContexts.findDbContextBySafeName(dbContextName) ??
+        const DbContext.dummy();
+    final migrationHistories = vm.dbContextMigrationHistoriesMap[dbContext];
     return LoadingWidget(
       isBusy: vm.isBusy,
       child: SingleChildScrollView(
@@ -187,7 +196,7 @@ class _MigrationsTableState extends State<_MigrationsTable> {
                 label: Text(l('Operations')),
               ),
             ],
-            rows: vm.migrationHistories.map((migrationHistory) {
+            rows: migrationHistories?.map((migrationHistory) {
               return DataRow(
                 cells: <DataCell>[
                   DataCell(
@@ -224,6 +233,7 @@ class _MigrationsTableState extends State<_MigrationsTable> {
                           tooltip: l('UpdateDatabaseToHere'),
                         ),
                         if (vm.canShowRemoveMigrationButton(
+                          dbContext: dbContext,
                           migrationHistory: migrationHistory,
                         ))
                           IconButton(
@@ -244,7 +254,7 @@ class _MigrationsTableState extends State<_MigrationsTable> {
                   ),
                 ],
               );
-            }).toList(growable: false),
+            }).toList(growable: false) ?? [],
           ),
         ),
       ),

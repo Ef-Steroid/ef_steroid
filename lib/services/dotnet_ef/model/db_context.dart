@@ -1,11 +1,12 @@
 import 'package:collection/collection.dart';
+import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'db_context.g.dart';
 
 /// Define a DbContext information.
 @JsonSerializable()
-class DbContext {
+class DbContext with EquatableMixin {
   /// The db context full name.
   final String fullName;
 
@@ -20,17 +21,52 @@ class DbContext {
   /// The db context assembly name.
   final String assemblyQualifiedName;
 
-  DbContext({
+  /// Check if this object is dummy in the context of [ef_steroid].
+  final bool isDummy;
+
+  const DbContext({
+    required String fullName,
+    required String safeName,
+    required String name,
+    required String assemblyQualifiedName,
+  }) : this._(
+          fullName: fullName,
+          safeName: safeName,
+          name: name,
+          assemblyQualifiedName: assemblyQualifiedName,
+          isDummy: false,
+        );
+
+  const DbContext.dummy()
+      : this._(
+          fullName: '',
+          safeName: '',
+          name: '',
+          assemblyQualifiedName: '',
+          isDummy: true,
+        );
+
+  const DbContext._({
     required this.fullName,
     required this.safeName,
     required this.name,
     required this.assemblyQualifiedName,
+    required this.isDummy,
   });
 
   factory DbContext.fromJson(Map<String, dynamic> json) =>
       _$DbContextFromJson(json);
 
   Map<String, dynamic> toJson() => _$DbContextToJson(this);
+
+  @override
+  List<Object?> get props => [
+        fullName,
+        safeName,
+        name,
+        assemblyQualifiedName,
+        isDummy,
+      ];
 }
 
 extension DbContextListExt on List<DbContext> {

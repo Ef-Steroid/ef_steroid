@@ -41,7 +41,7 @@ class Ef6OperationViewModel extends EfOperationViewModelBase {
       return;
     }
 
-    final efPanel = await efPanelRepositoryCache.getAsync(id: efPanelId);
+    final efPanel = await fetchEfPanelAsync();
     await _efPanelRepository.insertOrUpdateAsync(
       efPanel.copyWith(
         configFileUri: Uri.file(configFilePath),
@@ -53,18 +53,19 @@ class Ef6OperationViewModel extends EfOperationViewModelBase {
 
   @override
   Future<void> listMigrationsAsync() async {
-    final efPanel = await efPanelRepositoryCache.getAsync(id: efPanelId);
+    final efPanel = await fetchEfPanelAsync();
     final configFileUri = efPanel.configFileUri;
     if (isBusy || configFileUri == null) return;
 
     notifyListeners(isBusy: true);
     try {
-      migrationHistories = await _dotnetEf6Service.listMigrationsAsync(
+      dbContextMigrationHistoriesMap[const DbContext.dummy()] =
+          await _dotnetEf6Service.listMigrationsAsync(
         projectUri: efPanel.directoryUri,
         configUri: configFileUri,
       );
 
-      sortMigrationHistory();
+      await sortMigrationHistoryAsync();
 
       showListMigrationBanner = false;
       notifyListeners();
@@ -84,7 +85,7 @@ class Ef6OperationViewModel extends EfOperationViewModelBase {
     required bool force,
     required MigrationHistory migrationHistory,
   }) async {
-    final efPanel = await efPanelRepositoryCache.getAsync(id: efPanelId);
+    final efPanel = await fetchEfPanelAsync();
     final configFileUri = efPanel.configFileUri;
     if (isBusy || configFileUri == null) return;
     notifyListeners(isBusy: true);
@@ -110,7 +111,7 @@ class Ef6OperationViewModel extends EfOperationViewModelBase {
     required MigrationHistory migrationHistory,
   }) async {
     try {
-      final efPanel = await efPanelRepositoryCache.getAsync(id: efPanelId);
+      final efPanel = await fetchEfPanelAsync();
       final configFileUri = efPanel.configFileUri;
       if (isBusy || configFileUri == null) return;
 
@@ -141,7 +142,7 @@ class Ef6OperationViewModel extends EfOperationViewModelBase {
   @override
   Future<void> addMigrationAsync() async {
     try {
-      final efPanel = await efPanelRepositoryCache.getAsync(id: efPanelId);
+      final efPanel = await fetchEfPanelAsync();
       final configFileUri = efPanel.configFileUri;
       if (configFileUri == null) return;
 
@@ -167,6 +168,7 @@ class Ef6OperationViewModel extends EfOperationViewModelBase {
 
   @override
   bool canShowRemoveMigrationButton({
+    required DbContext dbContext,
     required MigrationHistory migrationHistory,
   }) {
     return true;

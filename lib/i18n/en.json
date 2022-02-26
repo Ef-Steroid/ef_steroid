@@ -35,5 +35,6 @@
   "SelectConfigFile": "Select config file",
   "NoConfigFileSelected": "No config file selected",
   "PleaseSelectAConfigFileFirst": "Please select a config file first",
-  "NoDbContextFound": "No DbContext found. Make sure you have added one."
+  "NoDbContextFound": "No DbContext found. Make sure you have added one.",
+  "NoDbContextSelected": "No DbContext selected"
 }

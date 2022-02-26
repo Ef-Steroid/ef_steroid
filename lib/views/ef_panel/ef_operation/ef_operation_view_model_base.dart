@@ -12,6 +12,7 @@ import 'package:ef_steroid/models/form/text_editing_form_field_model.dart';
 import 'package:ef_steroid/repository/repository.dart';
 import 'package:ef_steroid/repository_cache/repository_cache.dart';
 import 'package:ef_steroid/services/dotnet_ef/dotnet_ef_migration/dotnet_ef_migration_service.dart';
+import 'package:ef_steroid/services/dotnet_ef/model/db_context.dart';
 import 'package:ef_steroid/shared/project_ef_type.dart';
 import 'package:ef_steroid/util/message_key.dart';
 import 'package:ef_steroid/util/messaging_center.dart';
@@ -38,7 +39,13 @@ abstract class EfOperationViewModelBase extends ViewModelBase
 
   late final int _efPanelId;
 
+  @protected
   int get efPanelId => _efPanelId;
+
+  EfPanel? _efPanel;
+
+  @nonVirtual
+  EfPanel? get efPanel => _efPanel;
 
   @override
   final _AddMigrationFormModel form = _AddMigrationFormModel();
@@ -53,16 +60,19 @@ abstract class EfOperationViewModelBase extends ViewModelBase
   @nonVirtual
   set showListMigrationBanner(bool value) => _showListMigrationBanner = value;
 
-  List<MigrationHistory> _migrationHistories = [];
+  Map<DbContext, List<MigrationHistory>> _dbContextMigrationHistoriesMap = {};
 
   /// The migration histories.
   @nonVirtual
-  List<MigrationHistory> get migrationHistories => _migrationHistories;
+  Map<DbContext, List<MigrationHistory>> get dbContextMigrationHistoriesMap =>
+      _dbContextMigrationHistoriesMap;
 
   @nonVirtual
   @protected
-  set migrationHistories(List<MigrationHistory> value) =>
-      _migrationHistories = value;
+  set dbContextMigrationHistoriesMap(
+    Map<DbContext, List<MigrationHistory>> value,
+  ) =>
+      _dbContextMigrationHistoriesMap = value;
 
   bool _sortMigrationByAscending = false;
 
@@ -74,7 +84,7 @@ abstract class EfOperationViewModelBase extends ViewModelBase
   set sortMigrationByAscending(bool sortMigrationByAscending) {
     if (sortMigrationByAscending == _sortMigrationByAscending) return;
     _sortMigrationByAscending = sortMigrationByAscending;
-    sortMigrationHistory();
+    sortMigrationHistoryAsync();
     notifyListeners();
   }
 
@@ -124,7 +134,7 @@ abstract class EfOperationViewModelBase extends ViewModelBase
   }
 
   Future<void> _loadViewInitially() async {
-    final efPanel = await efPanelRepositoryCache.getAsync(id: efPanelId);
+    final efPanel = await fetchEfPanelAsync();
     final dbContextName = efPanel.dbContextName;
 
     await listMigrationsAsync();
@@ -136,7 +146,7 @@ abstract class EfOperationViewModelBase extends ViewModelBase
   }
 
   Future<Directory> _getMigrationsDirectory() async {
-    final efPanel = await efPanelRepositoryCache.getAsync(id: efPanelId);
+    final efPanel = await fetchEfPanelAsync();
     return Directory.fromUri(
       _dotnetEfMigrationService.getMigrationsDirectory(
         projectUri: efPanel.directoryUri,
@@ -196,8 +206,14 @@ abstract class EfOperationViewModelBase extends ViewModelBase
 
   @protected
   @nonVirtual
-  void sortMigrationHistory() {
-    migrationHistories = sortMigrationByAscending
+  Future<void> sortMigrationHistoryAsync() async {
+    final efPanel = await fetchEfPanelAsync();
+    final dbContextName = efPanel.dbContextName;
+    final dbContext = dbContexts.findDbContextBySafeName(dbContextName);
+    if (dbContext == null) return;
+    final migrationHistories = dbContextMigrationHistoriesMap[dbContext];
+    if (migrationHistories == null) return;
+    dbContextMigrationHistoriesMap[dbContext] = sortMigrationByAscending
         ? migrationHistories.orderBy((x) => x.id).toList(growable: false)
         : migrationHistories
             .orderByDescending((x) => x.id)
@@ -218,7 +234,7 @@ abstract class EfOperationViewModelBase extends ViewModelBase
   Future<void> _storeEfProjectTypeAsync({
     required ProjectEfType efProjectType,
   }) async {
-    final efPanel = await efPanelRepositoryCache.getAsync(id: efPanelId);
+    final efPanel = await fetchEfPanelAsync();
     if (efPanel.projectEfType == efProjectType) return;
 
     if (isBusy) return;
@@ -244,8 +260,20 @@ abstract class EfOperationViewModelBase extends ViewModelBase
   }
 
   bool canShowRemoveMigrationButton({
+    required DbContext dbContext,
     required MigrationHistory migrationHistory,
   });
+
+  @protected
+  @nonVirtual
+  Future<EfPanel> fetchEfPanelAsync() async {
+    final efPanel = this.efPanel;
+    _efPanel = await efPanelRepositoryCache.getAsync(id: efPanelId);
+    if (efPanel != _efPanel) {
+      notifyListeners();
+    }
+    return this.efPanel!;
+  }
 
   @override
   void dispose() {

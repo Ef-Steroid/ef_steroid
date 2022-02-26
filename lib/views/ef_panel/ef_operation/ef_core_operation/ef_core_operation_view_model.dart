@@ -26,13 +26,17 @@ class EfCoreOperationViewModel extends EfOperationViewModelBase {
 
     notifyListeners(isBusy: true);
     try {
-      final efPanel = await efPanelRepositoryCache.getAsync(id: efPanelId);
-      migrationHistories = await _dotnetEfService.listMigrationsAsync(
+      final efPanel = await fetchEfPanelAsync();
+      dbContextMigrationHistoriesMap[dbContexts
+              .findDbContextBySafeName(efPanel.dbContextName)
+          // Store it as dummy first. The correct DbContext is available after fetching DbContext.
+          ??
+          const DbContext.dummy()] = await _dotnetEfService.listMigrationsAsync(
         projectUri: efPanel.directoryUri,
         dbContextName: efPanel.dbContextName,
       );
 
-      sortMigrationHistory();
+      await sortMigrationHistoryAsync();
       showListMigrationBanner = false;
       notifyListeners();
     } catch (ex, stackTrace) {
@@ -54,7 +58,7 @@ class EfCoreOperationViewModel extends EfOperationViewModelBase {
       if (isBusy) return;
 
       notifyListeners(isBusy: true);
-      final efPanel = await efPanelRepositoryCache.getAsync(id: efPanelId);
+      final efPanel = await fetchEfPanelAsync();
       await _dotnetEfService.updateDatabaseAsync(
         projectUri: efPanel.directoryUri,
         migrationHistory: migrationHistory,
@@ -83,7 +87,7 @@ class EfCoreOperationViewModel extends EfOperationViewModelBase {
     try {
       checkInput();
 
-      final efPanel = await efPanelRepositoryCache.getAsync(id: efPanelId);
+      final efPanel = await fetchEfPanelAsync();
       await _dotnetEfService.addMigrationAsync(
         projectUri: efPanel.directoryUri,
         migrationName: form.migrationFormField.toText(),
@@ -109,7 +113,7 @@ class EfCoreOperationViewModel extends EfOperationViewModelBase {
       if (isBusy) return;
       notifyListeners(isBusy: true);
 
-      final efPanel = await efPanelRepositoryCache.getAsync(id: efPanelId);
+      final efPanel = await fetchEfPanelAsync();
       await _dotnetEfService.removeMigrationAsync(
         projectUri: efPanel.directoryUri,
         force: force,
@@ -143,10 +147,18 @@ class EfCoreOperationViewModel extends EfOperationViewModelBase {
   @override
   Future<void> fetchDbContextsAsync() async {
     try {
-      final efPanel = await efPanelRepositoryCache.getAsync(id: efPanelId);
+      final efPanel = await fetchEfPanelAsync();
       dbContexts = await _dotnetEfService.listDbContextsAsync(
         projectUri: efPanel.directoryUri,
       );
+
+      if (dbContextMigrationHistoriesMap.containsKey(const DbContext.dummy())) {
+        final migrationHistories =
+            dbContextMigrationHistoriesMap.remove(const DbContext.dummy())!;
+        dbContextMigrationHistoriesMap[
+                dbContexts.findDbContextBySafeName(efPanel.dbContextName)!] =
+            migrationHistories;
+      }
     } catch (ex, stackTrace) {
       await dialogService.showErrorDialog(
         context,
@@ -166,7 +178,7 @@ class EfCoreOperationViewModel extends EfOperationViewModelBase {
         throw Exception(AL.of(context).text('NoDbContextFound'));
       }
 
-      final efPanel = await efPanelRepositoryCache.getAsync(id: efPanelId);
+      final efPanel = await fetchEfPanelAsync();
       var dbContextName = (dbContext?.safeName ?? efPanel.dbContextName);
       dbContextName ??= dbContexts.first.safeName;
 
@@ -212,8 +224,10 @@ class EfCoreOperationViewModel extends EfOperationViewModelBase {
 
   @override
   bool canShowRemoveMigrationButton({
+    required DbContext dbContext,
     required MigrationHistory migrationHistory,
   }) {
+    final migrationHistories = dbContextMigrationHistoriesMap[dbContext]!;
     return (sortMigrationByAscending
             ? migrationHistories.last.id
             : migrationHistories.first.id) ==
