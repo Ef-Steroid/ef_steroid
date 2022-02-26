@@ -18,6 +18,7 @@ import 'package:ef_steroid/util/message_key.dart';
 import 'package:ef_steroid/util/messaging_center.dart';
 import 'package:ef_steroid/views/ef_panel/ef_operation/ef_operation_view_model_data.dart';
 import 'package:ef_steroid/views/ef_panel/ef_operation/mixins/db_context_selector_view_model_mixin.dart';
+import 'package:ef_steroid/views/ef_panel/ef_operation/widgets/db_context_selector.dart';
 import 'package:ef_steroid/views/ef_panel/tab_data_value.dart';
 import 'package:ef_steroid/views/root_tab_view.dart';
 import 'package:ef_steroid/views/view_model_base.dart';
@@ -46,6 +47,9 @@ abstract class EfOperationViewModelBase extends ViewModelBase
 
   @nonVirtual
   EfPanel? get efPanel => _efPanel;
+
+  final DbContextSelectorController dbContextSelectorController =
+      DbContextSelectorController();
 
   @override
   final _AddMigrationFormModel form = _AddMigrationFormModel();
@@ -270,6 +274,9 @@ abstract class EfOperationViewModelBase extends ViewModelBase
     final efPanel = this.efPanel;
     _efPanel = await efPanelRepositoryCache.getAsync(id: efPanelId);
     if (efPanel != _efPanel) {
+      dbContextSelectorController.dbContext = dbContexts.findDbContextBySafeName(
+        this.efPanel!.dbContextName,
+      ) ?? const DbContext.dummy();
       notifyListeners();
     }
     return this.efPanel!;

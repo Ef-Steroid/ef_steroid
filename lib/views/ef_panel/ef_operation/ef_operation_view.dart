@@ -1,9 +1,7 @@
-import 'package:darq/darq.dart';
 import 'package:ef_steroid/helpers/theme_helper.dart';
 import 'package:ef_steroid/localization/localizations.dart';
-import 'package:ef_steroid/services/dotnet_ef/model/db_context.dart';
-import 'package:ef_steroid/views/ef_panel/ef_operation/ef6_operation/ef6_operation_view_model.dart';
 import 'package:ef_steroid/views/ef_panel/ef_operation/ef_operation_view_model_base.dart';
+import 'package:ef_steroid/views/ef_panel/ef_operation/widgets/db_context_selector.dart';
 import 'package:ef_steroid/views/widgets/loading_widget.dart';
 import 'package:ef_steroid/views/widgets/mvvm_binding_widget.dart';
 import 'package:flutter/material.dart';
@@ -33,6 +31,7 @@ class _EfOperationViewState extends State<EfOperationView> {
       viewModel: vm,
       isReuse: true,
       builder: (context, vm, child) {
+        final dbContextSelectorController = vm.dbContextSelectorController;
         return Builder(
           builder: (context) {
             return Column(
@@ -41,7 +40,10 @@ class _EfOperationViewState extends State<EfOperationView> {
                   padding: const EdgeInsets.all(8.0),
                   child: Row(
                     children: [
-                      _DbContextSelector(vm: vm),
+                      DbContextSelector(
+                        vm: vm,
+                        dbContextSelectorController: dbContextSelectorController,
+                      ),
                       const Spacer(),
                       OutlinedButton.icon(
                         icon: const Icon(Icons.autorenew_outlined),
@@ -58,7 +60,10 @@ class _EfOperationViewState extends State<EfOperationView> {
                   ),
                 ),
                 Expanded(
-                  child: _MigrationsTable(vm: vm),
+                  child: _MigrationsTable(
+                    vm: vm,
+                    dbContextController: dbContextSelectorController,
+                  ),
                 ),
               ],
             );
@@ -69,91 +74,15 @@ class _EfOperationViewState extends State<EfOperationView> {
   }
 }
 
-class _DbContextSelector extends StatelessWidget {
-  final EfOperationViewModelBase vm;
-
-  const _DbContextSelector({
-    Key? key,
-    required this.vm,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    if (vm is Ef6OperationViewModel) return const SizedBox.shrink();
-
-    final l = AL.of(context).text;
-
-    final efPanel = vm.efPanel;
-    final dbContextName = efPanel?.dbContextName;
-    final dbContexts = vm.dbContexts;
-    final dbContext = dbContexts.findDbContextBySafeName(dbContextName) ?? const DbContext.dummy();
-
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        Container(
-          padding: const EdgeInsets.all(8.0),
-          decoration: const BoxDecoration(
-            border: Border.fromBorderSide(
-              BorderSide(
-                color: ColorConst.primaryColor,
-                width: 1.0,
-              ),
-            ),
-            borderRadius: BorderRadius.all(Radius.circular(8.0)),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButton<DbContext>(
-              value: dbContext,
-              onChanged: dbContexts.isEmpty ? null : _onDbContextChangedAsync,
-              items: dbContexts
-                  .map(
-                    (dbContext) => DropdownMenuItem<DbContext>(
-                      value: dbContext,
-                      child: Text(
-                        dbContext.safeName,
-                      ),
-                    ),
-                  )
-                  .prepend(
-                    DropdownMenuItem<DbContext>(
-                      enabled: false,
-                      value: const DbContext.dummy(),
-                      child: Text('<${l('NoDbContextSelected')}>'),
-                    ),
-                  )
-                  .toList(growable: false),
-              isDense: true,
-            ),
-          ),
-        ),
-        IconButton(
-          icon: const Icon(Icons.refresh),
-          tooltip: l('Refresh'),
-          color: ColorConst.primaryColor,
-          onPressed: vm.fetchDbContextsAsync,
-        ),
-      ],
-    );
-  }
-
-  Future<void> _onDbContextChangedAsync(DbContext? dbContext) {
-    if (dbContext == null) {
-      throw ArgumentError.notNull('dbContext');
-    }
-
-    return vm.configureDbContextAsync(
-      dbContext: dbContext,
-    );
-  }
-}
-
 class _MigrationsTable extends StatefulWidget {
   final EfOperationViewModelBase vm;
+
+  final DbContextSelectorController dbContextController;
 
   const _MigrationsTable({
     Key? key,
     required this.vm,
+    required this.dbContextController,
   }) : super(key: key);
 
   @override
@@ -164,14 +93,30 @@ class _MigrationsTableState extends State<_MigrationsTable> {
   final ScrollController _scrollController = ScrollController();
 
   @override
+  void initState() {
+    super.initState();
+    widget.dbContextController.addListener(_onDbContextChanged);
+  }
+
+  @override
+  void didUpdateWidget(covariant _MigrationsTable oldWidget) {
+    if (widget.dbContextController != oldWidget.dbContextController) {
+      oldWidget.dbContextController.removeListener(_onDbContextChanged);
+      widget.dbContextController.addListener(_onDbContextChanged);
+    }
+    super.didUpdateWidget(oldWidget);
+  }
+
+  void _onDbContextChanged() {
+    setState(() {});
+  }
+
+  @override
   Widget build(BuildContext context) {
     const boxDiameter = 24.0;
     final l = AL.of(context).text;
     final vm = widget.vm;
-    final efPanel = vm.efPanel;
-    final dbContextName = efPanel?.dbContextName;
-    final dbContext = vm.dbContexts.findDbContextBySafeName(dbContextName) ??
-        const DbContext.dummy();
+    final dbContext = widget.dbContextController.dbContext;
     final migrationHistories = vm.dbContextMigrationHistoriesMap[dbContext];
     return LoadingWidget(
       isBusy: vm.isBusy,
@@ -197,64 +142,65 @@ class _MigrationsTableState extends State<_MigrationsTable> {
               ),
             ],
             rows: migrationHistories?.map((migrationHistory) {
-              return DataRow(
-                cells: <DataCell>[
-                  DataCell(
-                    SelectableText(migrationHistory.id),
-                  ),
-                  DataCell(
-                    migrationHistory.applied
-                        ? const SizedBox.square(
-                            dimension: boxDiameter,
-                            child: DecoratedBox(
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: Colors.green,
+                  return DataRow(
+                    cells: <DataCell>[
+                      DataCell(
+                        SelectableText(migrationHistory.id),
+                      ),
+                      DataCell(
+                        migrationHistory.applied
+                            ? const SizedBox.square(
+                                dimension: boxDiameter,
+                                child: DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Colors.green,
+                                  ),
+                                ),
+                              )
+                            : const SizedBox.square(
+                                dimension: boxDiameter,
                               ),
+                      ),
+                      DataCell(
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              onPressed: () {
+                                vm.updateDatabaseToTargetedMigrationAsync(
+                                  migrationHistory: migrationHistory,
+                                );
+                              },
+                              icon: const Icon(
+                                Icons.menu_open,
+                              ),
+                              tooltip: l('UpdateDatabaseToHere'),
                             ),
-                          )
-                        : const SizedBox.square(
-                            dimension: boxDiameter,
-                          ),
-                  ),
-                  DataCell(
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          onPressed: () {
-                            vm.updateDatabaseToTargetedMigrationAsync(
+                            if (vm.canShowRemoveMigrationButton(
+                              dbContext: dbContext,
                               migrationHistory: migrationHistory,
-                            );
-                          },
-                          icon: const Icon(
-                            Icons.menu_open,
-                          ),
-                          tooltip: l('UpdateDatabaseToHere'),
+                            ))
+                              IconButton(
+                                onPressed: () {
+                                  vm.removeMigrationAsync(
+                                    force: false,
+                                    migrationHistory: migrationHistory,
+                                  );
+                                },
+                                icon: const Icon(
+                                  Icons.remove,
+                                  color: ColorConst.dangerColor,
+                                ),
+                                tooltip: l('RemoveMigration'),
+                              ),
+                          ],
                         ),
-                        if (vm.canShowRemoveMigrationButton(
-                          dbContext: dbContext,
-                          migrationHistory: migrationHistory,
-                        ))
-                          IconButton(
-                            onPressed: () {
-                              vm.removeMigrationAsync(
-                                force: false,
-                                migrationHistory: migrationHistory,
-                              );
-                            },
-                            icon: const Icon(
-                              Icons.remove,
-                              color: ColorConst.dangerColor,
-                            ),
-                            tooltip: l('RemoveMigration'),
-                          ),
-                      ],
-                    ),
-                  ),
-                ],
-              );
-            }).toList(growable: false) ?? [],
+                      ),
+                    ],
+                  );
+                }).toList(growable: false) ??
+                [],
           ),
         ),
       ),

@@ -184,6 +184,10 @@ class EfCoreOperationViewModel extends EfOperationViewModelBase {
 
       logService.info('Using dbContextName: $dbContextName');
 
+      dbContextSelectorController.dbContext =
+          dbContexts.findDbContextBySafeName(dbContextName) ??
+              const DbContext.dummy();
+
       await _efPanelRepository.insertOrUpdateAsync(
         efPanel.copyWith(
           dbContextName: dbContextName,
