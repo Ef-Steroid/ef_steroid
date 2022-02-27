@@ -17,10 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-export PATH="$PATH:/opt/homebrew/bin"
-
-if which needle; then
-  export SOURCEKIT_LOGGING=0 && needle generate Runner/Services/ServiceLocator.generated.swift Runner/
-else
-  echo "warning: Needle not installed, download from https://github.com/uber/needle using Homebrew"
-fi
+mkdir .shared_idea/copyright
+mkdir .shared_idea/scopes
+cp -a .idea/copyright/. .shared_idea/copyright/.
+cp -a .idea/scopes/. .shared_idea/scopes/.
