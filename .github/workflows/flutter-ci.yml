@@ -1,0 +1,32 @@
+name: Flutter CI
+on:
+  pull_request:
+    types: [ opened, reopened, synchronize, edited ]
+  workflow_dispatch:
+env:
+  FLUTTER_VERSION: stable
+jobs:
+  Windows-CI:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Flutter
+        uses: britannio/action-install-flutter@v1.1
+        with:
+          version: $FLUTTER_VERSION
+
+      - name: Check Dart code style
+        run: flutter format lib --set-exit-if-changed
+        shell: bash
+  macOS-CI:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Flutter
+        uses: britannio/action-install-flutter@v1.1
+        with:
+          version: $FLUTTER_VERSION
+      - name: Check Dart code style
+        run: flutter format lib --set-exit-if-changed
+
+
