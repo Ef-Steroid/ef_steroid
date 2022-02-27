@@ -123,6 +123,7 @@ class EfCoreOperationViewModel extends EfOperationViewModelBase {
       await _dotnetEfService.removeMigrationAsync(
         projectUri: efPanel.directoryUri,
         force: force,
+        dbContextName: efPanel.dbContextName,
       );
 
       notifyListeners(isBusy: false);

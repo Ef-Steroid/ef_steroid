@@ -8,6 +8,7 @@ abstract class DotnetEfCoreService {
   /// - [projectUri] -> The project uri.
   /// - [migrationHistory] -> The targeted migration history. Update to the
   /// latest if this is null.
+  /// - [dbContext] -> The database context name.
   Future<String> updateDatabaseAsync({
     required Uri projectUri,
     MigrationHistory? migrationHistory,
@@ -34,9 +35,11 @@ abstract class DotnetEfCoreService {
   /// **Arguments:**
   /// - [projectUri] -> The project uri.
   /// - [force] -> Force the migration removal even the migration is applied.
+  /// - [dbContextName] -> The database context name.
   Future<void> removeMigrationAsync({
     required Uri projectUri,
     required bool force,
+    String? dbContextName,
   });
 
   /// List all the DB contexts.

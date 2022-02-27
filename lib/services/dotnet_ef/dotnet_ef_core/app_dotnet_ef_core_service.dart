@@ -58,15 +58,16 @@ class AppDotnetEfCoreService extends DotnetEfCoreService {
       args.add(migrationHistory.id);
     }
 
+    // Add context command.
+    _addDbContext(
+      args: args,
+      dbContextName: dbContextName,
+    );
+
     // Add project option.
     _addProjectOption(
       args: args,
       projectUri: projectUri,
-    );
-
-    _addDbContext(
-      args: args,
-      dbContextName: dbContextName,
     );
 
     _logService.info(
@@ -227,6 +228,7 @@ class AppDotnetEfCoreService extends DotnetEfCoreService {
   Future<void> removeMigrationAsync({
     required Uri projectUri,
     required bool force,
+    String? dbContextName,
   }) async {
     final args = <String>[];
 
@@ -236,11 +238,18 @@ class AppDotnetEfCoreService extends DotnetEfCoreService {
     // Add remove command.
     args.add('remove');
 
+    // Add context command.
+    _addDbContext(
+      args: args,
+      dbContextName: dbContextName,
+    );
+
     // Add project option.
     _addProjectOption(
       args: args,
       projectUri: projectUri,
     );
+
 
     if (force) {
       args.add('--force');
