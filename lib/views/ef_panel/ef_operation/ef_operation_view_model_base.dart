@@ -279,9 +279,11 @@ abstract class EfOperationViewModelBase extends ViewModelBase
     final efPanel = this.efPanel;
     _efPanel = await efPanelRepositoryCache.getAsync(id: efPanelId);
     if (efPanel != _efPanel) {
-      dbContextSelectorController.dbContext = dbContexts.findDbContextBySafeName(
-        this.efPanel!.dbContextName,
-      ) ?? const DbContext.dummy();
+      dbContextSelectorController.dbContext =
+          dbContexts.findDbContextBySafeName(
+                this.efPanel!.dbContextName,
+              ) ??
+              const DbContext.dummy();
       notifyListeners();
     }
     return this.efPanel!;

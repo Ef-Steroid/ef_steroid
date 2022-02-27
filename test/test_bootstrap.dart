@@ -14,7 +14,7 @@ class TestBootstrap {
     });
   }
 
-  static Directory getProjectRootDirectory(){
+  static Directory getProjectRootDirectory() {
     // This implementation takes advantage of the fact that Platform.script
     // returns `<Project root>/main.dart`.
     return File.fromUri(Platform.script).parent;

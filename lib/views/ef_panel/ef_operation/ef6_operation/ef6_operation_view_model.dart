@@ -52,7 +52,8 @@ class Ef6OperationViewModel extends EfOperationViewModelBase {
   }
 
   @override
-  Future<void> listMigrationsAsync({bool omitMultipleContextsError = false}) async {
+  Future<void> listMigrationsAsync(
+      {bool omitMultipleContextsError = false}) async {
     final efPanel = await fetchEfPanelAsync();
     final configFileUri = efPanel.configFileUri;
     if (isBusy || configFileUri == null) return;

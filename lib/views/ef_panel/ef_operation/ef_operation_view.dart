@@ -42,7 +42,8 @@ class _EfOperationViewState extends State<EfOperationView> {
                     children: [
                       DbContextSelector(
                         vm: vm,
-                        dbContextSelectorController: dbContextSelectorController,
+                        dbContextSelectorController:
+                            dbContextSelectorController,
                       ),
                       const Spacer(),
                       OutlinedButton.icon(

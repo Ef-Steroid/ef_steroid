@@ -28,7 +28,8 @@ class EfProjectOperationView extends StatefulWidget {
 class _EfProjectOperationViewState extends State<EfProjectOperationView> {
   final EfProjectOperationViewModel vm = GetIt.I<EfProjectOperationViewModel>();
 
-  final RepositoryCache<EfPanel> _efPanelRepositoryCache = GetIt.I<RepositoryCache<EfPanel>>();
+  final RepositoryCache<EfPanel> _efPanelRepositoryCache =
+      GetIt.I<RepositoryCache<EfPanel>>();
 
   @override
   void initState() {

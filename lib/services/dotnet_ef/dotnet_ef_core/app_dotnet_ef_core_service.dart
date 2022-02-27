@@ -250,7 +250,6 @@ class AppDotnetEfCoreService extends DotnetEfCoreService {
       projectUri: projectUri,
     );
 
-
     if (force) {
       args.add('--force');
     }
