@@ -1,4 +1,3 @@
-import 'package:ef_steroid/json_converters/boolean_converter.dart';
 /*
  * Copyright 2022-2022 MOK KAH WAI and contributors
  *
@@ -16,6 +15,7 @@ import 'package:ef_steroid/json_converters/boolean_converter.dart';
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import 'package:ef_steroid/json_converters/boolean_converter.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'migration_history.g.dart';
