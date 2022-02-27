@@ -294,7 +294,7 @@ class AppDotnetEf6Service extends DotnetEf6Service {
                 x.dotnetEfResultType == DotnetEfResultType.error;
 
             if (dotnetEfResultLines.any(testError)) {
-              throw AddMigrationDotnetEf6Exception(
+              throw UnknownDotnetEfException(
                 errorMessage: dotnetEfResultLines
                     .where(testError)
                     .map((e) => e.line)

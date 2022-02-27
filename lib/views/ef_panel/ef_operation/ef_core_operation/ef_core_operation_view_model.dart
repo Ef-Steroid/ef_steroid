@@ -21,7 +21,9 @@ class EfCoreOperationViewModel extends EfOperationViewModelBase {
   );
 
   @override
-  Future<void> listMigrationsAsync() async {
+  Future<void> listMigrationsAsync({
+    bool omitMultipleContextsError = false,
+  }) async {
     if (isBusy) return;
 
     notifyListeners(isBusy: true);
@@ -40,11 +42,15 @@ class EfCoreOperationViewModel extends EfOperationViewModelBase {
       showListMigrationBanner = false;
       notifyListeners();
     } catch (ex, stackTrace) {
-      await dialogService.showErrorDialog(
-        context,
-        ex,
-        stackTrace,
-      );
+      if (ex is! UnknownDotnetEfException ||
+          !ex.isMultipleContextsError ||
+          !omitMultipleContextsError) {
+        await dialogService.showErrorDialog(
+          context,
+          ex,
+          stackTrace,
+        );
+      }
     }
 
     notifyListeners(isBusy: false);

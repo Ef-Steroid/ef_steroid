@@ -141,7 +141,7 @@ abstract class EfOperationViewModelBase extends ViewModelBase
     final efPanel = await fetchEfPanelAsync();
     final dbContextName = efPanel.dbContextName;
 
-    await listMigrationsAsync();
+    await listMigrationsAsync(omitMultipleContextsError: true);
     await fetchDbContextsAsync();
     await configureDbContextAsync();
     if (isBlank(dbContextName)) {
@@ -184,7 +184,12 @@ abstract class EfOperationViewModelBase extends ViewModelBase
     notifyListeners();
   }
 
-  Future<void> listMigrationsAsync();
+  /// List migrations.
+  ///
+  /// **Arguments:**
+  /// - [omitMultipleContextsError] -> If true, [listMigrationsAsync] omits the
+  /// error message for multiple contexts.
+  Future<void> listMigrationsAsync({bool omitMultipleContextsError = false});
 
   /// Remove a migration.
   ///

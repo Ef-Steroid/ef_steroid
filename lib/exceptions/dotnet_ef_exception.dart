@@ -1,7 +1,6 @@
 enum DotnetEfExceptionType {
+  unknown,
   removeMigration,
-  addMigration,
-  listDbContext,
 }
 
 abstract class DotnetEfException implements Exception {
@@ -17,9 +16,8 @@ abstract class DotnetEfException implements Exception {
   @override
   String toString() {
     switch (dotnetEfExceptionType) {
+      case DotnetEfExceptionType.unknown:
       case DotnetEfExceptionType.removeMigration:
-      case DotnetEfExceptionType.addMigration:
-      case DotnetEfExceptionType.listDbContext:
         return _parseGeneralErrorMessage();
     }
   }
@@ -27,6 +25,22 @@ abstract class DotnetEfException implements Exception {
   String _parseGeneralErrorMessage() {
     return errorMessage ?? '';
   }
+}
+
+class UnknownDotnetEfException extends DotnetEfException {
+  static final RegExp _multipleContextsErrorRegex = RegExp(
+    'More than one DbContext was found. Specify which one to use. Use the \'-Context\' parameter for PowerShell commands and the \'--context\' parameter for dotnet commands.',
+  );
+
+  bool get isMultipleContextsError =>
+      _multipleContextsErrorRegex.hasMatch(errorMessage ?? '');
+
+  UnknownDotnetEfException({
+    String? errorMessage,
+  }) : super(
+          dotnetEfExceptionType: DotnetEfExceptionType.unknown,
+          errorMessage: errorMessage,
+        );
 }
 
 class RemoveMigrationDotnetEfException extends DotnetEfException {
@@ -37,32 +51,13 @@ class RemoveMigrationDotnetEfException extends DotnetEfException {
 
   /// Indicate if the error message from EFCore means that the migration is
   /// applied.
-  bool get isMigrationAppliedError {
-    return _migrationAppliedErrorRegex.hasMatch(errorMessage ?? '');
-  }
+  bool get isMigrationAppliedError =>
+      _migrationAppliedErrorRegex.hasMatch(errorMessage ?? '');
 
   RemoveMigrationDotnetEfException({
     String? errorMessage,
   }) : super(
           dotnetEfExceptionType: DotnetEfExceptionType.removeMigration,
-          errorMessage: errorMessage,
-        );
-}
-
-class AddMigrationDotnetEf6Exception extends DotnetEfException {
-  AddMigrationDotnetEf6Exception({
-    String? errorMessage,
-  }) : super(
-          dotnetEfExceptionType: DotnetEfExceptionType.addMigration,
-          errorMessage: errorMessage,
-        );
-}
-
-class ListDbContextsDotnetEfException extends DotnetEfException {
-  ListDbContextsDotnetEfException({
-    String? errorMessage,
-  }) : super(
-          dotnetEfExceptionType: DotnetEfExceptionType.listDbContext,
           errorMessage: errorMessage,
         );
 }

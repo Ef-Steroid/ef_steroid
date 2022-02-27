@@ -143,7 +143,7 @@ class AppDotnetEfCoreService extends DotnetEfCoreService {
             stdout: stdout,
           );
           if (dotnetEfResultLines.hasError) {
-            throw RemoveMigrationDotnetEfException(
+            throw UnknownDotnetEfException(
               errorMessage: dotnetEfResultLines.errorLines
                   .map((e) => e.line)
                   .join('')
@@ -326,7 +326,7 @@ class AppDotnetEfCoreService extends DotnetEfCoreService {
               _dotnetEfResultParserService.parseDotnetEfResult(stdout: stdout);
 
           if (dotnetEfResultLines.hasError) {
-            throw ListDbContextsDotnetEfException(
+            throw UnknownDotnetEfException(
               errorMessage: dotnetEfResultLines.errorLines
                   .map((e) => e.line)
                   .join('')

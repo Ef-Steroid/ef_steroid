@@ -1,6 +1,4 @@
-import 'package:ef_steroid/domain/ef_panel.dart';
 import 'package:ef_steroid/localization/localizations.dart';
-import 'package:ef_steroid/repository_cache/repository_cache.dart';
 import 'package:ef_steroid/shared/project_ef_type.dart';
 import 'package:ef_steroid/views/ef_panel/ef_operation/ef_core_operation/ef_core_operation_view_model.dart';
 import 'package:ef_steroid/views/ef_panel/ef_operation/ef_operation_view.dart';
