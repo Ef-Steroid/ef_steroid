@@ -17,7 +17,41 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-mkdir .shared_idea/copyright
-mkdir .shared_idea/scopes
-cp -a .idea/copyright/. .shared_idea/copyright/.
-cp -a .idea/scopes/. .shared_idea/scopes/.
+SHARED_IDEA_DIR=".shared_idea"
+IDEA_DIR=".idea"
+COPYRIGHT_DIRECTORY="copyright"
+SCOPE_DIRECTORY="scopes"
+
+SHARED_IDEA_COPYRIGHT_DIRECTORY="$SHARED_IDEA_DIR/$COPYRIGHT_DIRECTORY"
+SHARED_IDEA_SCOPE_DIRECTORY="$SHARED_IDEA_DIR/$SCOPE_DIRECTORY"
+
+IDEA_COPYRIGHT_DIRECTORY="$IDEA_DIR/$COPYRIGHT_DIRECTORY"
+IDEA_SCOPE_DIRECTORY="$IDEA_DIR/$SCOPE_DIRECTORY"
+
+create_directory_if_not_exist() {
+  if [ ! -d "$1" ]; then
+    mkdir "$1"
+  fi
+}
+
+if [ "$1" = "-e" ]; then
+  echo 'Exporting...'
+
+  create_directory_if_not_exist "$SHARED_IDEA_COPYRIGHT_DIRECTORY"
+  create_directory_if_not_exist "$SHARED_IDEA_SCOPE_DIRECTORY"
+
+  cp -a "$IDEA_COPYRIGHT_DIRECTORY/." "$SHARED_IDEA_COPYRIGHT_DIRECTORY/."
+  cp -a "$IDEA_SCOPE_DIRECTORY/." "$SHARED_IDEA_SCOPE_DIRECTORY/."
+  echo 'Exported!'
+elif [ "$1" = "-i" ]; then
+  echo 'Importing...'
+
+  create_directory_if_not_exist "$IDEA_COPYRIGHT_DIRECTORY"
+  create_directory_if_not_exist "$IDEA_SCOPE_DIRECTORY"
+
+  cp -a "$SHARED_IDEA_COPYRIGHT_DIRECTORY/." "$IDEA_COPYRIGHT_DIRECTORY/."
+  cp -a "$SHARED_IDEA_SCOPE_DIRECTORY/." "$IDEA_SCOPE_DIRECTORY/."
+  echo 'Imported!'
+else
+  echo 'Usage: shared_idea.sh -e | -i'
+fi
