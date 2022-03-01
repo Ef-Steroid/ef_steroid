@@ -70,12 +70,13 @@ class DbContext with EquatableMixin {
 }
 
 extension DbContextListExt on List<DbContext> {
-  DbContext? findDbContextBySafeName(String? safeName) {
+  DbContext findDbContextBySafeName(String? safeName) {
     if (safeName == null) {
-      return null;
+      return const DbContext.dummy();
     }
-    return firstWhereOrNull(
+    return firstWhere(
       (x) => x.safeName == safeName,
+      orElse: () => const DbContext.dummy(),
     );
   }
 }

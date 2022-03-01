@@ -29,11 +29,9 @@ class EfCoreOperationViewModel extends EfOperationViewModelBase {
     notifyListeners(isBusy: true);
     try {
       final efPanel = await fetchEfPanelAsync();
-      dbContextMigrationHistoriesMap[dbContexts
-              .findDbContextBySafeName(efPanel.dbContextName)
-          // Store it as dummy first. The correct DbContext is available after fetching DbContext.
-          ??
-          const DbContext.dummy()] = await _dotnetEfService.listMigrationsAsync(
+      dbContextMigrationHistoriesMap[
+              dbContexts.findDbContextBySafeName(efPanel.dbContextName)] =
+          await _dotnetEfService.listMigrationsAsync(
         projectUri: efPanel.directoryUri,
         dbContextName: efPanel.dbContextName,
       );
@@ -163,7 +161,7 @@ class EfCoreOperationViewModel extends EfOperationViewModelBase {
         final migrationHistories =
             dbContextMigrationHistoriesMap.remove(const DbContext.dummy())!;
         dbContextMigrationHistoriesMap[
-                dbContexts.findDbContextBySafeName(efPanel.dbContextName)!] =
+                dbContexts.findDbContextBySafeName(efPanel.dbContextName)] =
             migrationHistories;
       }
     } catch (ex, stackTrace) {
@@ -192,8 +190,7 @@ class EfCoreOperationViewModel extends EfOperationViewModelBase {
       logService.info('Using dbContextName: $dbContextName');
 
       dbContextSelectorController.dbContext =
-          dbContexts.findDbContextBySafeName(dbContextName) ??
-              const DbContext.dummy();
+          dbContexts.findDbContextBySafeName(dbContextName);
 
       await _efPanelRepository.insertOrUpdateAsync(
         efPanel.copyWith(

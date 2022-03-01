@@ -219,7 +219,6 @@ abstract class EfOperationViewModelBase extends ViewModelBase
     final efPanel = await fetchEfPanelAsync();
     final dbContextName = efPanel.dbContextName;
     final dbContext = dbContexts.findDbContextBySafeName(dbContextName);
-    if (dbContext == null) return;
     final migrationHistories = dbContextMigrationHistoriesMap[dbContext];
     if (migrationHistories == null) return;
     dbContextMigrationHistoriesMap[dbContext] = sortMigrationByAscending
@@ -227,6 +226,7 @@ abstract class EfOperationViewModelBase extends ViewModelBase
         : migrationHistories
             .orderByDescending((x) => x.id)
             .toList(growable: false);
+    notifyListeners();
   }
 
   Future<void> switchEfProjectTypeAsync({
@@ -282,8 +282,7 @@ abstract class EfOperationViewModelBase extends ViewModelBase
       dbContextSelectorController.dbContext =
           dbContexts.findDbContextBySafeName(
                 this.efPanel!.dbContextName,
-              ) ??
-              const DbContext.dummy();
+              );
       notifyListeners();
     }
     return this.efPanel!;
