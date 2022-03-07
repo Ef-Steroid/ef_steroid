@@ -1,3 +1,4 @@
+import 'package:ef_steroid/json_converters/boolean_converter.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'migration_history.g.dart';
@@ -22,6 +23,7 @@ class MigrationHistory {
 
   final String safeName;
 
+  @NullableBooleanConverter()
   final bool applied;
 
   /// Compute if this migration history is ancient, for reverting all migrations
