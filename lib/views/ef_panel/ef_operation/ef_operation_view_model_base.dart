@@ -298,8 +298,8 @@ abstract class EfOperationViewModelBase extends ViewModelBase
     if (efPanel != _efPanel) {
       dbContextSelectorController.dbContext =
           dbContexts.findDbContextBySafeName(
-                this.efPanel!.dbContextName,
-              );
+        this.efPanel!.dbContextName,
+      );
       notifyListeners();
     }
     return this.efPanel!;
