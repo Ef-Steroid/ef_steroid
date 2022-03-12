@@ -29,6 +29,9 @@
 /* Class = "NSMenuItem"; title = "About APP_NAME"; ObjectID = "5kV-Vb-QxS"; */
 "5kV-Vb-QxS.title" = "关于 APP_NAME";
 
+/* Class = "NSMenuItem"; title = "Check for update"; ObjectID = "Q5h-2L-qrA" */
+"Q5h-2L-qrA.title" = "检查更新";
+
 /* Class = "NSMenuItem"; title = "Redo"; ObjectID = "6dh-zS-Vam"; */
 "6dh-zS-Vam.title" = "Redo";
 
