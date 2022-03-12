@@ -68,7 +68,9 @@ class _EfOperationViewState extends State<EfOperationView> {
                       OutlinedButton.icon(
                         icon: const Icon(Icons.autorenew_outlined),
                         label: Text(l('RevertAllMigrations')),
-                        onPressed: vm.revertAllMigrationsAsync,
+                        onPressed: () => vm.revertAllMigrationsAsync(
+                          context: context,
+                        ),
                       ),
                       const SizedBox(width: 8.0),
                       OutlinedButton.icon(
@@ -189,6 +191,7 @@ class _MigrationsTableState extends State<_MigrationsTable> {
                             IconButton(
                               onPressed: () {
                                 vm.updateDatabaseToTargetedMigrationAsync(
+                                  context: context,
                                   migrationHistory: migrationHistory,
                                 );
                               },

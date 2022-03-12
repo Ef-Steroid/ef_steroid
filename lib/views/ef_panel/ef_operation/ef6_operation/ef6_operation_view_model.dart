@@ -127,9 +127,19 @@ class Ef6OperationViewModel extends EfOperationViewModelBase {
 
   @override
   Future<void> updateDatabaseToTargetedMigrationAsync({
+    required BuildContext context,
     required MigrationHistory migrationHistory,
   }) async {
     try {
+      final response = await promptForUpdatingDatabaseToTargetedMigrationAsync(
+        context: context,
+        migrationHistory: migrationHistory,
+        showForceMigration: true,
+      );
+      if (!response.accepted) {
+        return;
+      }
+
       final efPanel = await fetchEfPanelAsync();
       final configFileUri = efPanel.configFileUri;
       if (isBusy || configFileUri == null) return;
@@ -139,6 +149,7 @@ class Ef6OperationViewModel extends EfOperationViewModelBase {
         projectUri: efPanel.directoryUri,
         migrationHistory: migrationHistory,
         configUri: configFileUri,
+        force: response.runWithForce,
       );
 
       notifyListeners(isBusy: false);

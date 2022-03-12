@@ -38,11 +38,13 @@ abstract class DotnetEf6Service {
   /// **Arguments:**
   ///
   /// {@macro dotnet_ef6_service.DotnetEf6Service.listMigrationsAsync}
+  /// - [force] -> Indicate if we should update the migration with --force.
   /// - [migrationHistory] -> The targeted migration history. Update to the
   /// latest if this is null.
   Future<String> updateDatabaseAsync({
     required Uri projectUri,
     required Uri configUri,
+    required bool force,
     MigrationHistory? migrationHistory,
   });
 

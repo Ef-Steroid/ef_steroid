@@ -36,5 +36,8 @@
   "NoConfigFileSelected": "No config file selected",
   "PleaseSelectAConfigFileFirst": "Please select a config file first",
   "NoDbContextFound": "No DbContext found. Make sure you have added one.",
-  "NoDbContextSelected": "No DbContext selected"
+  "NoDbContextSelected": "No DbContext selected",
+  "UpdateDatabaseToTargetedMigrationPrompt": "Confirm to run this migration to the database?",
+  "RunWithForce": "Run with --force",
+  "RevertAllMigrationsPrompt": "Confirm to revert all migrations?"
 }

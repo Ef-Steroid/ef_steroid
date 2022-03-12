@@ -73,11 +73,19 @@ class EfCoreOperationViewModel extends EfOperationViewModelBase {
 
   @override
   Future<void> updateDatabaseToTargetedMigrationAsync({
+    required BuildContext context,
     required MigrationHistory migrationHistory,
   }) async {
     try {
-      if (isBusy) return;
+      if (!await promptForUpdatingDatabaseToTargetedMigrationAsync(
+        context: context,
+        migrationHistory: migrationHistory,
+        showForceMigration: false,
+      ).then((value) => value.accepted)) {
+        return;
+      }
 
+      if (isBusy) return;
       notifyListeners(isBusy: true);
       final efPanel = await fetchEfPanelAsync();
       await _dotnetEfService.updateDatabaseAsync(

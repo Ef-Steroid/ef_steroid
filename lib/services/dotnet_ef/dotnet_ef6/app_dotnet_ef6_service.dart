@@ -196,6 +196,7 @@ class AppDotnetEf6Service extends DotnetEf6Service {
   Future<String> updateDatabaseAsync({
     required Uri projectUri,
     required Uri configUri,
+    required bool force,
     MigrationHistory? migrationHistory,
   }) async {
     final args = <String>[];
@@ -210,6 +211,10 @@ class AppDotnetEf6Service extends DotnetEf6Service {
         migrationHistory.applied) {
       args.add('--target');
       args.add(migrationHistory.id);
+    }
+
+    if (force) {
+      args.add('--force');
     }
 
     final ef6Command = await _dotnetEf6CommandResolver.getDotnetEf6CommandAsync(

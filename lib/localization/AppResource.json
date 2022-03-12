@@ -265,6 +265,27 @@
         "en": "No DbContext selected",
         "zh_Hans": "未选中数据库上下文"
       }
+    },
+    {
+      "name": "UpdateDatabaseToTargetedMigrationPrompt",
+      "values": {
+        "en": "Confirm to run this migration to the database?",
+        "zh_Hans": "确认执行此迁移至数据库？"
+      }
+    },
+    {
+      "name": "RunWithForce",
+      "values": {
+        "en": "Run with --force",
+        "zh_Hans": "以--force执行"
+      }
+    },
+    {
+      "name": "RevertAllMigrationsPrompt",
+      "values": {
+        "en": "Confirm to revert all migrations?",
+        "zh_Hans": "确认撤销所有迁移？"
+      }
     }
   ]
 }

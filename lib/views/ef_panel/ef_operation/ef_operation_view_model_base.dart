@@ -21,6 +21,7 @@ import 'dart:io';
 import 'package:darq/darq.dart';
 import 'package:ef_steroid/domain/ef_panel.dart';
 import 'package:ef_steroid/domain/migration_history.dart';
+import 'package:ef_steroid/helpers/animation_helper.dart';
 import 'package:ef_steroid/helpers/tabbed_view_controller_helper.dart';
 import 'package:ef_steroid/models/form/form_model.dart';
 import 'package:ef_steroid/models/form/form_view_model_mixin.dart';
@@ -36,6 +37,7 @@ import 'package:ef_steroid/util/messaging_center.dart';
 import 'package:ef_steroid/views/ef_panel/ef_operation/ef_operation_view_model_data.dart';
 import 'package:ef_steroid/views/ef_panel/ef_operation/mixins/db_context_selector_view_model_mixin.dart';
 import 'package:ef_steroid/views/ef_panel/ef_operation/widgets/db_context_selector.dart';
+import 'package:ef_steroid/views/ef_panel/ef_operation/widgets/update_database_to_targeted_migration_prompt_dialog.dart';
 import 'package:ef_steroid/views/ef_panel/tab_data_value.dart';
 import 'package:ef_steroid/views/root_tab_view.dart';
 import 'package:ef_steroid/views/view_model_base.dart';
@@ -219,16 +221,51 @@ abstract class EfOperationViewModelBase extends ViewModelBase
   });
 
   @nonVirtual
-  Future<void> revertAllMigrationsAsync() =>
+  Future<void> revertAllMigrationsAsync({
+    required BuildContext context,
+  }) =>
       updateDatabaseToTargetedMigrationAsync(
+        context: context,
         migrationHistory: const MigrationHistory.ancient(),
       );
 
   Future<void> addMigrationAsync();
 
   Future<void> updateDatabaseToTargetedMigrationAsync({
+    required BuildContext context,
     required MigrationHistory migrationHistory,
   });
+
+  @protected
+  @nonVirtual
+  Future<UpdateDatabaseToTargetedMigrationPromptDialogResult>
+      promptForUpdatingDatabaseToTargetedMigrationAsync({
+    required BuildContext context,
+    required MigrationHistory migrationHistory,
+    required bool showForceMigration,
+  }) async {
+    return showGeneralDialog<
+        UpdateDatabaseToTargetedMigrationPromptDialogResult?>(
+      context: context,
+      useRootNavigator: true,
+      transitionDuration: AnimationHelper.standardAnimationDuration,
+      barrierDismissible: false,
+      transitionBuilder: AnimationHelper.dialogTransitionBuilder,
+      pageBuilder: (context, _, __) =>
+          UpdateDatabaseToTargetedMigrationPromptDialog(
+        showForceMigration: showForceMigration,
+        isRevertingAllMigrations:
+            migrationHistory == const MigrationHistory.ancient(),
+      ),
+    ).then(
+      (value) =>
+          value ??
+          UpdateDatabaseToTargetedMigrationPromptDialogResult(
+            accepted: false,
+            runWithForce: false,
+          ),
+    );
+  }
 
   @protected
   @nonVirtual
