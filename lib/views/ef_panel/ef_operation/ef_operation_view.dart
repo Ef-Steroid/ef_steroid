@@ -17,6 +17,8 @@
 
 import 'package:ef_steroid/helpers/theme_helper.dart';
 import 'package:ef_steroid/localization/localizations.dart';
+import 'package:ef_steroid/views/ef_panel/ef_operation/ef6_operation/ef6_operation_view_model.dart';
+import 'package:ef_steroid/views/ef_panel/ef_operation/ef_core_operation/ef_core_operation_view_model.dart';
 import 'package:ef_steroid/views/ef_panel/ef_operation/ef_operation_view_model_base.dart';
 import 'package:ef_steroid/views/ef_panel/ef_operation/widgets/db_context_selector.dart';
 import 'package:ef_steroid/views/widgets/loading_widget.dart';
@@ -206,10 +208,7 @@ class _MigrationsTableState extends State<_MigrationsTable> {
                                     migrationHistory: migrationHistory,
                                   );
                                 },
-                                icon: const Icon(
-                                  Icons.remove,
-                                  color: ColorConst.dangerColor,
-                                ),
+                                icon: _RemoveMigrationIcon(vm: vm),
                                 tooltip: l('RemoveMigration'),
                               ),
                           ],
@@ -229,5 +228,35 @@ class _MigrationsTableState extends State<_MigrationsTable> {
   void dispose() {
     _scrollController.dispose();
     super.dispose();
+  }
+}
+
+class _RemoveMigrationIcon extends StatelessWidget {
+  final EfOperationViewModelBase vm;
+
+  const _RemoveMigrationIcon({
+    Key? key,
+    required this.vm,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    if (vm is EfCoreOperationViewModel) {
+      return const Icon(
+        Icons.remove,
+        color: ColorConst.dangerColor,
+      );
+    }
+
+    if (vm is Ef6OperationViewModel) {
+      return const Icon(
+        Icons.delete,
+        color: ColorConst.dangerColor,
+      );
+    }
+
+    throw UnsupportedError(
+      'Unsupported concrete EfOperationViewModelBase: ${vm.runtimeType}',
+    );
   }
 }

@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="main.dart" type="FlutterRunConfigurationType" factoryName="Flutter" nameIsGenerated="true">
+    <option name="attachArgs" value="--debug-url http://127.0.0.1:65438/WnCqY8CYRw8=/" />
+    <option name="filePath" value="$PROJECT_DIR$/../ef_steroid/lib/main.dart" />
+    <method v="2" />
+  </configuration>
+</component>
