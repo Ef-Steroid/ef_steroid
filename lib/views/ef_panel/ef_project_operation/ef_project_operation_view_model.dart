@@ -1,29 +1,54 @@
+/*
+ * Copyright 2022-2022 MOK KAH WAI and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 import 'dart:async';
 
 import 'package:ef_steroid/domain/ef_panel.dart';
 import 'package:ef_steroid/repository/repository.dart';
+import 'package:ef_steroid/repository_cache/repository_cache.dart';
 import 'package:ef_steroid/services/cs_project_resolver/cs_project_resolver.dart';
 import 'package:ef_steroid/shared/project_ef_type.dart';
+import 'package:ef_steroid/util/message_key.dart';
+import 'package:ef_steroid/util/messaging_center.dart';
 import 'package:ef_steroid/views/ef_panel/ef_project_operation/ef_project_operation_view_model_data.dart';
 import 'package:ef_steroid/views/view_model_base.dart';
 import 'package:get_it/get_it.dart';
 
 class EfProjectOperationViewModel extends ViewModelBase {
   final Repository<EfPanel> _efPanelRepository = GetIt.I<Repository<EfPanel>>();
+  final RepositoryCache<EfPanel> _efPanelRepositoryCache =
+      GetIt.I<RepositoryCache<EfPanel>>();
   final CsProjectResolver _csProjectResolver;
-
-  /// A completer for [_detectProjectTypeAsync].
-  final Completer<void> projectTypeDetectionCompleter = Completer<void>();
 
   late int _efPanelId;
 
-  EfPanel? _efPanel;
-
-  EfPanel? get efPanel => _efPanel;
-
   EfProjectOperationViewModel(
     this._csProjectResolver,
-  );
+  ) {
+    MessagingCenter.subscribe(
+      MessageKey.onEfProjectTypeChanged,
+      this,
+      _onEfProjectTypeChanged,
+    );
+  }
+
+  void _onEfProjectTypeChanged(MessageData data) {
+    notifyListeners();
+  }
 
   @override
   Future<void> initViewModelAsync({
@@ -32,38 +57,16 @@ class EfProjectOperationViewModel extends ViewModelBase {
     final state = initParam.param;
     if (state is EfProjectOperationViewModelData) {
       _efPanelId = state.efPanelId;
-      await fetchEfPanelAsync();
       await _detectProjectTypeAsync();
-      projectTypeDetectionCompleter.complete();
       return super.initViewModelAsync(initParam: initParam);
     }
     throw StateError('Incorrect state type.');
   }
 
-  Future<void> fetchEfPanelAsync() async {
-    final efPanelId = _efPanelId;
-
-    if (isBusy) return;
-    notifyListeners(isBusy: true);
-
-    try {
-      _efPanel = await _efPanelRepository.getAsync(efPanelId);
-    } catch (ex, stackTrace) {
-      await dialogService.showErrorDialog(
-        context,
-        ex,
-        stackTrace,
-      );
-      logService.severe(ex, stackTrace);
-    } finally {
-      notifyListeners(isBusy: false);
-    }
-  }
-
   Future<void> switchEfProjectTypeAsync({
     required ProjectEfType projectEfType,
   }) async {
-    final efPanel = this.efPanel!;
+    final efPanel = await _efPanelRepositoryCache.getAsync(id: _efPanelId);
     if (efPanel.projectEfType == projectEfType) return;
 
     if (isBusy) return;
@@ -75,7 +78,7 @@ class EfProjectOperationViewModel extends ViewModelBase {
           projectEfType: projectEfType,
         ),
       );
-      await fetchEfPanelAsync();
+      _efPanelRepositoryCache.delete(id: _efPanelId);
     } catch (ex, stackTrace) {
       await dialogService.showErrorDialog(
         context,
@@ -96,7 +99,7 @@ class EfProjectOperationViewModel extends ViewModelBase {
   /// is null.
   Future<void> _detectProjectTypeAsync() async {
     try {
-      var efPanel = this.efPanel;
+      final efPanel = await _efPanelRepositoryCache.tryGetAsync(id: _efPanelId);
       if (efPanel == null) {
         throw StateError('EfPanel is not initialized.');
       }
@@ -130,11 +133,11 @@ class EfProjectOperationViewModel extends ViewModelBase {
         return;
       }
 
-      _efPanel = efPanel = efPanel.copyWith(
-        projectEfType: projectEfType,
+      await _efPanelRepository.insertOrUpdateAsync(
+        efPanel.copyWith(
+          projectEfType: projectEfType,
+        ),
       );
-
-      await _efPanelRepository.insertOrUpdateAsync(efPanel);
     } catch (ex, stackTrace) {
       await dialogService.showErrorDialog(
         context,

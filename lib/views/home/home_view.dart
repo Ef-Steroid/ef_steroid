@@ -1,3 +1,20 @@
+/*
+ * Copyright 2022-2022 MOK KAH WAI and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 import 'package:bot_toast/bot_toast.dart';
 import 'package:ef_steroid/helpers/context_helper.dart';
 import 'package:ef_steroid/helpers/intl/language_helper.dart';
@@ -48,7 +65,7 @@ class _HomeViewState extends State<HomeView> {
             builder: (context, snapshot) {
               final snapshotData = snapshot.data!;
               return MaterialApp(
-                title: 'Fast Dotnet Ef',
+                title: 'Ef Steroid',
                 locale: LanguageHelper.languages[snapshotData.locale]?.locale ??
                     LanguageHelper.getSystemLocale(),
                 localizationsDelegates: [

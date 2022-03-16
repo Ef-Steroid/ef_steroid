@@ -1,5 +1,24 @@
+/*
+ * Copyright 2022-2022 MOK KAH WAI and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+import 'package:ef_steroid/domain/ef_panel.dart';
 import 'package:ef_steroid/helpers/theme_helper.dart';
 import 'package:ef_steroid/localization/localizations.dart';
+import 'package:ef_steroid/repository_cache/repository_cache.dart';
 import 'package:ef_steroid/shared/project_ef_type.dart';
 import 'package:ef_steroid/views/ef_panel/ef_operation/ef6_operation/ef6_operation_view.dart';
 import 'package:ef_steroid/views/ef_panel/ef_operation/ef_core_operation/ef_core_operation_view.dart';
@@ -26,6 +45,9 @@ class EfProjectOperationView extends StatefulWidget {
 class _EfProjectOperationViewState extends State<EfProjectOperationView> {
   final EfProjectOperationViewModel vm = GetIt.I<EfProjectOperationViewModel>();
 
+  final RepositoryCache<EfPanel> _efPanelRepositoryCache =
+      GetIt.I<RepositoryCache<EfPanel>>();
+
   @override
   void initState() {
     super.initState();
@@ -43,16 +65,16 @@ class _EfProjectOperationViewState extends State<EfProjectOperationView> {
     return MVVMBindingWidget<EfProjectOperationViewModel>(
       viewModel: vm,
       builder: (context, vm, child) {
-        return FutureBuilder(
-          future: vm.projectTypeDetectionCompleter.future,
-          builder: (context, snapshotData) {
-            final efPanel = vm.efPanel;
+        return FutureBuilder<EfPanel?>(
+          future: _efPanelRepositoryCache.getAsync(id: widget.efPanelId),
+          builder: (context, snapshot) {
+            final efPanel = snapshot.data;
             if (efPanel == null) return const SizedBox.shrink();
 
             Widget widget;
             switch (efPanel.projectEfType) {
               case ProjectEfType.efCore:
-                widget = EfCoreOperationView(efPanel: efPanel);
+                widget = EfCoreOperationView(efPanelId: efPanel.id!);
                 break;
               case ProjectEfType.ef6:
                 widget = Ef6OperationView(efPanel: efPanel);
@@ -65,10 +87,7 @@ class _EfProjectOperationViewState extends State<EfProjectOperationView> {
                 break;
             }
 
-            return EfProjectOperation(
-              efProjectOperationViewModel: vm,
-              child: widget,
-            );
+            return widget;
           },
         );
       },
@@ -113,29 +132,4 @@ class _EfProjectTypeSelectorState extends State<_EfProjectTypeSelector> {
   void _onProjectEfTypeSaved(ProjectEfType value) {
     widget.vm.switchEfProjectTypeAsync(projectEfType: value);
   }
-}
-
-class EfProjectOperation extends InheritedWidget {
-  @protected
-  final EfProjectOperationViewModel efProjectOperationViewModel;
-
-  const EfProjectOperation({
-    Key? key,
-    required this.efProjectOperationViewModel,
-    required Widget child,
-  }) : super(
-          key: key,
-          child: child,
-        );
-
-  @override
-  bool updateShouldNotify(covariant EfProjectOperation oldWidget) {
-    return oldWidget.efProjectOperationViewModel != efProjectOperationViewModel;
-  }
-
-  static EfProjectOperation? of(BuildContext context) =>
-      context.dependOnInheritedWidgetOfExactType<EfProjectOperation>();
-
-  Future<void> refreshEfPanelAsync() =>
-      efProjectOperationViewModel.fetchEfPanelAsync();
 }

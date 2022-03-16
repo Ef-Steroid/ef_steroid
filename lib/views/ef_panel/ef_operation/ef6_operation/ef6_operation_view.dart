@@ -1,3 +1,20 @@
+/*
+ * Copyright 2022-2022 MOK KAH WAI and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 import 'package:ef_steroid/domain/ef_panel.dart';
 import 'package:ef_steroid/helpers/theme_helper.dart';
 import 'package:ef_steroid/localization/localizations.dart';
@@ -33,18 +50,9 @@ class _Ef6OperationViewState extends State<Ef6OperationView> {
     super.initState();
     vm.initViewModelAsync(
       initParam: InitParam(
-        param: EfOperationViewModelData(efPanel: widget.efPanel),
+        param: EfOperationViewModelData(efPanelId: widget.efPanel.id!),
       ),
     );
-  }
-
-  @override
-  void didUpdateWidget(covariant Ef6OperationView oldWidget) {
-    if (oldWidget.efPanel != widget.efPanel) {
-      vm.updateEfPanel(widget.efPanel);
-      vm.listMigrationsAsync();
-    }
-    super.didUpdateWidget(oldWidget);
   }
 
   @override
@@ -53,7 +61,8 @@ class _Ef6OperationViewState extends State<Ef6OperationView> {
     return MVVMBindingWidget<Ef6OperationViewModel>(
       viewModel: vm,
       builder: (context, vm, child) {
-        final configFileUri = vm.efPanel.configFileUri;
+        final efPanel = vm.efPanel;
+        final configFileUri = efPanel?.configFileUri;
         final hasConfigFile = configFileUri != null;
         return Scaffold(
           floatingActionButton: FloatingActionButton.extended(
@@ -73,7 +82,7 @@ class _Ef6OperationViewState extends State<Ef6OperationView> {
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: ProjectEfTypeToolbar(
                   onProjectEfTypeSaved: _onProjectEfTypeSaved,
-                  projectEfType: widget.efPanel.projectEfType,
+                  projectEfType: efPanel?.projectEfType,
                 ),
               ),
               const SizedBox(height: 8.0),
@@ -108,12 +117,12 @@ class _Ef6OperationViewState extends State<Ef6OperationView> {
                   ),
                 ),
               ),
-              if (hasConfigFile) ...[
+              if (hasConfigFile && efPanel != null) ...[
                 const SizedBox(height: 8.0),
                 Expanded(
                   child: EfOperationView(
                     vm: vm,
-                    efPanel: widget.efPanel,
+                    efPanelId: efPanel.id!,
                   ),
                 ),
               ] else

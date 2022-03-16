@@ -32,7 +32,7 @@
       "name": "RefreshMigrationIndicator",
       "values": {
         "en": "Migration update detected. You might want to refresh.",
-        "zh_Hans": "已侦测到迁移更新。您可能需要刷新。"
+        "zh_Hans": "已侦测到迁移更新。你可能需要刷新。"
       }
     },
     {
@@ -221,7 +221,7 @@
       "name": "UnableToIdentifyProjectEfType",
       "values": {
         "en": "Unable to identify project Entity Framework type. You may select one instead.",
-        "zh_Hans": "无法识别项目的实体框架类型。您可以自行选择一个。"
+        "zh_Hans": "无法识别项目的实体框架类型。你可以自行选择一个。"
       }
     },
     {
@@ -250,6 +250,20 @@
       "values": {
         "en": "Please select a config file first",
         "zh_Hans": "请先选择一个配置文件"
+      }
+    },
+    {
+      "name": "NoDbContextFound",
+      "values": {
+        "en": "No DbContext found. Make sure you have added one.",
+        "zh_Hans": "查无数据库上下文。请确保你已添加。"
+      }
+    },
+    {
+      "name": "NoDbContextSelected",
+      "values": {
+        "en": "No DbContext selected",
+        "zh_Hans": "未选中数据库上下文"
       }
     }
   ]

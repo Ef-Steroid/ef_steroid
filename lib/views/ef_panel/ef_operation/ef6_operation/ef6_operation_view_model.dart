@@ -1,11 +1,28 @@
+/*
+ * Copyright 2022-2022 MOK KAH WAI and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 import 'package:bot_toast/bot_toast.dart';
 import 'package:ef_steroid/domain/ef_panel.dart';
 import 'package:ef_steroid/domain/migration_history.dart';
 import 'package:ef_steroid/localization/localizations.dart';
 import 'package:ef_steroid/repository/repository.dart';
 import 'package:ef_steroid/services/dotnet_ef/dotnet_ef6/dotnet_ef6_service.dart';
+import 'package:ef_steroid/services/dotnet_ef/model/db_context.dart';
 import 'package:ef_steroid/views/ef_panel/ef_operation/ef_operation_view_model_base.dart';
-import 'package:ef_steroid/views/ef_panel/ef_project_operation/ef_project_operation_view.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -41,28 +58,33 @@ class Ef6OperationViewModel extends EfOperationViewModelBase {
       return;
     }
 
+    final efPanel = await fetchEfPanelAsync();
     await _efPanelRepository.insertOrUpdateAsync(
       efPanel.copyWith(
         configFileUri: Uri.file(configFilePath),
       ),
     );
 
-    return EfProjectOperation.of(context)!.refreshEfPanelAsync();
+    return efPanelRepositoryCache.delete(id: efPanelId);
   }
 
   @override
-  Future<void> listMigrationsAsync() async {
+  Future<void> listMigrationsAsync({
+    bool omitMultipleContextsError = false,
+  }) async {
+    final efPanel = await fetchEfPanelAsync();
     final configFileUri = efPanel.configFileUri;
     if (isBusy || configFileUri == null) return;
 
     notifyListeners(isBusy: true);
     try {
-      migrationHistories = await _dotnetEf6Service.listMigrationsAsync(
+      dbContextMigrationHistoriesMap[const DbContext.dummy()] =
+          await _dotnetEf6Service.listMigrationsAsync(
         projectUri: efPanel.directoryUri,
         configUri: configFileUri,
       );
 
-      sortMigrationHistory();
+      await sortMigrationHistoryAsync();
 
       showListMigrationBanner = false;
       notifyListeners();
@@ -82,6 +104,7 @@ class Ef6OperationViewModel extends EfOperationViewModelBase {
     required bool force,
     required MigrationHistory migrationHistory,
   }) async {
+    final efPanel = await fetchEfPanelAsync();
     final configFileUri = efPanel.configFileUri;
     if (isBusy || configFileUri == null) return;
     notifyListeners(isBusy: true);
@@ -107,6 +130,7 @@ class Ef6OperationViewModel extends EfOperationViewModelBase {
     required MigrationHistory migrationHistory,
   }) async {
     try {
+      final efPanel = await fetchEfPanelAsync();
       final configFileUri = efPanel.configFileUri;
       if (isBusy || configFileUri == null) return;
 
@@ -137,6 +161,7 @@ class Ef6OperationViewModel extends EfOperationViewModelBase {
   @override
   Future<void> addMigrationAsync() async {
     try {
+      final efPanel = await fetchEfPanelAsync();
       final configFileUri = efPanel.configFileUri;
       if (configFileUri == null) return;
 
@@ -162,8 +187,19 @@ class Ef6OperationViewModel extends EfOperationViewModelBase {
 
   @override
   bool canShowRemoveMigrationButton({
+    required DbContext dbContext,
     required MigrationHistory migrationHistory,
   }) {
     return true;
+  }
+
+  @override
+  Future<void> configureDbContextAsync({DbContext? dbContext}) {
+    return Future.value();
+  }
+
+  @override
+  Future<void> fetchDbContextsAsync() {
+    return Future.value();
   }
 }

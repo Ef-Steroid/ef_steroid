@@ -3,7 +3,7 @@
   "Migration": "迁移",
   "Applied": "已应用",
   "Refresh": "刷新",
-  "RefreshMigrationIndicator": "已侦测到迁移更新。您可能需要刷新。",
+  "RefreshMigrationIndicator": "已侦测到迁移更新。你可能需要刷新。",
   "Operations": "操作",
   "UpdateDatabaseToHere": "更新数据库自此",
   "DoneUpdatingDatabase": "更新数据库已完成",
@@ -30,9 +30,11 @@
   "Language": "语言",
   "Close": "关闭",
   "PleaseSelectAnEntityFrameworkType": "请选择一个实体框架类型",
-  "UnableToIdentifyProjectEfType": "无法识别项目的实体框架类型。您可以自行选择一个。",
+  "UnableToIdentifyProjectEfType": "无法识别项目的实体框架类型。你可以自行选择一个。",
   "ConfigFile": "配置文件：",
   "SelectConfigFile": "选择配置文件",
   "NoConfigFileSelected": "配置文件未选择",
-  "PleaseSelectAConfigFileFirst": "请先选择一个配置文件"
+  "PleaseSelectAConfigFileFirst": "请先选择一个配置文件",
+  "NoDbContextFound": "查无数据库上下文。请确保你已添加。",
+  "NoDbContextSelected": "未选中数据库上下文"
 }

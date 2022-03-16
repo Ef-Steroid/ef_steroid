@@ -52,7 +52,3 @@ app.*.map.json
 /test/widget_test.reflectable.dart
 /tools/playground/
 *.reflectable.dart
-
-windows/.vs/
-
-windows/out/

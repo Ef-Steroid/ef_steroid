@@ -1,4 +1,20 @@
-import 'package:ef_steroid/domain/ef_panel.dart';
+/*
+ * Copyright 2022-2022 MOK KAH WAI and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 import 'package:ef_steroid/localization/localizations.dart';
 import 'package:ef_steroid/shared/project_ef_type.dart';
 import 'package:ef_steroid/views/ef_panel/ef_operation/ef_core_operation/ef_core_operation_view_model.dart';
@@ -13,11 +29,11 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class EfCoreOperationView extends StatefulWidget {
-  final EfPanel efPanel;
+  final int efPanelId;
 
   const EfCoreOperationView({
     Key? key,
-    required this.efPanel,
+    required this.efPanelId,
   }) : super(key: key);
 
   @override
@@ -32,7 +48,7 @@ class _EfCoreOperationViewState extends State<EfCoreOperationView> {
     super.initState();
     vm.initViewModelAsync(
       initParam: InitParam(
-        param: EfOperationViewModelData(efPanel: widget.efPanel),
+        param: EfOperationViewModelData(efPanelId: widget.efPanelId),
       ),
     );
   }
@@ -43,6 +59,7 @@ class _EfCoreOperationViewState extends State<EfCoreOperationView> {
     return MVVMBindingWidget<EfCoreOperationViewModel>(
       viewModel: vm,
       builder: (context, vm, child) {
+        final efPanel = vm.efPanel;
         return Scaffold(
           floatingActionButton: FloatingActionButton.extended(
             onPressed: _addMigrationAsync,
@@ -61,16 +78,17 @@ class _EfCoreOperationViewState extends State<EfCoreOperationView> {
                 padding: const EdgeInsets.symmetric(horizontal: 16.0),
                 child: ProjectEfTypeToolbar(
                   onProjectEfTypeSaved: _onProjectEfTypeSaved,
-                  projectEfType: widget.efPanel.projectEfType,
+                  projectEfType: efPanel?.projectEfType,
                 ),
               ),
               const SizedBox(height: 8.0),
-              Expanded(
-                child: EfOperationView(
-                  vm: vm,
-                  efPanel: widget.efPanel,
+              if (efPanel != null)
+                Expanded(
+                  child: EfOperationView(
+                    vm: vm,
+                    efPanelId: efPanel.id!,
+                  ),
                 ),
-              ),
             ],
           ),
         );

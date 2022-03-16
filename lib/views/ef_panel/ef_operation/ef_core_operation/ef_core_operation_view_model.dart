@@ -1,39 +1,71 @@
+/*
+ * Copyright 2022-2022 MOK KAH WAI and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 import 'dart:async';
 
 import 'package:bot_toast/bot_toast.dart';
+import 'package:ef_steroid/domain/ef_panel.dart';
 import 'package:ef_steroid/domain/migration_history.dart';
 import 'package:ef_steroid/exceptions/dotnet_ef_exception.dart';
 import 'package:ef_steroid/localization/localizations.dart';
+import 'package:ef_steroid/repository/repository.dart';
 import 'package:ef_steroid/services/dotnet_ef/dotnet_ef_core/dotnet_ef_core_service.dart';
+import 'package:ef_steroid/services/dotnet_ef/model/db_context.dart';
 import 'package:ef_steroid/views/ef_panel/ef_operation/ef_operation_view_model_base.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 class EfCoreOperationViewModel extends EfOperationViewModelBase {
   final DotnetEfCoreService _dotnetEfService;
+  final Repository<EfPanel> _efPanelRepository = GetIt.I<Repository<EfPanel>>();
 
   EfCoreOperationViewModel(
     this._dotnetEfService,
   );
 
   @override
-  Future<void> listMigrationsAsync() async {
+  Future<void> listMigrationsAsync({
+    bool omitMultipleContextsError = false,
+  }) async {
     if (isBusy) return;
 
     notifyListeners(isBusy: true);
     try {
-      migrationHistories = await _dotnetEfService.listMigrationsAsync(
+      final efPanel = await fetchEfPanelAsync();
+      dbContextMigrationHistoriesMap[
+              dbContexts.findDbContextBySafeName(efPanel.dbContextName)] =
+          await _dotnetEfService.listMigrationsAsync(
         projectUri: efPanel.directoryUri,
+        dbContextName: efPanel.dbContextName,
       );
 
-      sortMigrationHistory();
+      await sortMigrationHistoryAsync();
       showListMigrationBanner = false;
       notifyListeners();
     } catch (ex, stackTrace) {
-      await dialogService.showErrorDialog(
-        context,
-        ex,
-        stackTrace,
-      );
+      if (ex is! UnknownDotnetEfException ||
+          !ex.isMultipleContextsError ||
+          !omitMultipleContextsError) {
+        await dialogService.showErrorDialog(
+          context,
+          ex,
+          stackTrace,
+        );
+      }
     }
 
     notifyListeners(isBusy: false);
@@ -47,9 +79,11 @@ class EfCoreOperationViewModel extends EfOperationViewModelBase {
       if (isBusy) return;
 
       notifyListeners(isBusy: true);
+      final efPanel = await fetchEfPanelAsync();
       await _dotnetEfService.updateDatabaseAsync(
         projectUri: efPanel.directoryUri,
         migrationHistory: migrationHistory,
+        dbContextName: efPanel.dbContextName,
       );
 
       notifyListeners(isBusy: false);
@@ -74,9 +108,11 @@ class EfCoreOperationViewModel extends EfOperationViewModelBase {
     try {
       checkInput();
 
+      final efPanel = await fetchEfPanelAsync();
       await _dotnetEfService.addMigrationAsync(
         projectUri: efPanel.directoryUri,
         migrationName: form.migrationFormField.toText(),
+        dbContextName: efPanel.dbContextName,
       );
 
       Navigator.pop(context);
@@ -98,9 +134,11 @@ class EfCoreOperationViewModel extends EfOperationViewModelBase {
       if (isBusy) return;
       notifyListeners(isBusy: true);
 
+      final efPanel = await fetchEfPanelAsync();
       await _dotnetEfService.removeMigrationAsync(
         projectUri: efPanel.directoryUri,
         force: force,
+        dbContextName: efPanel.dbContextName,
       );
 
       notifyListeners(isBusy: false);
@@ -128,6 +166,66 @@ class EfCoreOperationViewModel extends EfOperationViewModelBase {
     }
   }
 
+  @override
+  Future<void> fetchDbContextsAsync() async {
+    try {
+      final efPanel = await fetchEfPanelAsync();
+      dbContexts = await _dotnetEfService.listDbContextsAsync(
+        projectUri: efPanel.directoryUri,
+      );
+
+      if (dbContextMigrationHistoriesMap.containsKey(const DbContext.dummy())) {
+        final migrationHistories =
+            dbContextMigrationHistoriesMap.remove(const DbContext.dummy())!;
+        dbContextMigrationHistoriesMap[
+                dbContexts.findDbContextBySafeName(efPanel.dbContextName)] =
+            migrationHistories;
+      }
+    } catch (ex, stackTrace) {
+      await dialogService.showErrorDialog(
+        context,
+        ex,
+        stackTrace,
+      );
+    }
+  }
+
+  @override
+  Future<void> configureDbContextAsync({
+    DbContext? dbContext,
+  }) async {
+    try {
+      final dbContexts = this.dbContexts;
+      if (dbContexts.isEmpty) {
+        throw Exception(AL.of(context).text('NoDbContextFound'));
+      }
+
+      final efPanel = await fetchEfPanelAsync();
+      var dbContextName = (dbContext?.safeName ?? efPanel.dbContextName);
+      dbContextName ??= dbContexts.first.safeName;
+
+      logService.info('Using dbContextName: $dbContextName');
+
+      dbContextSelectorController.dbContext =
+          dbContexts.findDbContextBySafeName(dbContextName);
+
+      await _efPanelRepository.insertOrUpdateAsync(
+        efPanel.copyWith(
+          dbContextName: dbContextName,
+        ),
+      );
+
+      efPanelRepositoryCache.delete(id: efPanelId);
+      notifyListeners();
+    } catch (ex, stackTrace) {
+      await dialogService.showErrorDialog(
+        context,
+        ex,
+        stackTrace,
+      );
+    }
+  }
+
   Future<void> _promptRerunRemoveMigrationWithForceAsync({
     String? errorMessage,
     required MigrationHistory migrationHistory,
@@ -151,9 +249,11 @@ class EfCoreOperationViewModel extends EfOperationViewModelBase {
 
   @override
   bool canShowRemoveMigrationButton({
+    required DbContext dbContext,
     required MigrationHistory migrationHistory,
   }) {
-    return (sortMigrationAscending
+    final migrationHistories = dbContextMigrationHistoriesMap[dbContext]!;
+    return (sortMigrationByAscending
             ? migrationHistories.last.id
             : migrationHistories.first.id) ==
         migrationHistory.id;

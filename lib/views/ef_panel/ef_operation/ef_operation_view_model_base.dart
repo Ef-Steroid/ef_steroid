@@ -1,3 +1,20 @@
+/*
+ * Copyright 2022-2022 MOK KAH WAI and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 import 'dart:async';
 import 'dart:io';
 
@@ -10,27 +27,46 @@ import 'package:ef_steroid/models/form/form_view_model_mixin.dart';
 import 'package:ef_steroid/models/form/single_value_form_field_model.dart';
 import 'package:ef_steroid/models/form/text_editing_form_field_model.dart';
 import 'package:ef_steroid/repository/repository.dart';
+import 'package:ef_steroid/repository_cache/repository_cache.dart';
 import 'package:ef_steroid/services/dotnet_ef/dotnet_ef_migration/dotnet_ef_migration_service.dart';
+import 'package:ef_steroid/services/dotnet_ef/model/db_context.dart';
 import 'package:ef_steroid/shared/project_ef_type.dart';
+import 'package:ef_steroid/util/message_key.dart';
+import 'package:ef_steroid/util/messaging_center.dart';
 import 'package:ef_steroid/views/ef_panel/ef_operation/ef_operation_view_model_data.dart';
-import 'package:ef_steroid/views/ef_panel/ef_project_operation/ef_project_operation_view.dart';
+import 'package:ef_steroid/views/ef_panel/ef_operation/mixins/db_context_selector_view_model_mixin.dart';
+import 'package:ef_steroid/views/ef_panel/ef_operation/widgets/db_context_selector.dart';
 import 'package:ef_steroid/views/ef_panel/tab_data_value.dart';
 import 'package:ef_steroid/views/root_tab_view.dart';
 import 'package:ef_steroid/views/view_model_base.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:quiver/strings.dart';
 
 abstract class EfOperationViewModelBase extends ViewModelBase
-    with FormViewModelMixin<_AddMigrationFormModel> {
+    with
+        FormViewModelMixin<_AddMigrationFormModel>,
+        DbContextSelectorViewModelMixin {
   final Repository<EfPanel> _efPanelRepository = GetIt.I<Repository<EfPanel>>();
+  @protected
+  final RepositoryCache<EfPanel> efPanelRepositoryCache =
+      GetIt.I<RepositoryCache<EfPanel>>();
   final DotnetEfMigrationService _dotnetEfMigrationService =
       GetIt.I<DotnetEfMigrationService>();
 
-  late EfPanel _efPanel;
+  late final int _efPanelId;
+
+  @protected
+  int get efPanelId => _efPanelId;
+
+  EfPanel? _efPanel;
 
   @nonVirtual
-  EfPanel get efPanel => _efPanel;
+  EfPanel? get efPanel => _efPanel;
+
+  final DbContextSelectorController dbContextSelectorController =
+      DbContextSelectorController();
 
   @override
   final _AddMigrationFormModel form = _AddMigrationFormModel();
@@ -45,28 +81,31 @@ abstract class EfOperationViewModelBase extends ViewModelBase
   @nonVirtual
   set showListMigrationBanner(bool value) => _showListMigrationBanner = value;
 
-  List<MigrationHistory> _migrationHistories = [];
+  Map<DbContext, List<MigrationHistory>> _dbContextMigrationHistoriesMap = {};
 
   /// The migration histories.
   @nonVirtual
-  List<MigrationHistory> get migrationHistories => _migrationHistories;
+  Map<DbContext, List<MigrationHistory>> get dbContextMigrationHistoriesMap =>
+      _dbContextMigrationHistoriesMap;
 
   @nonVirtual
   @protected
-  set migrationHistories(List<MigrationHistory> value) =>
-      _migrationHistories = value;
+  set dbContextMigrationHistoriesMap(
+    Map<DbContext, List<MigrationHistory>> value,
+  ) =>
+      _dbContextMigrationHistoriesMap = value;
 
-  bool _sortMigrationAscending = true;
+  bool _sortMigrationByAscending = false;
 
   /// Indicate if we should sort the migration column in ascending order.
   @nonVirtual
-  bool get sortMigrationAscending => _sortMigrationAscending;
+  bool get sortMigrationByAscending => _sortMigrationByAscending;
 
   @nonVirtual
-  set sortMigrationAscending(bool sortMigrationAscending) {
-    if (sortMigrationAscending == _sortMigrationAscending) return;
-    _sortMigrationAscending = sortMigrationAscending;
-    sortMigrationHistory();
+  set sortMigrationByAscending(bool sortMigrationByAscending) {
+    if (sortMigrationByAscending == _sortMigrationByAscending) return;
+    _sortMigrationByAscending = sortMigrationByAscending;
+    sortMigrationHistoryAsync();
     notifyListeners();
   }
 
@@ -80,15 +119,15 @@ abstract class EfOperationViewModelBase extends ViewModelBase
   }) async {
     final state = initParam.param;
     if (state is EfOperationViewModelData) {
-      updateEfPanel(state.efPanel);
+      _efPanelId = state.efPanelId;
     }
 
-    _setupMigrationFilesWatchers();
+    await _setupMigrationFilesWatchers();
     WidgetsBinding.instance!.addPostFrameCallback((_) async {
       _rootTabView = context.findAncestorWidgetOfExactType<RootTabView>()!;
       // Run migration listing when this is the selected tab.
       if (isSelectedTab()) {
-        await listMigrationsAsync();
+        await _loadViewInitially();
       }
       // Schedule the migration listing until user selects the tab.
       else {
@@ -98,16 +137,12 @@ abstract class EfOperationViewModelBase extends ViewModelBase
     return super.initViewModelAsync(initParam: initParam);
   }
 
-  void updateEfPanel(EfPanel efPanel) {
-    _efPanel = efPanel;
-  }
-
   /// Check if [this] is the selected tab.
   @nonVirtual
   bool isSelectedTab() {
     final selectedTab = _rootTabView.tabbedViewController.selectedTab;
     return selectedTab != null &&
-        (selectedTab.value as EfPanelTabDataValue).efPanel.id == efPanel.id;
+        (selectedTab.value as EfPanelTabDataValue).efPanel.id == efPanelId;
   }
 
   Future<void> _onTabChangedAsync() async {
@@ -116,10 +151,23 @@ abstract class EfOperationViewModelBase extends ViewModelBase
     }
 
     _rootTabView.tabbedViewController.removeListener(_onTabChangedAsync);
-    await listMigrationsAsync();
+    await _loadViewInitially();
   }
 
-  Directory _getMigrationsDirectory() {
+  Future<void> _loadViewInitially() async {
+    final efPanel = await fetchEfPanelAsync();
+    final dbContextName = efPanel.dbContextName;
+
+    await listMigrationsAsync(omitMultipleContextsError: true);
+    await fetchDbContextsAsync();
+    await configureDbContextAsync();
+    if (isBlank(dbContextName)) {
+      await listMigrationsAsync();
+    }
+  }
+
+  Future<Directory> _getMigrationsDirectory() async {
+    final efPanel = await fetchEfPanelAsync();
     return Directory.fromUri(
       _dotnetEfMigrationService.getMigrationsDirectory(
         projectUri: efPanel.directoryUri,
@@ -128,12 +176,12 @@ abstract class EfOperationViewModelBase extends ViewModelBase
   }
 
   /// If the directory changes, there is a possible migration changes.
-  void _setupMigrationFilesWatchers() {
+  Future<void> _setupMigrationFilesWatchers() async {
     if (_migrationFileSubscription != null) {
       throw StateError('You can only call _setupMigrationFilesWatchers once.');
     }
 
-    _migrationFileSubscription = _getMigrationsDirectory()
+    _migrationFileSubscription = (await _getMigrationsDirectory())
         .watch()
         .listen(onNewMigrationsAddedToDirectory);
   }
@@ -153,7 +201,12 @@ abstract class EfOperationViewModelBase extends ViewModelBase
     notifyListeners();
   }
 
-  Future<void> listMigrationsAsync();
+  /// List migrations.
+  ///
+  /// **Arguments:**
+  /// - [omitMultipleContextsError] -> If true, [listMigrationsAsync] omits the
+  /// error message for multiple contexts.
+  Future<void> listMigrationsAsync({bool omitMultipleContextsError = false});
 
   /// Remove a migration.
   ///
@@ -179,17 +232,35 @@ abstract class EfOperationViewModelBase extends ViewModelBase
 
   @protected
   @nonVirtual
-  void sortMigrationHistory() {
-    migrationHistories = sortMigrationAscending
+  Future<void> sortMigrationHistoryAsync() async {
+    final efPanel = await fetchEfPanelAsync();
+    final dbContextName = efPanel.dbContextName;
+    final dbContext = dbContexts.findDbContextBySafeName(dbContextName);
+    final migrationHistories = dbContextMigrationHistoriesMap[dbContext];
+    if (migrationHistories == null) return;
+    dbContextMigrationHistoriesMap[dbContext] = sortMigrationByAscending
         ? migrationHistories.orderBy((x) => x.id).toList(growable: false)
         : migrationHistories
             .orderByDescending((x) => x.id)
             .toList(growable: false);
+    notifyListeners();
   }
 
   Future<void> switchEfProjectTypeAsync({
     required ProjectEfType efProjectType,
   }) async {
+    await _storeEfProjectTypeAsync(efProjectType: efProjectType);
+    MessagingCenter.send(
+      MessageKey.onEfProjectTypeChanged,
+      this,
+    );
+    await _loadViewInitially();
+  }
+
+  Future<void> _storeEfProjectTypeAsync({
+    required ProjectEfType efProjectType,
+  }) async {
+    final efPanel = await fetchEfPanelAsync();
     if (efPanel.projectEfType == efProjectType) return;
 
     if (isBusy) return;
@@ -201,7 +272,7 @@ abstract class EfOperationViewModelBase extends ViewModelBase
           projectEfType: efProjectType,
         ),
       );
-      await EfProjectOperation.of(context)!.refreshEfPanelAsync();
+      efPanelRepositoryCache.delete(id: efPanelId);
     } catch (ex, stackTrace) {
       await dialogService.showErrorDialog(
         context,
@@ -215,8 +286,24 @@ abstract class EfOperationViewModelBase extends ViewModelBase
   }
 
   bool canShowRemoveMigrationButton({
+    required DbContext dbContext,
     required MigrationHistory migrationHistory,
   });
+
+  @protected
+  @nonVirtual
+  Future<EfPanel> fetchEfPanelAsync() async {
+    final efPanel = this.efPanel;
+    _efPanel = await efPanelRepositoryCache.getAsync(id: efPanelId);
+    if (efPanel != _efPanel) {
+      dbContextSelectorController.dbContext =
+          dbContexts.findDbContextBySafeName(
+        this.efPanel!.dbContextName,
+      );
+      notifyListeners();
+    }
+    return this.efPanel!;
+  }
 
   @override
   void dispose() {

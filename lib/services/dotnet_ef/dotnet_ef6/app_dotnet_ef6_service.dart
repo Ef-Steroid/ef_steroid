@@ -1,3 +1,20 @@
+/*
+ * Copyright 2022-2022 MOK KAH WAI and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 import 'dart:convert';
 import 'dart:io';
 
@@ -294,7 +311,7 @@ class AppDotnetEf6Service extends DotnetEf6Service {
                 x.dotnetEfResultType == DotnetEfResultType.error;
 
             if (dotnetEfResultLines.any(testError)) {
-              throw AddMigrationDotnetEf6Exception(
+              throw UnknownDotnetEfException(
                 errorMessage: dotnetEfResultLines
                     .where(testError)
                     .map((e) => e.line)
@@ -424,13 +441,13 @@ class AppDotnetEf6Service extends DotnetEf6Service {
 
     final ef6MigrationDto = Ef6MigrationDto(
       migration: joinGeneratedMigrationFilePath(
-        fileExtension: DotnetEfMigrationService.ef6MigrationFileExtension,
+        fileExtension: DotnetEfMigrationService.efMigrationFileExtension,
       ),
       migrationResources: joinGeneratedMigrationFilePath(
-        fileExtension: DotnetEfMigrationService.efResourcesFileExtension,
+        fileExtension: DotnetEfMigrationService.ef6ResourcesFileExtension,
       ),
       migrationDesigner: joinGeneratedMigrationFilePath(
-        fileExtension: DotnetEfMigrationService.ef6DesignerFileExtension,
+        fileExtension: DotnetEfMigrationService.efDesignerFileExtension,
       ),
     );
 

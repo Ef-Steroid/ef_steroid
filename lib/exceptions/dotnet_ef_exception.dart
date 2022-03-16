@@ -1,6 +1,23 @@
+/*
+ * Copyright 2022-2022 MOK KAH WAI and contributors
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 enum DotnetEfExceptionType {
+  unknown,
   removeMigration,
-  addMigration,
 }
 
 abstract class DotnetEfException implements Exception {
@@ -16,8 +33,8 @@ abstract class DotnetEfException implements Exception {
   @override
   String toString() {
     switch (dotnetEfExceptionType) {
+      case DotnetEfExceptionType.unknown:
       case DotnetEfExceptionType.removeMigration:
-      case DotnetEfExceptionType.addMigration:
         return _parseGeneralErrorMessage();
     }
   }
@@ -25,6 +42,22 @@ abstract class DotnetEfException implements Exception {
   String _parseGeneralErrorMessage() {
     return errorMessage ?? '';
   }
+}
+
+class UnknownDotnetEfException extends DotnetEfException {
+  static final RegExp _multipleContextsErrorRegex = RegExp(
+    'More than one DbContext was found. Specify which one to use. Use the \'-Context\' parameter for PowerShell commands and the \'--context\' parameter for dotnet commands.',
+  );
+
+  bool get isMultipleContextsError =>
+      _multipleContextsErrorRegex.hasMatch(errorMessage ?? '');
+
+  UnknownDotnetEfException({
+    String? errorMessage,
+  }) : super(
+          dotnetEfExceptionType: DotnetEfExceptionType.unknown,
+          errorMessage: errorMessage,
+        );
 }
 
 class RemoveMigrationDotnetEfException extends DotnetEfException {
@@ -35,23 +68,13 @@ class RemoveMigrationDotnetEfException extends DotnetEfException {
 
   /// Indicate if the error message from EFCore means that the migration is
   /// applied.
-  bool get isMigrationAppliedError {
-    return _migrationAppliedErrorRegex.hasMatch(errorMessage ?? '');
-  }
+  bool get isMigrationAppliedError =>
+      _migrationAppliedErrorRegex.hasMatch(errorMessage ?? '');
 
   RemoveMigrationDotnetEfException({
     String? errorMessage,
   }) : super(
           dotnetEfExceptionType: DotnetEfExceptionType.removeMigration,
-          errorMessage: errorMessage,
-        );
-}
-
-class AddMigrationDotnetEf6Exception extends DotnetEfException {
-  AddMigrationDotnetEf6Exception({
-    String? errorMessage,
-  }) : super(
-          dotnetEfExceptionType: DotnetEfExceptionType.addMigration,
           errorMessage: errorMessage,
         );
 }
