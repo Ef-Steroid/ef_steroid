@@ -1,32 +1,73 @@
-name: Flutter CI
+name: Flutter CICD
 on:
   pull_request:
     types: [ opened, reopened, synchronize, edited ]
   workflow_dispatch:
 env:
-  FLUTTER_VERSION: stable
+  FLUTTER_WINDOWS_VERSION: stable
+  FLUTTER_MACOS_VERSION: master
 jobs:
   Windows-CI:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
+
       - name: Install Flutter
-        uses: britannio/action-install-flutter@v1.1
+        uses: subosito/flutter-action@v2
         with:
-          version: $FLUTTER_VERSION
+          channel: $FLUTTER_WINDOWS_VERSION
 
       - name: Check Dart code style
         run: flutter format lib --set-exit-if-changed
-        shell: bash
+
+      - name: Install dotnet
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '6.0.x'
+
+      - name: Build CsprojTool artifacts
+        shell: pwsh
+        working-directory: tools/CsprojTool
+        run: ./BuildArtifacts.ps1
+
+      - name: Install packages
+        run: flutter pub get
+      - name: Run build_runner
+        run: flutter pub run build_runner build
+
+      - name: Build Windows artifacts
+        run: flutter build windows
+
   macOS-CI:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
+
       - name: Install Flutter
-        uses: britannio/action-install-flutter@v1.1
+        uses: subosito/flutter-action@v2
         with:
-          version: $FLUTTER_VERSION
+          channel: $FLUTTER_MACOS_VERSION
+
       - name: Check Dart code style
         run: flutter format lib --set-exit-if-changed
+
+      - name: Install needle
+        run: brew install needle
+
+      - name: Install packages
+        run: flutter pub get
+      - name: Run build_runner
+        run: flutter pub run build_runner build
+
+      # Enable macOS desktop support. Remove this when Flutter marks macOS support as stable.
+      - name: Enable macOS Desktop
+        run: flutter config --enable-macos-desktop
+
+      # Comment out this until I figure out how to set up SQL in docker for testing purpose.
+      #      - name: Run test
+      #        run: flutter test --coverage
+
+      - name: Build macOS artifacts
+        run: flutter build macos
 
 

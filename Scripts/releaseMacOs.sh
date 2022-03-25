@@ -51,7 +51,6 @@ codesign --force --sign "$CERTIFICATE_NAME" "$EF_STEROID_INSTALLER_DMG_PATH"
 
 echo "Notarizing the disk image..."
 
-
 # Notarize the disk image (dmg)
 # $1 - App Store Connect API key. File system path to the private key.
 # $2 - App Store Connect API Key ID. Usually 10 alphanumeric characters.
