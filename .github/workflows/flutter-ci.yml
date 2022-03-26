@@ -35,6 +35,13 @@ jobs:
       - name: Run build_runner
         run: flutter pub run build_runner build
 
+      - name: Run docker to install MSSQL
+        run: ./Scripts/docker-setup.ps1
+        shell: pwsh
+
+      - name: Run test
+        run: flutter test --coverage
+
       - name: Build Windows artifacts
         run: flutter build windows
 
@@ -63,9 +70,13 @@ jobs:
       - name: Enable macOS Desktop
         run: flutter config --enable-macos-desktop
 
+      - name: Run docker to install MSSQL
+        run: ./Scripts/docker-setup.ps1
+        shell: pwsh
+
       # Comment out this until I figure out how to set up SQL in docker for testing purpose.
-      #      - name: Run test
-      #        run: flutter test --coverage
+      - name: Run test
+        run: flutter test --coverage
 
       - name: Build macOS artifacts
         run: flutter build macos
