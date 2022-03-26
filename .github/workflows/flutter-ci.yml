@@ -45,7 +45,7 @@ jobs:
         with:
           connection-string-env-var: SQL_SERVER_CONNECTION_STRING
       - name: Create database user
-        run: sqlcmd -S localhost -U SA -P $env:DATABASE_SA_PASSWORD
+        run: sqlcmd -v MSSQL_SA_PASSWORD="$env:DATABASE_SA_PASSWORD" -i Scripts/sql/enable_mssql_sa_user.sql
         shell: pwsh
 
       - name: Run test
