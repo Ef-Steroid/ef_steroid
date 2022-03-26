@@ -15,11 +15,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-Use [master]
+Use
+[master]
 GO
 
-ALTER LOGIN [sa] with password = '$(MSSQL_SA_PASSWORD)';
+ALTER
+LOGIN [sa] with password = '$(MSSQL_SA_PASSWORD)';
 GO
 
-ALTER LOGIN [sa] ENABLE
+ALTER
+LOGIN [sa] ENABLE
 GO

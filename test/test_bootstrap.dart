@@ -36,4 +36,17 @@ class TestBootstrap {
     // returns `<Project root>/main.dart`.
     return File.fromUri(Platform.script).parent;
   }
+
+  /// Build the dotnet core project in [projectUri].
+  static Future<void> buildDotnetProjectAsync({
+    required Uri projectUri,
+  }) {
+    return Process.run(
+      'dotnet',
+      [
+        'build',
+        projectUri.toFilePath(),
+      ],
+    );
+  }
 }
