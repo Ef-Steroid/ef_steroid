@@ -48,6 +48,11 @@ jobs:
         run: sqlcmd -v MSSQL_SA_PASSWORD="$env:DATABASE_SA_PASSWORD" -i Scripts/sql/enable_mssql_sa_user.sql
         shell: pwsh
 
+      - name: Setup MSBuild
+        uses: microsoft/setup-msbuild@v1
+      - name: Build Dotnet Framework TestingProject
+        run: msbuild.exe tools/TestingProjects/Ef6/NetFrameworkWebProject/NetFrameworkWebProject.sln
+
       - name: Run test
         run: flutter test --coverage
 
@@ -73,6 +78,11 @@ jobs:
           dotnet-version: '6.0.x'
       - name: Install dotnet-ef
         run: dotnet tool install -g dotnet-ef
+
+      - name: Test Dotnet-Ef installation
+        run: |
+        dotnet-ef -v
+        pwd
 
       - name: Install needle
         run: brew install needle
@@ -100,4 +110,7 @@ jobs:
       - name: Build macOS artifacts
         run: flutter build macos
 
+      - name: Archive app
+        #        if: ${{ github.ref == 'refs/heads/production' }}
+        run: ./Scripts/releaseMacOs.sh
 
