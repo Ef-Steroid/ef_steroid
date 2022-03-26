@@ -6,6 +6,9 @@ on:
 env:
   FLUTTER_WINDOWS_VERSION: stable
   FLUTTER_MACOS_VERSION: master
+  DATABASE_USERNAME: SA
+  DATABASE_SA_PASSWORD: fdkngx4tak7vka8JNT
+
 jobs:
   Windows-CI:
     runs-on: windows-latest
@@ -24,6 +27,8 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '6.0.x'
+      - name: Install dotnet-ef
+        run: dotnet tool install -g dotnet-ef
 
       - name: Build CsprojTool artifacts
         shell: pwsh
@@ -35,8 +40,12 @@ jobs:
       - name: Run build_runner
         run: flutter pub run build_runner build
 
-      - name: Run docker to install MSSQL
-        run: ./Scripts/docker-setup.ps1
+      - name: Install SQL Server
+        uses: Particular/install-sql-server-action@main
+        with:
+          connection-string-env-var: SQL_SERVER_CONNECTION_STRING
+      - name: Create database user
+        run: sqlcmd -S localhost -U SA -P $env:DATABASE_SA_PASSWORD
         shell: pwsh
 
       - name: Run test
@@ -58,6 +67,13 @@ jobs:
       - name: Check Dart code style
         run: flutter format lib --set-exit-if-changed
 
+      - name: Install dotnet
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '6.0.x'
+      - name: Install dotnet-ef
+        run: dotnet tool install -g dotnet-ef
+
       - name: Install needle
         run: brew install needle
 
@@ -70,8 +86,11 @@ jobs:
       - name: Enable macOS Desktop
         run: flutter config --enable-macos-desktop
 
+      - name: setup-docker
+        uses: docker-practice/actions-setup-docker@1.0.8
+
       - name: Run docker to install MSSQL
-        run: ./Scripts/docker-setup.ps1
+        run: ./Scripts/docker-setup.ps1 $env:DATABASE_SA_PASSWORD
         shell: pwsh
 
       # Comment out this until I figure out how to set up SQL in docker for testing purpose.
