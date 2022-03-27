@@ -14,9 +14,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+// ignore_for_file: avoid_print
 
 import 'dart:io';
 
+import 'package:ef_steroid/helpers/log_helper.dart';
 import 'package:ef_steroid/services/log/log_service.dart';
 import 'package:ef_steroid/services/service_locator.dart' as sl;
 import 'package:flutter_test/flutter_test.dart';
@@ -25,9 +27,9 @@ import 'package:get_it/get_it.dart';
 class TestBootstrap {
   static Future<void> runAsync() async {
     await sl.configure();
-    GetIt.I<LogService>().onRecord.listen((event) {
-      // ignore: avoid_print
-      print(event);
+    GetIt.I<LogService>().onRecord.listen((logRecord) {
+      final log = LogHelper.formatLog(logRecord: logRecord);
+      print(log);
     });
   }
 
