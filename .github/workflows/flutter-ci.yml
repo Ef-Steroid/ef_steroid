@@ -6,8 +6,8 @@ on:
 env:
   FLUTTER_WINDOWS_VERSION: stable
   FLUTTER_MACOS_VERSION: master
-  DATABASE_USERNAME: SA
-  DATABASE_SA_PASSWORD: fdkngx4tak7vka8JNT
+#  DATABASE_USERNAME: SA
+#  DATABASE_SA_PASSWORD: fdkngx4tak7vka8JNT
 
 jobs:
   Windows-CI:
@@ -27,8 +27,8 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '6.0.x'
-      - name: Install dotnet-ef
-        run: dotnet tool install -g dotnet-ef
+      #      - name: Install dotnet-ef
+      #        run: dotnet tool install -g dotnet-ef
 
       - name: Build CsprojTool artifacts
         shell: pwsh
@@ -40,21 +40,21 @@ jobs:
       - name: Run build_runner
         run: flutter pub run build_runner build
 
-      - name: Install SQL Server
-        uses: Particular/install-sql-server-action@main
-        with:
-          connection-string-env-var: SQL_SERVER_CONNECTION_STRING
-      - name: Create database user
-        run: sqlcmd -v MSSQL_SA_PASSWORD="$env:DATABASE_SA_PASSWORD" -i Scripts/sql/enable_mssql_sa_user.sql
-        shell: pwsh
-
-      - name: Setup MSBuild
-        uses: microsoft/setup-msbuild@v1
-      - name: Build Dotnet Framework TestingProject
-        run: msbuild.exe tools/TestingProjects/Ef6/NetFrameworkWebProject/NetFrameworkWebProject.sln
-
-      - name: Run test
-        run: flutter test --coverage
+      #      - name: Install SQL Server
+      #        uses: Particular/install-sql-server-action@main
+      #        with:
+      #          connection-string-env-var: SQL_SERVER_CONNECTION_STRING
+      #      - name: Create database user
+      #        run: sqlcmd -v MSSQL_SA_PASSWORD="$env:DATABASE_SA_PASSWORD" -i Scripts/sql/enable_mssql_sa_user.sql
+      #        shell: pwsh
+      #
+      #      - name: Setup MSBuild
+      #        uses: microsoft/setup-msbuild@v1
+      #      - name: Build Dotnet Framework TestingProject
+      #        run: msbuild.exe tools/TestingProjects/Ef6/NetFrameworkWebProject/NetFrameworkWebProject.sln
+      #
+      #      - name: Run test
+      #        run: flutter test --coverage
 
       - name: Build Windows artifacts
         run: flutter build windows
@@ -76,13 +76,8 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '6.0.x'
-      - name: Install dotnet-ef
-        run: dotnet tool install -g dotnet-ef
-
-      - name: Test Dotnet-Ef installation
-        run: |
-          dotnet-ef -v
-          pwd
+      #      - name: Install dotnet-ef
+      #        run: dotnet tool install -g dotnet-ef
 
       - name: Install needle
         run: brew install needle
@@ -96,16 +91,16 @@ jobs:
       - name: Enable macOS Desktop
         run: flutter config --enable-macos-desktop
 
-      - name: setup-docker
-        uses: docker-practice/actions-setup-docker@1.0.8
-
-      - name: Run docker to install MSSQL
-        run: ./Scripts/docker-setup.ps1 $env:DATABASE_SA_PASSWORD
-        shell: pwsh
-
-      # Comment out this until I figure out how to set up SQL in docker for testing purpose.
-      - name: Run test
-        run: flutter test --coverage
+      #      - name: setup-docker
+      #        uses: docker-practice/actions-setup-docker@1.0.8
+      #
+      #      - name: Run docker to install MSSQL
+      #        run: ./Scripts/docker-setup.ps1 $env:DATABASE_SA_PASSWORD
+      #        shell: pwsh
+      #
+      #      # Comment out this until I figure out how to set up SQL in docker for testing purpose.
+      #      - name: Run test
+      #        run: flutter test --coverage
 
       - name: Build macOS artifacts
         run: flutter build macos
