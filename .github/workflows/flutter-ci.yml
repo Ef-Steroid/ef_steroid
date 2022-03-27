@@ -81,8 +81,8 @@ jobs:
 
       - name: Test Dotnet-Ef installation
         run: |
-        dotnet-ef -v
-        pwd
+          dotnet-ef -v
+          pwd
 
       - name: Install needle
         run: brew install needle
