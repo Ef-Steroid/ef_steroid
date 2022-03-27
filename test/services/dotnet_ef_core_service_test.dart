@@ -33,7 +33,6 @@ Future<void> main() async {
   //endregion
 
   final rootProjectDirectory = TestBootstrap.getProjectRootDirectory();
-
   final netCoreWebProjectUri = Directory(
     p.joinAll([
       rootProjectDirectory.path,
@@ -41,16 +40,23 @@ Future<void> main() async {
     ]),
   ).uri;
 
-  await TestBootstrap.runAsync();
-  await TestBootstrap.buildDotnetProjectAsync(
-    projectUri: netCoreWebProjectUri,
-  );
+  setUpAll(() async {
+    await TestBootstrap.runAsync();
+    await TestBootstrap.buildDotnetProjectAsync(
+      projectUri: netCoreWebProjectUri,
+    );
+  });
   test(
     'AppDotnetEfCoreService.listMigrationAsync returns all migrations',
     () async {
       final dotnetEfCoreService = GetIt.I<DotnetEfCoreService>();
       final migrations = await dotnetEfCoreService.listMigrationsAsync(
-        projectUri: netCoreWebProjectUri,
+        projectUri: Directory(
+          p.joinAll([
+            rootProjectDirectory.path,
+            netCoreWebProjectPath,
+          ]),
+        ).uri,
         dbContextName: 'SchoolDbContext',
       );
 
@@ -79,7 +85,12 @@ Future<void> main() async {
     () async {
       final dotnetEf6Service = GetIt.I<DotnetEfCoreService>();
       final dbContexts = await dotnetEf6Service.listDbContextsAsync(
-        projectUri: netCoreWebProjectUri,
+        projectUri: Directory(
+          p.joinAll([
+            rootProjectDirectory.path,
+            netCoreWebProjectPath,
+          ]),
+        ).uri,
       );
 
       expect(
