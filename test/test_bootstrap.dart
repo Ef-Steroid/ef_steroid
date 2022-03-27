@@ -23,10 +23,12 @@ import 'package:ef_steroid/services/log/log_service.dart';
 import 'package:ef_steroid/services/service_locator.dart' as sl;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
+import 'package:logging/logging.dart';
 
 class TestBootstrap {
   static Future<void> runAsync() async {
     await sl.configure();
+    GetIt.I<LogService>().level = Level.ALL;
     GetIt.I<LogService>().onRecord.listen((logRecord) {
       final log = LogHelper.formatLog(logRecord: logRecord);
       print(log);
