@@ -29,7 +29,7 @@ jobs:
         run: echo "::set-output name=version::v$(cider version)"
       - uses: rickstaa/action-create-tag@v1
         with:
-          tag: ${{ env.PROJECT_VERSION }}
+          tag: ${{ steps.version_retrieval.outputs.version }}
 
   Windows-CI:
     permissions:
