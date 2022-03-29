@@ -138,7 +138,7 @@ jobs:
       - name: Create a file to store APP_STORE_CONNECT_PRIVATE_KEY
         run: echo "$APP_STORE_CONNECT_PRIVATE_KEY" | base64 -Dd --output $APP_STORE_CONNECT_PRIVATE_KEY_FILE_NAME
 
-      - name: Install the Apple certificate and provisioning profile
+      - name: Install the Apple certificate
         env:
           P12_SIGNING_CERTIFICATE: ${{ secrets.P12_SIGNING_CERTIFICATE }}
           P12_SIGNING_CERTIFICATE_PASSWORD: ${{ secrets.P12_SIGNING_CERTIFICATE_PASSWORD }}
