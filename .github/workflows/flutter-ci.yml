@@ -190,7 +190,6 @@ jobs:
 
       - name: Archive app
         id: macos_archive
-        #        if: ${{ github.ref == 'refs/heads/production' }}
         env:
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           APP_STORE_CONNECT_PRIVATE_KEY_ID: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY_ID }}
@@ -208,7 +207,7 @@ jobs:
         env:
           EF_STEROID_INSTALLER_DMG_DIR: ${{ steps.macos_archive.outputs.ef_steroid_installer_dmg_dir }}
           TAG_NAME: ${{ needs.Create-tag.outputs.version }}
-        run: ./macos/Pods/Sparkle/bin/generate_appcast "$EF_STEROID_INSTALLER_DMG_DIR" --download-url-prefix "https://github.com/Ef-Steroid/ef_steroid/releases/$TAG_NAME" -o $MACOS_APPCAST_NAME
+        run: ./macos/Pods/Sparkle/bin/generate_appcast "$EF_STEROID_INSTALLER_DMG_DIR" --download-url-prefix "https://github.com/Ef-Steroid/ef_steroid/releases/$TAG_NAME/" -o $MACOS_APPCAST_NAME
       - uses: actions/upload-artifact@v3
         name: Upload macOS AppCast
         env:
@@ -221,7 +220,6 @@ jobs:
     #    if: ${{ github.ref == 'refs/heads/production' }}
     env:
       GITHUB_RELEASE_ARTIFACTS_DIR: artifacts
-      GH_PAGES_BRANCH: gh-pages
     needs:
       - Create-tag
       - macOS-CI
@@ -236,6 +234,38 @@ jobs:
           artifacts: ${{ env.GITHUB_RELEASE_ARTIFACTS_DIR }}
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ needs.Create-tag.outputs.version }}
+
+  github-pg-macOS-CD:
+    runs-on: ubuntu-latest
+    #    if: ${{ github.ref == 'refs/heads/production' }}
+    env:
+      GITHUB_RELEASE_ARTIFACTS_DIR: artifacts
+      GH_PAGES_BRANCH: gh-pages
+      PRODUCTION_BRANCH_NAME: "#29-add-sparkle"
+    needs:
+      - macOS-CD
+    steps:
       - uses: actions/checkout@v2
         with:
           ref: ${{ env.GH_PAGES_BRANCH }}
+      - name: Download macOS appcast.xml
+        uses: actions/download-artifact@v3.0.0
+        with:
+          name: ${{ env.MACOS_APPCAST_NAME }}
+          path: ${{ env.GITHUB_RELEASE_ARTIFACTS_DIR }}
+      - name: Publish macOS appcast
+        run: |
+          APPCAST_DIR=appcasts
+          
+          # Remove old appcast
+          git rm $APPCAST_DIR/$MACOS_APPCAST_NAME
+          
+          # Rebase production branch
+          git rebase "$PRODUCTION_BRANCH_NAME"
+          
+          # Move appcast from artifacts
+          mv $GITHUB_RELEASE_ARTIFACTS_DIR/$MACOS_APPCAST_NAME $APPCAST_DIR/.
+          
+          # Publish appcast
+          git commit -a -m "Update macOS appcast"
+          git push origin "$PRODUCTION_BRANCH_NAME"
