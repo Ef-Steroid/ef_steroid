@@ -136,16 +136,13 @@ jobs:
 
       - name: Create a file to store APP_STORE_CONNECT_PRIVATE_KEY
         run: echo "$APP_STORE_CONNECT_PRIVATE_KEY" | base64 -Dd > $APP_STORE_CONNECT_PRIVATE_KEY_FILE_NAME
-      - name: Prepare signing certificate and provisioning profile
-        uses: ngeri/prepare-signing@v1.0.2
-        with:
-          appStoreConnectPrivateKey: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
-          keyID: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY_ID }}
-          issuerID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
-          base64P12File: ${{ secrets.P12_SIGNING_CERTIFICATE }}
-          p12Password: ${{ secrets.P12_SIGNING_CERTIFICATE_PASSWORD }}
-          bundleIdentifier: ${{ env.BUNDLE_IDENTIFIER }}
-          signType: ${{ env.SIGNING_TYPE }}
+        
+      - name: Clone GenerateXCodeBuildExportOptions
+        run: git clone https://github.com/TabooSun/GenerateXCodeBuildExportOptions.git
+        working-directory: tools
+      - name: Install GenerateXCodeBuildExportOptions
+        run: dotnet run -- --app-store-connect-issuer-id $APP_STORE_CONNECT_ISSUER_ID --app-store-connect-api-private-key-id $APP_STORE_CONNECT_PRIVATE_KEY_ID --app-store-connect-api-private-key-path $APP_STORE_CONNECT_PRIVATE_KEY_FILE_NAME --bundle-identifier $BUNDLE_IDENTIFIER --signing-profile-types $SIGNING_TYPE
+        working-directory: tools
 
       - name: Archive app
         #        if: ${{ github.ref == 'refs/heads/production' }}
