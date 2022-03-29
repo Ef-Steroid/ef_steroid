@@ -10,7 +10,7 @@ env:
   BUNDLE_IDENTIFIER: com.techcreator.EfSteroid
   SIGNING_TYPE: MAC_APP_DIRECT
   MACOS_ARTIFACT_NAME: macos-artifacts
-  MACOS_APPCAST_NAME: macos-appcast
+  MACOS_APPCAST_NAME: macos-appcast.xml
 
 #  DATABASE_USERNAME: SA
 #  DATABASE_SA_PASSWORD: fdkngx4tak7vka8JNT
@@ -185,6 +185,9 @@ jobs:
         run: dotnet run -- --app-store-connect-issuer-id $APP_STORE_CONNECT_ISSUER_ID --app-store-connect-api-private-key-id $APP_STORE_CONNECT_PRIVATE_KEY_ID --app-store-connect-api-private-key-path $APP_STORE_CONNECT_PRIVATE_KEY_FILE_PATH --bundle-identifier $BUNDLE_IDENTIFIER --signing-profile-types $SIGNING_TYPE
         working-directory: tools/GenerateXCodeBuildExportOptions
 
+      - name: Install create-dmg
+        run: brew install create-dmg
+
       - name: Archive app
         id: macos_archive
         #        if: ${{ github.ref == 'refs/heads/production' }}
@@ -205,27 +208,22 @@ jobs:
         env:
           EF_STEROID_INSTALLER_DMG_DIR: ${{ steps.macos_archive.outputs.ef_steroid_installer_dmg_dir }}
           TAG_NAME: ${{ needs.Create-tag.outputs.version }}
-        run: |
-          # Generate appcast.xml
-          ./macos/Pods/Sparkle/bin/generate_appcast "$EF_STEROID_INSTALLER_DMG_DIR" --download-url-prefix "https://github.com/Ef-Steroid/ef_steroid/releases/$TAG_NAME"
-
-
+        run: ./macos/Pods/Sparkle/bin/generate_appcast "$EF_STEROID_INSTALLER_DMG_DIR" --download-url-prefix "https://github.com/Ef-Steroid/ef_steroid/releases/$TAG_NAME" -o $MACOS_APPCAST_NAME
       - uses: actions/upload-artifact@v3
-        name: Upload macOS appcast.xml
+        name: Upload macOS AppCast
         env:
           EF_STEROID_INSTALLER_DMG_DIR: ${{ steps.macos_archive.outputs.ef_steroid_installer_dmg_dir }}
         with:
           name: ${{ env.MACOS_APPCAST_NAME }}
-          path: ${{ steps.macos_archive.outputs.ef_steroid_installer_dmg_dir }}
 
-  CD:
+  macOS-CD:
     runs-on: ubuntu-latest
     #    if: ${{ github.ref == 'refs/heads/production' }}
     env:
       GITHUB_RELEASE_ARTIFACTS_DIR: artifacts
+      GH_PAGES_BRANCH: gh-pages
     needs:
       - Create-tag
-      - Windows-CI
       - macOS-CI
     steps:
       - name: Download macOS Build Artifact
@@ -238,4 +236,6 @@ jobs:
           artifacts: ${{ env.GITHUB_RELEASE_ARTIFACTS_DIR }}
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ needs.Create-tag.outputs.version }}
-
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ env.GH_PAGES_BRANCH }}

@@ -61,3 +61,5 @@ echo "Stapling the disk image (dmg)..."
 
 # Staple the disk image (dmg) with the returned ticket
 xcrun stapler staple "$EF_STEROID_INSTALLER_DMG_PATH"
+
+echo "::set-output name=ef_steroid_installer_dmg_dir::$EF_STEROID_INSTALLER_DMG_DIR"
