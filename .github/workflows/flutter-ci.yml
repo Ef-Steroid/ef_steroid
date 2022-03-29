@@ -140,9 +140,9 @@ jobs:
       - name: Clone GenerateXCodeBuildExportOptions
         run: git clone https://github.com/TabooSun/GenerateXCodeBuildExportOptions.git
         working-directory: tools
-      - name: Install GenerateXCodeBuildExportOptions
+      - name: Install provisioning profiles
         run: dotnet run -- --app-store-connect-issuer-id $APP_STORE_CONNECT_ISSUER_ID --app-store-connect-api-private-key-id $APP_STORE_CONNECT_PRIVATE_KEY_ID --app-store-connect-api-private-key-path $APP_STORE_CONNECT_PRIVATE_KEY_FILE_NAME --bundle-identifier $BUNDLE_IDENTIFIER --signing-profile-types $SIGNING_TYPE
-        working-directory: tools
+        working-directory: tools/GenerateXCodeBuildExportOptions
 
       - name: Archive app
         #        if: ${{ github.ref == 'refs/heads/production' }}
