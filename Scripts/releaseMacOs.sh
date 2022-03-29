@@ -44,7 +44,7 @@ rm -rf "$EF_STEROID_INSTALLER_DMG_DIR"
 mkdir "$EF_STEROID_INSTALLER_DMG_DIR"
 
 # Create a disk image (dmg)
-create-dmg --volname "Ef Steroid Installer" --window-pos 200 120 --window-size 800 400 --app-drop-link 600 185 "$EF_STEROID_INSTALLER_DMG_PATH" "$ARTIFACTS_DIR/$APP_NAME"
+create-dmg --volname "$EF_STEROID_INSTALLER_DMG_DIR" --window-pos 200 120 --window-size 800 400 --app-drop-link 600 185 "$EF_STEROID_INSTALLER_DMG_PATH" "$ARTIFACTS_DIR/$APP_NAME"
 
 # Sign the disk image (dmg)
 codesign --force --sign "$CERTIFICATE_NAME" "$EF_STEROID_INSTALLER_DMG_PATH"
@@ -61,5 +61,3 @@ echo "Stapling the disk image (dmg)..."
 
 # Staple the disk image (dmg) with the returned ticket
 xcrun stapler staple "$EF_STEROID_INSTALLER_DMG_PATH"
-
-

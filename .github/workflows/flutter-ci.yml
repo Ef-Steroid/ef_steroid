@@ -6,12 +6,36 @@ on:
 env:
   FLUTTER_WINDOWS_VERSION: stable
   FLUTTER_MACOS_VERSION: master
+  APP_STORE_CONNECT_PRIVATE_KEY_FILE_NAME: app_store_connect_private_key.p8
+  BUNDLE_IDENTIFIER: com.techcreator.EfSteroid
+  SIGNING_TYPE: MAC_APP_DIRECT
+  EF_STEROID_MACOS_ARTIFACT_DIR: "Ef Steroid Installer"
 #  DATABASE_USERNAME: SA
 #  DATABASE_SA_PASSWORD: fdkngx4tak7vka8JNT
 
 jobs:
+  Create-tag:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version_retrieval.outputs.version }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: dart-lang/setup-dart@v1
+      - name: Install cider
+        run: dart pub global activate cider
+      - name: Get and store project version
+        id: version_retrieval
+        run: echo "::set-output name=version::v$(cider version)"
+      - uses: rickstaa/action-create-tag@v1
+        with:
+          tag: ${{ env.PROJECT_VERSION }}
+
   Windows-CI:
+    permissions:
+      contents: write
     runs-on: windows-latest
+    needs:
+      - Create-tag
     steps:
       - uses: actions/checkout@v2
 
@@ -60,7 +84,11 @@ jobs:
         run: flutter build windows
 
   macOS-CI:
+    permissions:
+      contents: write
     runs-on: macos-latest
+    needs:
+      - Create-tag
     steps:
       - uses: actions/checkout@v2
 
@@ -105,7 +133,38 @@ jobs:
       - name: Build macOS artifacts
         run: flutter build macos
 
+      - name: Create a file to store APP_STORE_CONNECT_PRIVATE_KEY
+        run: echo "$APP_STORE_CONNECT_PRIVATE_KEY" | base64 -Dd > $APP_STORE_CONNECT_PRIVATE_KEY_FILE_NAME
+      - name: Prepare signing certificate and provisioning profile
+        uses: ngeri/prepare-signing@v1.0.2
+        with:
+          appStoreConnectPrivateKey: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
+          keyID: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY_ID }}
+          issuerID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          base64P12File: ${{ secrets.P12_SIGNING_CERTIFICATE }}
+          p12Password: ${{ secrets.P12_SIGNING_CERTIFICATE_PASSWORD }}
+          bundleIdentifier: ${{ env.BUNDLE_IDENTIFIER }}
+          signType: ${{ env.SIGNING_TYPE }}
+
       - name: Archive app
         #        if: ${{ github.ref == 'refs/heads/production' }}
-        run: ./Scripts/releaseMacOs.sh
+        run: ./Scripts/releaseMacOs.sh $APP_STORE_CONNECT_PRIVATE_KEY_FILE_NAME $APP_STORE_CONNECT_PRIVATE_KEY_ID $APP_STORE_CONNECT_ISSUER_ID
+      - name: Remove app_store_connect_private_key.p8
+        run: rm $APP_STORE_CONNECT_PRIVATE_KEY_FILE_NAME
+      - name: actions/upload-artifact@v3
+        with:
+          name: macos-artifacts
+          path: ${{ env.EF_STEROID_MACOS_ARTIFACT_DIR }}
 
+  CD:
+    runs-on: ubuntu-latest
+    needs:
+      - Create-tag
+      - Windows-CI
+      - macOS-CI
+    steps:
+      - uses: ncipollo/release-action@v1
+        with:
+          artifacts: ${{ env.EF_STEROID_MACOS_ARTIFACT_DIR }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ needs.Create-tag.outputs.version }}
