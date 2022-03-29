@@ -10,6 +10,7 @@ env:
   BUNDLE_IDENTIFIER: com.techcreator.EfSteroid
   SIGNING_TYPE: MAC_APP_DIRECT
   EF_STEROID_MACOS_ARTIFACT_DIR: "Ef Steroid Installer"
+  GITHUB_MACOS_ARTIFACT_NAME: macos-artifacts
 #  DATABASE_USERNAME: SA
 #  DATABASE_SA_PASSWORD: fdkngx4tak7vka8JNT
 
@@ -153,18 +154,25 @@ jobs:
         run: rm $APP_STORE_CONNECT_PRIVATE_KEY_FILE_NAME
       - name: actions/upload-artifact@v3
         with:
-          name: macos-artifacts
+          name: ${{ env.GITHUB_MACOS_ARTIFACT_NAME }}
           path: ${{ env.EF_STEROID_MACOS_ARTIFACT_DIR }}
 
   CD:
     runs-on: ubuntu-latest
+    env: 
+      GITHUB_RELEASE_ARTIFACTS_DIR: artifacts
     needs:
       - Create-tag
       - Windows-CI
       - macOS-CI
     steps:
+      - name: Download a Build Artifact
+        uses: actions/download-artifact@v3.0.0
+        with:
+          name: ${{ env.GITHUB_MACOS_ARTIFACT_NAME }}
+          path: ${{ env.GITHUB_RELEASE_ARTIFACTS_DIR }}
       - uses: ncipollo/release-action@v1
         with:
-          artifacts: ${{ env.EF_STEROID_MACOS_ARTIFACT_DIR }}
+          artifacts: ${{ env.GITHUB_RELEASE_ARTIFACTS_DIR }}
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ needs.Create-tag.outputs.version }}
