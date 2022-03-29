@@ -9,14 +9,15 @@ env:
   APP_STORE_CONNECT_PRIVATE_KEY_FILE_NAME: app_store_connect_private_key.p8
   BUNDLE_IDENTIFIER: com.techcreator.EfSteroid
   SIGNING_TYPE: MAC_APP_DIRECT
-  EF_STEROID_MACOS_ARTIFACT_DIR: "Ef Steroid Installer"
-  GITHUB_MACOS_ARTIFACT_NAME: macos-artifacts
+  MACOS_ARTIFACT_NAME: macos-artifacts
+  MACOS_APPCAST_NAME: macos-appcast
+
 #  DATABASE_USERNAME: SA
 #  DATABASE_SA_PASSWORD: fdkngx4tak7vka8JNT
 
 jobs:
   Create-tag:
-#    if: ${{ github.ref == 'refs/heads/production' }}
+    #    if: ${{ github.ref == 'refs/heads/production' }}
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version_retrieval.outputs.version }}
@@ -135,8 +136,11 @@ jobs:
       - name: Build macOS artifacts
         run: flutter build macos
 
+      # DO NOT set a working directory for this step unless you update the script in run to correctly set the APP_STORE_CONNECT_PRIVATE_KEY_FILE_PATH.
       - name: Create a file to store APP_STORE_CONNECT_PRIVATE_KEY
         id: create_app_store_connect_private_key_file
+        env:
+          APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
         run: |
           echo "$APP_STORE_CONNECT_PRIVATE_KEY" | base64 -Dd --output $APP_STORE_CONNECT_PRIVATE_KEY_FILE_NAME
           
@@ -144,7 +148,7 @@ jobs:
           echo "::set-output name=app_store_connect_private_key_file_path::$APP_STORE_CONNECT_PRIVATE_KEY_FILE_PATH"
 
       # Check https://docs.github.com/en/actions/deployment/deploying-xcode-applications/installing-an-apple-certificate-on-macos-runners-for-xcode-development for more info.
-      - name: Install the Apple certificate
+      - name: Install Apple certificate
         env:
           P12_SIGNING_CERTIFICATE: ${{ secrets.P12_SIGNING_CERTIFICATE }}
           P12_SIGNING_CERTIFICATE_PASSWORD: ${{ secrets.P12_SIGNING_CERTIFICATE_PASSWORD }}
@@ -191,16 +195,28 @@ jobs:
       - name: Remove app_store_connect_private_key.p8
         run: rm $APP_STORE_CONNECT_PRIVATE_KEY_FILE_NAME
 
+      - uses: actions/upload-artifact@v3
+        name: Upload macOS artifacts
+        with:
+          name: ${{ env.MACOS_ARTIFACT_NAME }}
+          path: ${{ steps.macos_archive.outputs.ef_steroid_installer_dmg_dir }}
+
       - name: Generate macOS appcast.xml
         env:
           EF_STEROID_INSTALLER_DMG_DIR: ${{ steps.macos_archive.outputs.ef_steroid_installer_dmg_dir }}
           TAG_NAME: ${{ needs.Create-tag.outputs.version }}
-        run: ./macos/Pods/Sparkle/bin/generate_appcast "$EF_STEROID_INSTALLER_DMG_DIR" --download-url-prefix "https://github.com/Ef-Steroid/ef_steroid/releases/$TAG_NAME"
+        run: |
+          # Generate appcast.xml
+          ./macos/Pods/Sparkle/bin/generate_appcast "$EF_STEROID_INSTALLER_DMG_DIR" --download-url-prefix "https://github.com/Ef-Steroid/ef_steroid/releases/$TAG_NAME"
+
 
       - uses: actions/upload-artifact@v3
+        name: Upload macOS appcast.xml
+        env:
+          EF_STEROID_INSTALLER_DMG_DIR: ${{ steps.macos_archive.outputs.ef_steroid_installer_dmg_dir }}
         with:
-          name: ${{ env.GITHUB_MACOS_ARTIFACT_NAME }}
-          path: ${{ env.EF_STEROID_MACOS_ARTIFACT_DIR }}
+          name: ${{ env.MACOS_APPCAST_NAME }}
+          path: ${{ steps.macos_archive.outputs.ef_steroid_installer_dmg_dir }}
 
   CD:
     runs-on: ubuntu-latest
@@ -215,7 +231,7 @@ jobs:
       - name: Download macOS Build Artifact
         uses: actions/download-artifact@v3.0.0
         with:
-          name: ${{ env.GITHUB_MACOS_ARTIFACT_NAME }}
+          name: ${{ env.MACOS_ARTIFACT_NAME }}
           path: ${{ env.GITHUB_RELEASE_ARTIFACTS_DIR }}
       - uses: ncipollo/release-action@v1
         with:
