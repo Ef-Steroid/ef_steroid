@@ -155,10 +155,10 @@ jobs:
           # Create temporary keychain
           security create-keychain -p "$P12_SIGNING_CERTIFICATE_KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
           security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
-          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security unlock-keychain -p "$P12_SIGNING_CERTIFICATE_KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
           
           # Import certificate to keychain
-          security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security import $CERTIFICATE_PATH -P "$P12_SIGNING_CERTIFICATE_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
           security list-keychain -d user -s $KEYCHAIN_PATH
           
           # Remove certificate file
@@ -189,6 +189,7 @@ jobs:
 
   CD:
     runs-on: ubuntu-latest
+    #    if: ${{ github.ref == 'refs/heads/production' }}
     env:
       GITHUB_RELEASE_ARTIFACTS_DIR: artifacts
     needs:
@@ -196,7 +197,7 @@ jobs:
       - Windows-CI
       - macOS-CI
     steps:
-      - name: Download a Build Artifact
+      - name: Download macOS Build Artifact
         uses: actions/download-artifact@v3.0.0
         with:
           name: ${{ env.GITHUB_MACOS_ARTIFACT_NAME }}
