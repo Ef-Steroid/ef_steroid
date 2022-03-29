@@ -136,8 +136,14 @@ jobs:
         run: flutter build macos
 
       - name: Create a file to store APP_STORE_CONNECT_PRIVATE_KEY
-        run: echo "$APP_STORE_CONNECT_PRIVATE_KEY" | base64 -Dd --output $APP_STORE_CONNECT_PRIVATE_KEY_FILE_NAME
+        id: create_app_store_connect_private_key_file
+        run: |
+          echo "$APP_STORE_CONNECT_PRIVATE_KEY" | base64 -Dd --output $APP_STORE_CONNECT_PRIVATE_KEY_FILE_NAME
+          
+          APP_STORE_CONNECT_PRIVATE_KEY_FILE_PATH=$(pwd)/$APP_STORE_CONNECT_PRIVATE_KEY_FILE_NAME
+          echo "::set-output name=app_store_connect_private_key_file_path::$APP_STORE_CONNECT_PRIVATE_KEY_FILE_PATH"
 
+      # Check https://docs.github.com/en/actions/deployment/deploying-xcode-applications/installing-an-apple-certificate-on-macos-runners-for-xcode-development for more info.
       - name: Install the Apple certificate
         env:
           P12_SIGNING_CERTIFICATE: ${{ secrets.P12_SIGNING_CERTIFICATE }}
@@ -171,10 +177,12 @@ jobs:
         env:
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           APP_STORE_CONNECT_PRIVATE_KEY_ID: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY_ID }}
-        run: dotnet run -- --app-store-connect-issuer-id $APP_STORE_CONNECT_ISSUER_ID --app-store-connect-api-private-key-id $APP_STORE_CONNECT_PRIVATE_KEY_ID --app-store-connect-api-private-key-path $APP_STORE_CONNECT_PRIVATE_KEY_FILE_NAME --bundle-identifier $BUNDLE_IDENTIFIER --signing-profile-types $SIGNING_TYPE
+          APP_STORE_CONNECT_PRIVATE_KEY_FILE_PATH: ${{ steps.create_app_store_connect_private_key_file.outputs.app_store_connect_private_key_file_path }}
+        run: dotnet run -- --app-store-connect-issuer-id $APP_STORE_CONNECT_ISSUER_ID --app-store-connect-api-private-key-id $APP_STORE_CONNECT_PRIVATE_KEY_ID --app-store-connect-api-private-key-path $APP_STORE_CONNECT_PRIVATE_KEY_FILE_PATH --bundle-identifier $BUNDLE_IDENTIFIER --signing-profile-types $SIGNING_TYPE
         working-directory: tools/GenerateXCodeBuildExportOptions
 
       - name: Archive app
+        id: macos_archive
         #        if: ${{ github.ref == 'refs/heads/production' }}
         env:
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
@@ -182,6 +190,13 @@ jobs:
         run: ./Scripts/releaseMacOs.sh $APP_STORE_CONNECT_PRIVATE_KEY_FILE_NAME $APP_STORE_CONNECT_PRIVATE_KEY_ID $APP_STORE_CONNECT_ISSUER_ID
       - name: Remove app_store_connect_private_key.p8
         run: rm $APP_STORE_CONNECT_PRIVATE_KEY_FILE_NAME
+
+      - name: Generate macOS appcast.xml
+        env:
+          EF_STEROID_INSTALLER_DMG_DIR: ${{ steps.macos_archive.outputs.ef_steroid_installer_dmg_dir }}
+          TAG_NAME: ${{ needs.Create-tag.outputs.version }}
+        run: ./macos/Pods/Sparkle/bin/generate_appcast "$EF_STEROID_INSTALLER_DMG_DIR" --download-url-prefix "https://github.com/Ef-Steroid/ef_steroid/releases/$TAG_NAME"
+
       - uses: actions/upload-artifact@v3
         with:
           name: ${{ env.GITHUB_MACOS_ARTIFACT_NAME }}
@@ -207,3 +222,4 @@ jobs:
           artifacts: ${{ env.GITHUB_RELEASE_ARTIFACTS_DIR }}
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ needs.Create-tag.outputs.version }}
+
