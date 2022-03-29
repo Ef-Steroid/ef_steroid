@@ -16,6 +16,7 @@ env:
 
 jobs:
   Create-tag:
+#    if: ${{ github.ref == 'refs/heads/production' }}
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version_retrieval.outputs.version }}
@@ -135,17 +136,49 @@ jobs:
         run: flutter build macos
 
       - name: Create a file to store APP_STORE_CONNECT_PRIVATE_KEY
-        run: echo "$APP_STORE_CONNECT_PRIVATE_KEY" | base64 -Dd > $APP_STORE_CONNECT_PRIVATE_KEY_FILE_NAME
-        
+        run: echo "$APP_STORE_CONNECT_PRIVATE_KEY" | base64 -Dd --output $APP_STORE_CONNECT_PRIVATE_KEY_FILE_NAME
+
+      - name: Install the Apple certificate and provisioning profile
+        env:
+          P12_SIGNING_CERTIFICATE: ${{ secrets.P12_SIGNING_CERTIFICATE }}
+          P12_SIGNING_CERTIFICATE_PASSWORD: ${{ secrets.P12_SIGNING_CERTIFICATE_PASSWORD }}
+          # A password that Key Chain uses to unlock for Signing Certificate. I didn't store this because we use this for accessing the keychain only. We can always regenerate it if it is exposed.
+          P12_SIGNING_CERTIFICATE_KEYCHAIN_PASSWORD: ${{ secrets.P12_SIGNING_CERTIFICATE_KEYCHAIN_PASSWORD }}
+        run: |
+          # Create variables
+          CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+          
+          # Import certificate from secrets
+          echo -n "$P12_SIGNING_CERTIFICATE" | base64 --decode --output $CERTIFICATE_PATH
+          
+          # Create temporary keychain
+          security create-keychain -p "$P12_SIGNING_CERTIFICATE_KEYCHAIN_PASSWORD"
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          
+          # Import certificate to keychain
+          security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security list-keychain -d user -s $KEYCHAIN_PATH
+          
+          # Remove certificate file
+          rm $CERTIFICATE_PATH
+
       - name: Clone GenerateXCodeBuildExportOptions
         run: git clone https://github.com/TabooSun/GenerateXCodeBuildExportOptions.git
         working-directory: tools
       - name: Install provisioning profiles
+        env:
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.$APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_PRIVATE_KEY_ID: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY_ID }}
         run: dotnet run -- --app-store-connect-issuer-id $APP_STORE_CONNECT_ISSUER_ID --app-store-connect-api-private-key-id $APP_STORE_CONNECT_PRIVATE_KEY_ID --app-store-connect-api-private-key-path $APP_STORE_CONNECT_PRIVATE_KEY_FILE_NAME --bundle-identifier $BUNDLE_IDENTIFIER --signing-profile-types $SIGNING_TYPE
         working-directory: tools/GenerateXCodeBuildExportOptions
 
       - name: Archive app
         #        if: ${{ github.ref == 'refs/heads/production' }}
+        env:
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.$APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_PRIVATE_KEY_ID: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY_ID }}
         run: ./Scripts/releaseMacOs.sh $APP_STORE_CONNECT_PRIVATE_KEY_FILE_NAME $APP_STORE_CONNECT_PRIVATE_KEY_ID $APP_STORE_CONNECT_ISSUER_ID
       - name: Remove app_store_connect_private_key.p8
         run: rm $APP_STORE_CONNECT_PRIVATE_KEY_FILE_NAME
@@ -156,7 +189,7 @@ jobs:
 
   CD:
     runs-on: ubuntu-latest
-    env: 
+    env:
       GITHUB_RELEASE_ARTIFACTS_DIR: artifacts
     needs:
       - Create-tag
