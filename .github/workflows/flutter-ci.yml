@@ -1,16 +1,21 @@
-name: Flutter CICD
+name: Flutter CI
 on:
   pull_request:
     types: [ opened, reopened, synchronize, edited ]
   workflow_dispatch:
+  workflow_call:
+    outputs:
+      version:
+        description: The project version.
+        value: ${{ jobs.Create-tag.outputs.version }}
 env:
   FLUTTER_WINDOWS_VERSION: stable
   FLUTTER_MACOS_VERSION: master
   APP_STORE_CONNECT_PRIVATE_KEY_FILE_NAME: app_store_connect_private_key.p8
   BUNDLE_IDENTIFIER: com.techcreator.EfSteroid
   SIGNING_TYPE: MAC_APP_DIRECT
-  MACOS_GITHUB_ARTIFACT_NAME: macos-artifacts
-  MACOS_APPCAST_GITHUB_ARTIFACT_NAME: macos-appcast
+  MACOS_GITHUB_ARTIFACT_NAME_SHARED: macos-artifacts
+  MACOS_APPCAST_GITHUB_ARTIFACT_NAME_SHARED: macos-appcast
   MACOS_APPCAST_FILE_NAME: macos-appcast.xml
 
 #  DATABASE_USERNAME: SA
@@ -199,7 +204,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         name: Upload macOS artifacts
         with:
-          name: ${{ env.MACOS_GITHUB_ARTIFACT_NAME }}
+          name: ${{ env.MACOS_GITHUB_ARTIFACT_NAME_SHARED }}
           path: ${{ steps.macos_archive.outputs.ef_steroid_installer_dmg_dir }}
 
       - name: Generate macOS appcast.xml
@@ -217,46 +222,6 @@ jobs:
         env:
           EF_STEROID_INSTALLER_DMG_DIR: ${{ steps.macos_archive.outputs.ef_steroid_installer_dmg_dir }}
         with:
-          name: ${{ env.MACOS_APPCAST_GITHUB_ARTIFACT_NAME }}
+          name: ${{ env.MACOS_APPCAST_GITHUB_ARTIFACT_NAME_SHARED }}
           path: ${{ env.MACOS_APPCAST_FILE_NAME }}
 
-  macOS-CD:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    if: ${{ github.ref == 'refs/heads/production' }}
-    env:
-      GITHUB_RELEASE_ARTIFACTS_DIR: artifacts
-    needs:
-      - Create-tag
-      - macOS-CI
-    steps:
-      - name: Download macOS Build Artifact
-        uses: actions/download-artifact@v3.0.0
-        with:
-          name: ${{ env.MACOS_GITHUB_ARTIFACT_NAME }}
-          path: ${{ env.GITHUB_RELEASE_ARTIFACTS_DIR }}
-      - uses: ncipollo/release-action@v1
-        name: Publish macOS Artifact
-        with:
-          artifacts: "artifacts/**/*"
-          token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ needs.Create-tag.outputs.version }}
-
-  github-pg-CD:
-    runs-on: ubuntu-latest
-    env:
-      GITHUB_RELEASE_ARTIFACTS_DIR: artifacts
-    needs:
-      - macOS-CD
-    steps:
-      - name: Download macOS appcast.xml
-        uses: actions/download-artifact@v3.0.0
-        with:
-          name: ${{ env.MACOS_APPCAST_GITHUB_ARTIFACT_NAME }}
-          path: ${{ env.GITHUB_RELEASE_ARTIFACTS_DIR }}
-      - name: Deploy macOS appcast
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ${{ env.GITHUB_RELEASE_ARTIFACTS_DIR }}
