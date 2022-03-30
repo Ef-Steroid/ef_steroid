@@ -33,7 +33,7 @@
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 	<key>SUFeedURL</key>
-	<string></string>
+	<string>https://raw.githubusercontent.com/Ef-Steroid/ef_steroid/gh-pages/macos-appcast.xml</string>
 	<key>SUPublicEDKey</key>
 	<string>J+V5NlFsZb+dEf4h5IrGV9gXHf8/plYydwW+rn9YehY=</string>
 </dict>
