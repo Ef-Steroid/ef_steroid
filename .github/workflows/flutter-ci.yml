@@ -8,6 +8,20 @@ on:
       version:
         description: The project version.
         value: ${{ jobs.Create-tag.outputs.version }}
+    secrets:
+      APP_STORE_CONNECT_ISSUER_ID:
+        required: true
+      APP_STORE_CONNECT_PRIVATE_KEY:
+        required: true
+      APP_STORE_CONNECT_PRIVATE_KEY_ID:
+        required: true
+      P12_SIGNING_CERTIFICATE:
+        required: true
+      P12_SIGNING_CERTIFICATE_PASSWORD:
+        required: true
+      P12_SIGNING_CERTIFICATE_KEYCHAIN_PASSWORD:
+        required: true
+
 env:
   FLUTTER_WINDOWS_VERSION: stable
   FLUTTER_MACOS_VERSION: master
