@@ -35,7 +35,7 @@ xcodebuild -workspace macos/Runner.xcworkspace -config Release -scheme Runner -a
 xcodebuild -archivePath artifacts/Runner.xcarchive -exportArchive -exportPath artifacts -exportOptionsPlist macos/ExportOptions.plist
 
 EF_STEROID_INSTALLER_DMG_DIR="Ef Steroid Installer"
-EF_STEROID_INSTALLER_DMG_NAME="Ef Steroid Installer.dmg"
+EF_STEROID_INSTALLER_DMG_NAME="Ef-Steroid-Installer.dmg"
 EF_STEROID_INSTALLER_DMG_PATH="$EF_STEROID_INSTALLER_DMG_DIR/$EF_STEROID_INSTALLER_DMG_NAME"
 
 rm -rf "$EF_STEROID_INSTALLER_DMG_DIR"
