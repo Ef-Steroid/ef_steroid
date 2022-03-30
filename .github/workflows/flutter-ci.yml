@@ -214,6 +214,7 @@ jobs:
           EF_STEROID_INSTALLER_DMG_DIR: ${{ steps.macos_archive.outputs.ef_steroid_installer_dmg_dir }}
         with:
           name: ${{ env.MACOS_APPCAST_NAME }}
+          path: .
 
   macOS-CD:
     runs-on: ubuntu-latest
@@ -237,6 +238,8 @@ jobs:
 
   github-pg-macOS-CD:
     runs-on: ubuntu-latest
+    # Lock all the github-pg related jobs so that the appcast file is not overwritten during git commit & push.
+    concurrency: github-pg-lock
     #    if: ${{ github.ref == 'refs/heads/production' }}
     env:
       GITHUB_RELEASE_ARTIFACTS_DIR: artifacts
@@ -268,4 +271,4 @@ jobs:
           
           # Publish appcast
           git commit -a -m "Update macOS appcast"
-          git push origin "$PRODUCTION_BRANCH_NAME"
+          git push origin "$GH_PAGES_BRANCH"

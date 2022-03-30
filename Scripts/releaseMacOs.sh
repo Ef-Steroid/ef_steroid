@@ -17,8 +17,6 @@
 
 # Run this script in the root project directory.
 
-set -x
-
 #FLUTTER_MACOS_ARTIFACTS_DIR="build/macos/Build/Products/Release"
 APP_NAME="Ef Steroid.app"
 #APP_PATH="$FLUTTER_MACOS_ARTIFACTS_DIR/$APP_NAME"
