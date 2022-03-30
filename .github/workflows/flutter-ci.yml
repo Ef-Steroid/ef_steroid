@@ -87,8 +87,6 @@ jobs:
         run: flutter build windows
 
   macOS-CI:
-    permissions:
-      contents: write
     runs-on: macos-latest
     needs:
       - Create-tag
@@ -218,6 +216,8 @@ jobs:
 
   macOS-CD:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     #    if: ${{ github.ref == 'refs/heads/production' }}
     env:
       GITHUB_RELEASE_ARTIFACTS_DIR: artifacts
@@ -231,44 +231,27 @@ jobs:
           name: ${{ env.MACOS_ARTIFACT_NAME }}
           path: ${{ env.GITHUB_RELEASE_ARTIFACTS_DIR }}
       - uses: ncipollo/release-action@v1
+        name: Publish macOS Artifact
         with:
-          artifacts: ${{ env.GITHUB_RELEASE_ARTIFACTS_DIR }}
+          artifacts: "artifacts/**/*"
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ needs.Create-tag.outputs.version }}
 
   github-pg-macOS-CD:
     runs-on: ubuntu-latest
-    # Lock all the github-pg related jobs so that the appcast file is not overwritten during git commit & push.
-    concurrency: github-pg-lock
     #    if: ${{ github.ref == 'refs/heads/production' }}
     env:
       GITHUB_RELEASE_ARTIFACTS_DIR: artifacts
-      GH_PAGES_BRANCH: gh-pages
-      PRODUCTION_BRANCH_NAME: "#29-add-sparkle"
     needs:
       - macOS-CD
     steps:
-      - uses: actions/checkout@v2
-        with:
-          ref: ${{ env.GH_PAGES_BRANCH }}
       - name: Download macOS appcast.xml
         uses: actions/download-artifact@v3.0.0
         with:
           name: ${{ env.MACOS_APPCAST_NAME }}
           path: ${{ env.GITHUB_RELEASE_ARTIFACTS_DIR }}
-      - name: Publish macOS appcast
-        run: |
-          APPCAST_DIR=appcasts
-          
-          # Remove old appcast
-          git rm $APPCAST_DIR/$MACOS_APPCAST_NAME
-          
-          # Rebase production branch
-          git rebase "$PRODUCTION_BRANCH_NAME"
-          
-          # Move appcast from artifacts
-          mv $GITHUB_RELEASE_ARTIFACTS_DIR/$MACOS_APPCAST_NAME $APPCAST_DIR/.
-          
-          # Publish appcast
-          git commit -a -m "Update macOS appcast"
-          git push origin "$GH_PAGES_BRANCH"
+      - name: Deploy macOS appcast
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ${{ env.GITHUB_RELEASE_ARTIFACTS_DIR }}
