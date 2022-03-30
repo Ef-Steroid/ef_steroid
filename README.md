@@ -19,3 +19,15 @@ Ef Steroid is a GUI application for [Entity Framework](https://docs.microsoft.co
 
 ![image](README/assets/ef_steroid_main_view.png)
 
+## Development
+
+### macOS
+
+Run the following commands:
+
+```
+brew install needle
+flutter pub get
+flutter pub run build_runner build
+flutter run
+```
