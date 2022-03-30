@@ -3,7 +3,7 @@ on:
   pull_request:
     types: [ opened, reopened, synchronize, edited ]
   workflow_dispatch:
-  workflow_run:
+  workflow_call:
 env:
   FLUTTER_WINDOWS_VERSION: stable
   FLUTTER_MACOS_VERSION: master
