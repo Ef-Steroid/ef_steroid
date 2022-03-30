@@ -1,32 +1,262 @@
-name: Flutter CI
+name: Flutter CICD
 on:
   pull_request:
     types: [ opened, reopened, synchronize, edited ]
   workflow_dispatch:
 env:
-  FLUTTER_VERSION: stable
+  FLUTTER_WINDOWS_VERSION: stable
+  FLUTTER_MACOS_VERSION: master
+  APP_STORE_CONNECT_PRIVATE_KEY_FILE_NAME: app_store_connect_private_key.p8
+  BUNDLE_IDENTIFIER: com.techcreator.EfSteroid
+  SIGNING_TYPE: MAC_APP_DIRECT
+  MACOS_GITHUB_ARTIFACT_NAME: macos-artifacts
+  MACOS_APPCAST_GITHUB_ARTIFACT_NAME: macos-appcast
+  MACOS_APPCAST_FILE_NAME: macos-appcast.xml
+
+#  DATABASE_USERNAME: SA
+#  DATABASE_SA_PASSWORD: fdkngx4tak7vka8JNT
+
 jobs:
-  Windows-CI:
-    runs-on: windows-latest
+  Create-tag:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version_retrieval.outputs.version }}
     steps:
       - uses: actions/checkout@v2
-      - name: Install Flutter
-        uses: britannio/action-install-flutter@v1.1
+      - uses: dart-lang/setup-dart@v1
+      - name: Install cider
+        run: dart pub global activate cider
+      - name: Get and store project version
+        id: version_retrieval
+        run: echo "::set-output name=version::v$(cider version)"
+      - uses: rickstaa/action-create-tag@v1
+        if: ${{ github.ref == 'refs/heads/production' }}
         with:
-          version: $FLUTTER_VERSION
+          tag: ${{ steps.version_retrieval.outputs.version }}
+
+  Windows-CI:
+    permissions:
+      contents: write
+    runs-on: windows-latest
+    needs:
+      - Create-tag
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: $FLUTTER_WINDOWS_VERSION
 
       - name: Check Dart code style
         run: flutter format lib --set-exit-if-changed
-        shell: bash
+
+      - name: Install dotnet
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '6.0.x'
+      #      - name: Install dotnet-ef
+      #        run: dotnet tool install -g dotnet-ef
+
+      - name: Build CsprojTool artifacts
+        shell: pwsh
+        working-directory: tools/CsprojTool
+        run: ./BuildArtifacts.ps1
+
+      - name: Install packages
+        run: flutter pub get
+      - name: Run build_runner
+        run: flutter pub run build_runner build
+
+      #      - name: Install SQL Server
+      #        uses: Particular/install-sql-server-action@main
+      #        with:
+      #          connection-string-env-var: SQL_SERVER_CONNECTION_STRING
+      #      - name: Create database user
+      #        run: sqlcmd -v MSSQL_SA_PASSWORD="$env:DATABASE_SA_PASSWORD" -i Scripts/sql/enable_mssql_sa_user.sql
+      #        shell: pwsh
+      #
+      #      - name: Setup MSBuild
+      #        uses: microsoft/setup-msbuild@v1
+      #      - name: Build Dotnet Framework TestingProject
+      #        run: msbuild.exe tools/TestingProjects/Ef6/NetFrameworkWebProject/NetFrameworkWebProject.sln
+      #
+      #      - name: Run test
+      #        run: flutter test --coverage
+
+      - name: Build Windows artifacts
+        run: flutter build windows
+
   macOS-CI:
     runs-on: macos-latest
+    needs:
+      - Create-tag
     steps:
       - uses: actions/checkout@v2
+
       - name: Install Flutter
-        uses: britannio/action-install-flutter@v1.1
+        uses: subosito/flutter-action@v2
         with:
-          version: $FLUTTER_VERSION
+          channel: $FLUTTER_MACOS_VERSION
+
       - name: Check Dart code style
         run: flutter format lib --set-exit-if-changed
 
+      - name: Install dotnet
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '6.0.x'
+      #      - name: Install dotnet-ef
+      #        run: dotnet tool install -g dotnet-ef
 
+      - name: Install needle
+        run: brew install needle
+
+      - name: Install packages
+        run: flutter pub get
+      - name: Run build_runner
+        run: flutter pub run build_runner build
+
+      # Enable macOS desktop support. Remove this when Flutter marks macOS support as stable.
+      - name: Enable macOS Desktop
+        run: flutter config --enable-macos-desktop
+
+      #      - name: setup-docker
+      #        uses: docker-practice/actions-setup-docker@1.0.8
+      #
+      #      - name: Run docker to install MSSQL
+      #        run: ./Scripts/docker-setup.ps1 $env:DATABASE_SA_PASSWORD
+      #        shell: pwsh
+      #
+      #      # Comment out this until I figure out how to set up SQL in docker for testing purpose.
+      #      - name: Run test
+      #        run: flutter test --coverage
+
+      - name: Build macOS artifacts
+        run: flutter build macos
+
+      # DO NOT set a working directory for this step unless you update the script in run to correctly set the APP_STORE_CONNECT_PRIVATE_KEY_FILE_PATH.
+      - name: Create a file to store APP_STORE_CONNECT_PRIVATE_KEY
+        id: create_app_store_connect_private_key_file
+        env:
+          APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY }}
+        run: |
+          echo "$APP_STORE_CONNECT_PRIVATE_KEY" | base64 -Dd --output $APP_STORE_CONNECT_PRIVATE_KEY_FILE_NAME
+          
+          APP_STORE_CONNECT_PRIVATE_KEY_FILE_PATH=$(pwd)/$APP_STORE_CONNECT_PRIVATE_KEY_FILE_NAME
+          echo "::set-output name=app_store_connect_private_key_file_path::$APP_STORE_CONNECT_PRIVATE_KEY_FILE_PATH"
+
+      # Check https://docs.github.com/en/actions/deployment/deploying-xcode-applications/installing-an-apple-certificate-on-macos-runners-for-xcode-development for more info.
+      - name: Install Apple certificate
+        env:
+          P12_SIGNING_CERTIFICATE: ${{ secrets.P12_SIGNING_CERTIFICATE }}
+          P12_SIGNING_CERTIFICATE_PASSWORD: ${{ secrets.P12_SIGNING_CERTIFICATE_PASSWORD }}
+          # A password that Key Chain uses to unlock for Signing Certificate. I didn't store this because we use this for accessing the keychain only. We can always regenerate it if it is exposed.
+          P12_SIGNING_CERTIFICATE_KEYCHAIN_PASSWORD: ${{ secrets.P12_SIGNING_CERTIFICATE_KEYCHAIN_PASSWORD }}
+        run: |
+          # Create variables
+          CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+          
+          # Import certificate from secrets
+          echo -n "$P12_SIGNING_CERTIFICATE" | base64 --decode --output $CERTIFICATE_PATH
+          
+          # Create temporary keychain
+          security create-keychain -p "$P12_SIGNING_CERTIFICATE_KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$P12_SIGNING_CERTIFICATE_KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          
+          # Import certificate to keychain
+          security import $CERTIFICATE_PATH -P "$P12_SIGNING_CERTIFICATE_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security list-keychain -d user -s $KEYCHAIN_PATH
+          
+          # Remove certificate file
+          rm $CERTIFICATE_PATH
+
+      - name: Clone GenerateXCodeBuildExportOptions
+        run: git clone https://github.com/TabooSun/GenerateXCodeBuildExportOptions.git
+        working-directory: tools
+      - name: Install provisioning profiles
+        env:
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_PRIVATE_KEY_ID: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY_ID }}
+          APP_STORE_CONNECT_PRIVATE_KEY_FILE_PATH: ${{ steps.create_app_store_connect_private_key_file.outputs.app_store_connect_private_key_file_path }}
+        run: dotnet run -- --app-store-connect-issuer-id $APP_STORE_CONNECT_ISSUER_ID --app-store-connect-api-private-key-id $APP_STORE_CONNECT_PRIVATE_KEY_ID --app-store-connect-api-private-key-path $APP_STORE_CONNECT_PRIVATE_KEY_FILE_PATH --bundle-identifier $BUNDLE_IDENTIFIER --signing-profile-types $SIGNING_TYPE
+        working-directory: tools/GenerateXCodeBuildExportOptions
+
+      - name: Install create-dmg
+        run: brew install create-dmg
+
+      - name: Archive app
+        id: macos_archive
+        env:
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_PRIVATE_KEY_ID: ${{ secrets.APP_STORE_CONNECT_PRIVATE_KEY_ID }}
+        run: ./Scripts/releaseMacOs.sh $APP_STORE_CONNECT_PRIVATE_KEY_FILE_NAME $APP_STORE_CONNECT_PRIVATE_KEY_ID $APP_STORE_CONNECT_ISSUER_ID
+      - name: Remove app_store_connect_private_key.p8
+        run: rm $APP_STORE_CONNECT_PRIVATE_KEY_FILE_NAME
+
+      - uses: actions/upload-artifact@v3
+        name: Upload macOS artifacts
+        with:
+          name: ${{ env.MACOS_GITHUB_ARTIFACT_NAME }}
+          path: ${{ steps.macos_archive.outputs.ef_steroid_installer_dmg_dir }}
+
+      - name: Generate macOS appcast.xml
+        env:
+          EF_STEROID_INSTALLER_DMG_DIR: ${{ steps.macos_archive.outputs.ef_steroid_installer_dmg_dir }}
+          TAG_NAME: ${{ needs.Create-tag.outputs.version }}
+          EF_STEROID_OFFICIAL_PAGE: "https://ef-steroid.github.io/efsteroid-web"
+        run: |
+          ./macos/Pods/Sparkle/bin/generate_appcast "$EF_STEROID_INSTALLER_DMG_DIR" \
+            --download-url-prefix "https://github.com/Ef-Steroid/ef_steroid/releases/$TAG_NAME/" \
+            -o $MACOS_APPCAST_FILE_NAME \
+            --link $EF_STEROID_OFFICIAL_PAGE
+      - uses: actions/upload-artifact@v3
+        name: Upload macOS AppCast
+        env:
+          EF_STEROID_INSTALLER_DMG_DIR: ${{ steps.macos_archive.outputs.ef_steroid_installer_dmg_dir }}
+        with:
+          name: ${{ env.MACOS_APPCAST_GITHUB_ARTIFACT_NAME }}
+          path: ${{ env.MACOS_APPCAST_FILE_NAME }}
+
+  macOS-CD:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    if: ${{ github.ref == 'refs/heads/production' }}
+    env:
+      GITHUB_RELEASE_ARTIFACTS_DIR: artifacts
+    needs:
+      - Create-tag
+      - macOS-CI
+    steps:
+      - name: Download macOS Build Artifact
+        uses: actions/download-artifact@v3.0.0
+        with:
+          name: ${{ env.MACOS_GITHUB_ARTIFACT_NAME }}
+          path: ${{ env.GITHUB_RELEASE_ARTIFACTS_DIR }}
+      - uses: ncipollo/release-action@v1
+        name: Publish macOS Artifact
+        with:
+          artifacts: "artifacts/**/*"
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ needs.Create-tag.outputs.version }}
+
+  github-pg-CD:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_RELEASE_ARTIFACTS_DIR: artifacts
+    needs:
+      - macOS-CD
+    steps:
+      - name: Download macOS appcast.xml
+        uses: actions/download-artifact@v3.0.0
+        with:
+          name: ${{ env.MACOS_APPCAST_GITHUB_ARTIFACT_NAME }}
+          path: ${{ env.GITHUB_RELEASE_ARTIFACTS_DIR }}
+      - name: Deploy macOS appcast
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ${{ env.GITHUB_RELEASE_ARTIFACTS_DIR }}

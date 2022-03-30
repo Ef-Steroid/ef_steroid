@@ -1,31 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2022-2022 MOK KAH WAI and contributors
+  ~
+  ~ This program is free software: you can redistribute it and/or modify
+  ~ it under the terms of the GNU General Public License as published by
+  ~ the Free Software Foundation, either version 3 of the License, or
+  ~ (at your option) any later version.
+  ~
+  ~ This program is distributed in the hope that it will be useful,
+  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  ~ GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License
+  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  -->
+
 <Scheme
    version = "1.3">
    <BuildAction>
       <BuildActionEntries>
          <BuildActionEntry
-            buildForRunning = "YES">
+             buildForRunning="YES">
             <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "33CC10EC2044A3C60003C045"
-               BuildableName = "Ef Steroid.app"
-               BlueprintName = "Runner"
-               ReferencedContainer = "container:Runner.xcodeproj">
+                BuildableIdentifier="primary"
+                BlueprintIdentifier="33CC10EC2044A3C60003C045"
+                BuildableName="Ef Steroid.app"
+                BlueprintName="Runner"
+                ReferencedContainer="container:Runner.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <LaunchAction
-      useCustomWorkingDirectory = "NO"
-      buildConfiguration = "Debug"
-      allowLocationSimulation = "YES">
+       useCustomWorkingDirectory="NO"
+       buildConfiguration="Debug"
+       allowLocationSimulation="YES">
       <BuildableProductRunnable>
          <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "33CC10EC2044A3C60003C045"
-            BuildableName = "Ef Steroid.app"
-            BlueprintName = "Runner"
-            ReferencedContainer = "container:Runner.xcodeproj">
+             BuildableIdentifier="primary"
+             BlueprintIdentifier="33CC10EC2044A3C60003C045"
+             BuildableName="Ef Steroid.app"
+             BlueprintName="Runner"
+             ReferencedContainer="container:Runner.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>

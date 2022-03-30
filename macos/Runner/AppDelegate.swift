@@ -1,5 +1,6 @@
 import Cocoa
 import FlutterMacOS
+import Sparkle
 
 @NSApplicationMain
 class AppDelegate : FlutterAppDelegate {

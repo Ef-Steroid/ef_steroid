@@ -33,8 +33,19 @@ Future<void> main() async {
   //endregion
 
   final rootProjectDirectory = TestBootstrap.getProjectRootDirectory();
+  final netCoreWebProjectUri = Directory(
+    p.joinAll([
+      rootProjectDirectory.path,
+      netCoreWebProjectPath,
+    ]),
+  ).uri;
 
-  await TestBootstrap.runAsync();
+  setUpAll(() async {
+    await TestBootstrap.runAsync();
+    await TestBootstrap.buildDotnetProjectAsync(
+      projectUri: netCoreWebProjectUri,
+    );
+  });
   test(
     'AppDotnetEfCoreService.listMigrationAsync returns all migrations',
     () async {

@@ -22,6 +22,7 @@ import 'package:async_task/async_task_extension.dart';
 import 'package:desktop_window/desktop_window.dart';
 import 'package:ef_steroid/app_settings.dart';
 import 'package:ef_steroid/helpers/darq_helper.dart';
+import 'package:ef_steroid/helpers/log_helper.dart';
 import 'package:ef_steroid/main.reflectable.dart';
 import 'package:ef_steroid/services/file/resource_group_key.dart';
 import 'package:ef_steroid/services/log/log_service.dart';
@@ -97,12 +98,8 @@ Future<void> _handlerLogAsync() async {
   );
   await file.create(recursive: true);
   final ioSink = file.openWrite(mode: FileMode.append);
-  GetIt.I<LogService>().onRecord.listen((event) {
-    var log = '[${event.level}] ${event.loggerName}: ${event.message}';
-    if (event.error != null) {
-      log += '\n ${event.error}';
-      log += '\n ${event.stackTrace}';
-    }
+  GetIt.I<LogService>().onRecord.listen((logRecord) {
+    final log = LogHelper.formatLog(logRecord: logRecord);
     if (kDebugMode) {
       print(log);
     }
