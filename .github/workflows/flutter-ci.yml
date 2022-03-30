@@ -21,7 +21,8 @@ on:
         required: true
       P12_SIGNING_CERTIFICATE_KEYCHAIN_PASSWORD:
         required: true
-
+      SPARKLE_PRIVATE_KEY:
+        required: true
 env:
   FLUTTER_WINDOWS_VERSION: stable
   FLUTTER_MACOS_VERSION: master
@@ -226,9 +227,16 @@ jobs:
           EF_STEROID_INSTALLER_DMG_DIR: ${{ steps.macos_archive.outputs.ef_steroid_installer_dmg_dir }}
           TAG_NAME: ${{ needs.Create-tag.outputs.version }}
           EF_STEROID_OFFICIAL_PAGE: "https://ef-steroid.github.io/efsteroid-web"
+          SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
         run: |
-          ./macos/Pods/Sparkle/bin/generate_appcast "$EF_STEROID_INSTALLER_DMG_DIR" \
-            --download-url-prefix "https://github.com/Ef-Steroid/ef_steroid/releases/$TAG_NAME/" \
+          SPARKLE_PRIVATE_KEY_PATH=$RUNNER_TEMP/sparkle_private_key.pem
+          SPARKLE_TOOL_DIR=./macos/Pods/Sparkle/bin
+          
+          echo "$SPARKLE_PRIVATE_KEY" | base64 --decode --output $SPARKLE_PRIVATE_KEY_PATH
+          $SPARKLE_TOOL_DIR/generate_keys -f $SPARKLE_PRIVATE_KEY_PATH
+          
+          $SPARKLE_TOOL_DIR/generate_appcast "$EF_STEROID_INSTALLER_DMG_DIR" \
+            --download-url-prefix "https://github.com/Ef-Steroid/ef_steroid/releases/download/$TAG_NAME/" \
             -o $MACOS_APPCAST_FILE_NAME \
             --link $EF_STEROID_OFFICIAL_PAGE
       - uses: actions/upload-artifact@v3
@@ -238,4 +246,3 @@ jobs:
         with:
           name: ${{ env.MACOS_APPCAST_GITHUB_ARTIFACT_NAME_SHARED }}
           path: ${{ env.MACOS_APPCAST_FILE_NAME }}
-
