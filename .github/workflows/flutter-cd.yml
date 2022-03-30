@@ -1,6 +1,8 @@
 name: Flutter CD
 env:
   GITHUB_RELEASE_ARTIFACTS_DIR: artifacts
+  MACOS_GITHUB_ARTIFACT_NAME_SHARED: macos-artifacts
+  MACOS_APPCAST_GITHUB_ARTIFACT_NAME_SHARED: macos-appcast
 on:
   push:
     branches:
@@ -20,7 +22,7 @@ jobs:
       - name: Download macOS Build Artifact
         uses: actions/download-artifact@v3.0.0
         with:
-          name: ${{ needs.Flutter-CI.outputs.macos_github_artifact_name }}
+          name: ${{ env.MACOS_GITHUB_ARTIFACT_NAME_SHARED }}
           path: ${{ env.GITHUB_RELEASE_ARTIFACTS_DIR }}
       - uses: ncipollo/release-action@v1
         name: Publish macOS Artifact
@@ -37,7 +39,7 @@ jobs:
       - name: Download macOS appcast.xml
         uses: actions/download-artifact@v3.0.0
         with:
-          name: ${{ needs.Flutter-CI.outputs.macos_appcast_github_artifact_name }}
+          name: ${{ env.MACOS_APPCAST_GITHUB_ARTIFACT_NAME_SHARED }}
           path: ${{ env.GITHUB_RELEASE_ARTIFACTS_DIR }}
       - name: Deploy macOS appcast
         uses: peaceiris/actions-gh-pages@v3
