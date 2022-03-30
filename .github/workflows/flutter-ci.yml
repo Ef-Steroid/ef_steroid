@@ -206,7 +206,12 @@ jobs:
         env:
           EF_STEROID_INSTALLER_DMG_DIR: ${{ steps.macos_archive.outputs.ef_steroid_installer_dmg_dir }}
           TAG_NAME: ${{ needs.Create-tag.outputs.version }}
-        run: ./macos/Pods/Sparkle/bin/generate_appcast "$EF_STEROID_INSTALLER_DMG_DIR" --download-url-prefix "https://github.com/Ef-Steroid/ef_steroid/releases/$TAG_NAME/" -o $MACOS_APPCAST_FILE_NAME
+          EF_STEROID_OFFICIAL_PAGE: "https://ef-steroid.github.io/efsteroid-web"
+        run: |
+          ./macos/Pods/Sparkle/bin/generate_appcast "$EF_STEROID_INSTALLER_DMG_DIR" \
+            --download-url-prefix "https://github.com/Ef-Steroid/ef_steroid/releases/$TAG_NAME/" \
+            -o $MACOS_APPCAST_FILE_NAME \
+            --link $EF_STEROID_OFFICIAL_PAGE
       - uses: actions/upload-artifact@v3
         name: Upload macOS AppCast
         env:
