@@ -1,9 +1,19 @@
-name: Flutter CICD
+name: Flutter CI
 on:
   pull_request:
     types: [ opened, reopened, synchronize, edited ]
   workflow_dispatch:
   workflow_call:
+    outputs:
+      version:
+        description: The project version.
+        value: ${{ jobs.Create-tag.outputs.version }}
+      macos_github_artifact_name:
+        description: The name of the macOS artifact we use to identity the artifacts uploaded to GitHub Artifacts.
+        value: ${{ env.MACOS_GITHUB_ARTIFACT_NAME }}
+      macos_appcast_github_artifact_name:
+        description: The name of the macOS appcast artifact we use to identify the artifacts uploaded to GitHub Artifacts.
+        value: ${{ env.MACOS_APPCAST_GITHUB_ARTIFACT_NAME }}
 env:
   FLUTTER_WINDOWS_VERSION: stable
   FLUTTER_MACOS_VERSION: master
@@ -221,43 +231,3 @@ jobs:
           name: ${{ env.MACOS_APPCAST_GITHUB_ARTIFACT_NAME }}
           path: ${{ env.MACOS_APPCAST_FILE_NAME }}
 
-  macOS-CD:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    if: ${{ github.ref == 'refs/heads/production' }}
-    env:
-      GITHUB_RELEASE_ARTIFACTS_DIR: artifacts
-    needs:
-      - Create-tag
-      - macOS-CI
-    steps:
-      - name: Download macOS Build Artifact
-        uses: actions/download-artifact@v3.0.0
-        with:
-          name: ${{ env.MACOS_GITHUB_ARTIFACT_NAME }}
-          path: ${{ env.GITHUB_RELEASE_ARTIFACTS_DIR }}
-      - uses: ncipollo/release-action@v1
-        name: Publish macOS Artifact
-        with:
-          artifacts: "artifacts/**/*"
-          token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ needs.Create-tag.outputs.version }}
-
-  github-pg-CD:
-    runs-on: ubuntu-latest
-    env:
-      GITHUB_RELEASE_ARTIFACTS_DIR: artifacts
-    needs:
-      - macOS-CD
-    steps:
-      - name: Download macOS appcast.xml
-        uses: actions/download-artifact@v3.0.0
-        with:
-          name: ${{ env.MACOS_APPCAST_GITHUB_ARTIFACT_NAME }}
-          path: ${{ env.GITHUB_RELEASE_ARTIFACTS_DIR }}
-      - name: Deploy macOS appcast
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ${{ env.GITHUB_RELEASE_ARTIFACTS_DIR }}
