@@ -9,7 +9,7 @@
             <sparkle:version>2</sparkle:version>
             <sparkle:shortVersionString>1.0.1</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>10.11</sparkle:minimumSystemVersion>
-            <enclosure url="https://github.com/Ef-Steroid/ef_steroid/releases/download/v1.0.1+2/Ef-Steroid-Installer.dmg" length="24904370" type="application/octet-stream"/>
+            <enclosure url="https://github.com/Ef-Steroid/ef_steroid/releases/download/v1.0.1+2/Ef-Steroid-Installer.dmg" length="24904370" type="application/octet-stream" sparkle:edSignature="LZaG5zC7hByczv32JHc1rjTYuFzF1BB88Y4j/HLV5inh75XELQ2gPYj1IMoUgzNyE+nH/UaRAS/J9pnJ7XKEDg=="/>
         </item>
     </channel>
 </rss>
