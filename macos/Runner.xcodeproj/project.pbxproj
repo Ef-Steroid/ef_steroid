@@ -93,7 +93,6 @@
 		CAD017E99CC52A5DF1FA995B /* runNeedle.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = runNeedle.sh; sourceTree = "<group>"; };
 		CAD019434F98AEB9966D34D1 /* RootComponent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RootComponent.swift; sourceTree = "<group>"; };
 		CAD019B12B1E1D96EBE877F2 /* ServiceLocator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServiceLocator.swift; sourceTree = "<group>"; };
-		CAD019CE2CBAA0240E6573A9 /* builddmg.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = builddmg.sh; path = Scripts/builddmg.sh; sourceTree = "<group>"; };
 		CAD01B57D8546044EC3035F8 /* ServiceLocator.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ServiceLocator.generated.swift; sourceTree = "<group>"; };
 		CAD01F67A414521ECAC27478 /* MenuBarService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MenuBarService.swift; sourceTree = "<group>"; };
 		CAD01F736EB8CE6BBF87952E /* PlatformChannelComponent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PlatformChannelComponent.swift; sourceTree = "<group>"; };
@@ -112,15 +111,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		0190FEBE0C190F0E477C32A5 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				4A680A1F2CB16D979A7D89BC /* Pods_Runner.framework */,
-				CAD019CE2CBAA0240E6573A9 /* builddmg.sh */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
 		33BA886A226E78AF003329D5 /* Configs */ = {
 			isa = PBXGroup;
 			children = (
