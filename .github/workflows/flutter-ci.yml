@@ -229,11 +229,20 @@ jobs:
           EF_STEROID_OFFICIAL_PAGE: "https://ef-steroid.github.io/efsteroid-web"
           SPARKLE_PRIVATE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
         run: |
-            ./macos/Pods/Sparkle/bin/generate_appcast "$EF_STEROID_INSTALLER_DMG_DIR" \
+          SPARKLE_PRIVATE_KEY_PATH=sparkle_private_key.pem
+          SPARKLE_TOOL_DIR=./macos/Pods/Sparkle/bin
+          
+          echo "$SPARKLE_PRIVATE_KEY" | base64 --decode --output "$SPARKLE_PRIVATE_KEY_PATH"
+          $SPARKLE_TOOL_DIR/generate_keys -f "$SPARKLE_PRIVATE_KEY_PATH"
+          
+          ls -la "$SPARKLE_PRIVATE_KEY_PATH"
+          
+          $SPARKLE_TOOL_DIR/generate_appcast "$EF_STEROID_INSTALLER_DMG_DIR" \
             --download-url-prefix "https://github.com/Ef-Steroid/ef_steroid/releases/download/$TAG_NAME/" \
             -o $MACOS_APPCAST_FILE_NAME \
             --link $EF_STEROID_OFFICIAL_PAGE
-            -s "$(echo -n "$SPARKLE_PRIVATE_KEY" | base64 --decode)"
+          
+          rm "$SPARKLE_PRIVATE_KEY_PATH"
       - uses: actions/upload-artifact@v3
         name: Upload macOS AppCast
         env:
