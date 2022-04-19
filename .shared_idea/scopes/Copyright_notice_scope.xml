@@ -1,3 +1,0 @@
-<component name="DependencyValidationManager">
-  <scope name="Copyright notice scope" pattern="file[ef_steroid]:lib//*||file[ef_steroid]:macos/Runner//*||file:macos/runNeedle.sh||file[ef_steroid]:test//*||file[ef_steroid]:tools//*||file[ef_steroid]:windows/runner//*" />
-</component>

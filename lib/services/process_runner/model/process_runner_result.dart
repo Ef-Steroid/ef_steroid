@@ -17,10 +17,7 @@
 
 import 'dart:io';
 
-import 'package:ef_steroid/services/log/log_service.dart';
-import 'package:get_it/get_it.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:quiver/strings.dart';
 
 part 'process_runner_result.g.dart';
 
@@ -46,27 +43,6 @@ class ProcessRunnerResult {
       _$ProcessRunnerResultFromJson(json);
 
   Map<String, dynamic> toJson() => _$ProcessRunnerResultToJson(this);
-
-  void logResult() {
-    final logService = GetIt.I<LogService>();
-
-    switch (type) {
-      case ProcessRunnerResultType.successful:
-        final successfulProcessRunnerResult =
-            this as SuccessfulProcessRunnerResult;
-        if (successfulProcessRunnerResult.stdout != null) {
-          logService.finest(successfulProcessRunnerResult.stdout);
-        }
-        if (isNotBlank(successfulProcessRunnerResult.stderr)) {
-          logService.warning(successfulProcessRunnerResult.stderr);
-        }
-        break;
-      case ProcessRunnerResultType.failure:
-        final failureProcessRunnerResult = this as FailureProcessRunnerResult;
-        logService.severe(failureProcessRunnerResult.output);
-        break;
-    }
-  }
 }
 
 @JsonSerializable()

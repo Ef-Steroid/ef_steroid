@@ -21,11 +21,18 @@ import 'package:ef_steroid/services/log/log_service.dart';
 import 'package:injectable/injectable.dart';
 import 'package:logging/logging.dart';
 
-@LazySingleton(as: LogService)
+@LazySingleton()
 class AppLogService extends LogService {
+  static final Map<Type, Logger> _loggers = {};
+
+  final Type callerType;
+
   final List<LogRecord> _logs = [];
 
-  AppLogService() {
+  AppLogService(
+    @factoryParam this.callerType,
+  ) {
+    _loggers[callerType] = Logger(callerType.toString());
     onRecord.listen((event) {
       _logs.add(event);
     });
@@ -37,67 +44,67 @@ class AppLogService extends LogService {
   }
 
   @override
-  Level get level => Logger.root.level;
+  Level get level => _getLogger().level;
 
   @override
   set level(Level? value) {
-    Logger.root.level = value;
+    _getLogger().level = value;
   }
 
   @override
-  String get fullName => Logger.root.fullName;
+  String get fullName => _getLogger().fullName;
 
   @override
-  Map<String, Logger> get children => Logger.root.children;
+  Map<String, Logger> get children => _getLogger().children;
 
   @override
   void clearListeners() {
-    Logger.root.clearListeners();
+    _getLogger().clearListeners();
   }
 
   @override
   void fine(Object? message, [Object? error, StackTrace? stackTrace]) {
-    Logger.root.fine(message, error, stackTrace);
+    _getLogger().fine(message, error, stackTrace);
   }
 
   @override
   void config(Object? message, [Object? error, StackTrace? stackTrace]) {
-    Logger.root.config(message, error, stackTrace);
+    _getLogger().config(message, error, stackTrace);
   }
 
   @override
   void finer(Object? message, [Object? error, StackTrace? stackTrace]) {
-    Logger.root.finer(message, error, stackTrace);
+    _getLogger().finer(message, error, stackTrace);
   }
 
   @override
   void finest(Object? message, [Object? error, StackTrace? stackTrace]) {
-    Logger.root.finest(message, error, stackTrace);
+    _getLogger().finest(message, error, stackTrace);
   }
 
   @override
   void info(Object? message, [Object? error, StackTrace? stackTrace]) {
-    Logger.root.info(message, error, stackTrace);
+    _getLogger().info(message, error, stackTrace);
   }
 
   @override
   void severe(Object? message, [Object? error, StackTrace? stackTrace]) {
-    Logger.root.severe(message, error, stackTrace);
+    _getLogger().severe(message, error, stackTrace);
   }
 
   @override
   void shout(Object? message, [Object? error, StackTrace? stackTrace]) {
-    Logger.root.shout(message, error, stackTrace);
+    _getLogger().shout(message, error, stackTrace);
   }
 
   @override
   void warning(Object? message, [Object? error, StackTrace? stackTrace]) {
-    Logger.root.warning(message, error, stackTrace);
+    _getLogger().warning(message, error, stackTrace);
   }
 
   @override
   bool isLoggable(Level value) {
-    return Logger.root.isLoggable(value);
+    return _getLogger().isLoggable(value);
   }
 
   @override
@@ -108,7 +115,7 @@ class AppLogService extends LogService {
     StackTrace? stackTrace,
     Zone? zone,
   ]) {
-    Logger.root.log(
+    _getLogger().log(
       logLevel,
       message,
       error,
@@ -118,11 +125,13 @@ class AppLogService extends LogService {
   }
 
   @override
-  String get name => Logger.root.name;
+  String get name => _getLogger().name;
 
   @override
-  Stream<LogRecord> get onRecord => Logger.root.onRecord;
+  Stream<LogRecord> get onRecord => _getLogger().onRecord;
 
   @override
-  Logger? get parent => Logger.root.parent;
+  Logger? get parent => _getLogger().parent;
+
+  Logger _getLogger() => _loggers[callerType]!;
 }

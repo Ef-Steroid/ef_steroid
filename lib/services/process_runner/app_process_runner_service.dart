@@ -20,14 +20,24 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:async_task/async_task.dart';
+import 'package:ef_steroid/services/log/log_service.dart';
 import 'package:ef_steroid/services/process_runner/model/process_runner_argument.dart';
 import 'package:ef_steroid/services/process_runner/model/process_runner_result.dart';
 import 'package:ef_steroid/services/process_runner/process_runner_service.dart';
+import 'package:ef_steroid/services/process_runner/process_runner_type.dart';
 import 'package:flutter/foundation.dart';
+import 'package:get_it/get_it.dart';
 import 'package:injectable/injectable.dart';
+import 'package:quiver/strings.dart';
 
 @Injectable(as: ProcessRunnerService)
 class AppProcessRunnerService extends ProcessRunnerService {
+  final ProcessRunnerType _processRunnerType;
+
+  AppProcessRunnerService(
+    @factoryParam this._processRunnerType,
+  );
+
   @override
   String getCompleteCommand({
     required String executable,
@@ -61,9 +71,39 @@ class AppProcessRunnerService extends ProcessRunnerService {
     final processRunnerResultType = ProcessRunnerResult.fromJson(result).type;
     switch (processRunnerResultType) {
       case ProcessRunnerResultType.successful:
-        return SuccessfulProcessRunnerResult.fromJson(result);
+        final successfulProcessRunnerResult =
+            SuccessfulProcessRunnerResult.fromJson(result);
+        _logEfResult(result: successfulProcessRunnerResult);
+        return successfulProcessRunnerResult;
       case ProcessRunnerResultType.failure:
-        return FailureProcessRunnerResult.fromJson(result);
+        final failureProcessRunnerResult =
+            FailureProcessRunnerResult.fromJson(result);
+        _logEfResult(result: failureProcessRunnerResult);
+        return failureProcessRunnerResult;
+    }
+  }
+
+  void _logEfResult({
+    required ProcessRunnerResult result,
+  }) {
+    if (_processRunnerType == ProcessRunnerType.other) return;
+    final logService = GetIt.I<LogService>(param1: ProcessRunnerResult);
+
+    switch (result.type) {
+      case ProcessRunnerResultType.successful:
+        final successfulProcessRunnerResult =
+            this as SuccessfulProcessRunnerResult;
+        if (successfulProcessRunnerResult.stdout != null) {
+          logService.finest(successfulProcessRunnerResult.stdout);
+        }
+        if (isNotBlank(successfulProcessRunnerResult.stderr)) {
+          logService.warning(successfulProcessRunnerResult.stderr);
+        }
+        break;
+      case ProcessRunnerResultType.failure:
+        final failureProcessRunnerResult = this as FailureProcessRunnerResult;
+        logService.severe(failureProcessRunnerResult.output);
+        break;
     }
   }
 

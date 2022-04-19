@@ -28,13 +28,18 @@ import 'package:ef_steroid/services/file/file_service.dart';
 import 'package:ef_steroid/services/log/log_service.dart';
 import 'package:ef_steroid/services/process_runner/model/process_runner_result.dart';
 import 'package:ef_steroid/services/process_runner/process_runner_service.dart';
+import 'package:ef_steroid/services/process_runner/process_runner_type.dart';
+import 'package:get_it/get_it.dart';
 import 'package:injectable/injectable.dart';
 import 'package:quiver/strings.dart';
 
 @Injectable(as: DotnetEfCoreService)
 class AppDotnetEfCoreService extends DotnetEfCoreService {
   final FileService _fileService;
-  final ProcessRunnerService _processRunnerService;
+  final ProcessRunnerService _processRunnerService =
+      GetIt.I<ProcessRunnerService>(
+    param1: ProcessRunnerType.efCore,
+  );
   final LogService _logService;
   final DotnetEfResultParserService _dotnetEfResultParserService;
 
@@ -52,7 +57,6 @@ class AppDotnetEfCoreService extends DotnetEfCoreService {
 
   AppDotnetEfCoreService(
     this._fileService,
-    this._processRunnerService,
     this._logService,
     this._dotnetEfResultParserService,
   );
@@ -95,7 +99,6 @@ class AppDotnetEfCoreService extends DotnetEfCoreService {
       executable: _dotnetEfCommandName,
       arguments: args,
     );
-    processRunnerResult.logResult();
 
     String result = '';
     switch (processRunnerResult.type) {
@@ -148,7 +151,6 @@ class AppDotnetEfCoreService extends DotnetEfCoreService {
       executable: _dotnetEfCommandName,
       arguments: args,
     );
-    processRunnerResult.logResult();
 
     var migrations = <MigrationHistory>[];
     switch (processRunnerResult.type) {
@@ -223,11 +225,10 @@ class AppDotnetEfCoreService extends DotnetEfCoreService {
       'Start adding migration with command: ${_getFullCommand(args)}',
     );
 
-    final processRunnerResult = await _processRunnerService.runAsync(
+    await _processRunnerService.runAsync(
       executable: _dotnetEfCommandName,
       arguments: args,
     );
-    processRunnerResult.logResult();
   }
 
   void _addDbContext({
@@ -281,7 +282,6 @@ class AppDotnetEfCoreService extends DotnetEfCoreService {
       executable: _dotnetEfCommandName,
       arguments: args,
     );
-    processRunnerResult.logResult();
 
     switch (processRunnerResult.type) {
       case ProcessRunnerResultType.successful:
@@ -338,7 +338,6 @@ class AppDotnetEfCoreService extends DotnetEfCoreService {
       executable: _dotnetEfCommandName,
       arguments: args,
     );
-    processRunnerResult.logResult();
 
     var dbContexts = <DbContext>[];
     switch (processRunnerResult.type) {

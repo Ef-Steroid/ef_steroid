@@ -34,6 +34,8 @@ import 'package:ef_steroid/services/dotnet_ef/dotnet_ef_result_parser/model/dotn
 import 'package:ef_steroid/services/log/log_service.dart';
 import 'package:ef_steroid/services/process_runner/model/process_runner_result.dart';
 import 'package:ef_steroid/services/process_runner/process_runner_service.dart';
+import 'package:ef_steroid/services/process_runner/process_runner_type.dart';
+import 'package:get_it/get_it.dart';
 import 'package:injectable/injectable.dart';
 import 'package:path/path.dart' as p;
 import 'package:quiver/strings.dart';
@@ -58,7 +60,10 @@ class AppDotnetEf6Service extends DotnetEf6Service {
 
   final LogService _logService;
   final DotnetEf6CommandResolver _dotnetEf6CommandResolver;
-  final ProcessRunnerService _processRunnerService;
+  final ProcessRunnerService _processRunnerService =
+      GetIt.I<ProcessRunnerService>(
+    param1: ProcessRunnerType.ef6,
+  );
   final DotnetEfMigrationService _dotnetEfMigrationService;
   final CsProjectResolver _csProjectResolver;
   final ArtifactService _artifactService;
@@ -67,7 +72,6 @@ class AppDotnetEf6Service extends DotnetEf6Service {
   AppDotnetEf6Service(
     this._logService,
     this._dotnetEf6CommandResolver,
-    this._processRunnerService,
     this._dotnetEfMigrationService,
     this._csProjectResolver,
     this._artifactService,
@@ -107,7 +111,6 @@ class AppDotnetEf6Service extends DotnetEf6Service {
         args: args,
       ),
     );
-    processRunnerResult.logResult();
 
     List<MigrationHistory> migrationHistories = <MigrationHistory>[];
     switch (processRunnerResult.type) {
@@ -231,7 +234,6 @@ class AppDotnetEf6Service extends DotnetEf6Service {
         args: args,
       ),
     );
-    processRunnerResult.logResult();
 
     String result = '';
     switch (processRunnerResult.type) {
@@ -294,7 +296,6 @@ class AppDotnetEf6Service extends DotnetEf6Service {
         args: args,
       ),
     );
-    processRunnerResult.logResult();
 
     switch (processRunnerResult.type) {
       case ProcessRunnerResultType.successful:
@@ -375,11 +376,10 @@ class AppDotnetEf6Service extends DotnetEf6Service {
       )}',
     );
 
-    final processRunnerResult = await _processRunnerService.runAsync(
+    await _processRunnerService.runAsync(
       executable: csprojToolExecutable,
       arguments: args,
     );
-    processRunnerResult.logResult();
   }
 
   //endregion
@@ -472,11 +472,10 @@ class AppDotnetEf6Service extends DotnetEf6Service {
       )}',
     );
 
-    final processRunnerResult = await _processRunnerService.runAsync(
+    await _processRunnerService.runAsync(
       executable: csprojToolExecutable,
       arguments: args,
     );
-    processRunnerResult.logResult();
   }
 
   String _getEf6CompleteCommand({

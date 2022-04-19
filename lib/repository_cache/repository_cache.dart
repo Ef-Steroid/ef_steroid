@@ -21,7 +21,7 @@ import 'package:ef_steroid/repository_cache/app_repository_cache.dart';
 import 'package:get_it/get_it.dart';
 
 abstract class RepositoryCache<TEntity extends EntityDto> {
-  static void registerRepositoryCache() {
+  static void registerRepositoryCaches() {
     GetIt.I.registerSingleton<RepositoryCache<EfPanel>>(
       AppRepositoryCache<EfPanel>(),
     );
